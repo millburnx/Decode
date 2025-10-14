@@ -10,15 +10,15 @@ import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 
 
-@TeleOp(name = "MotorTest")
-class MotorTest : LinearOpMode() {
+@TeleOp(name = "IntakeTest")
+class IntakeTest : LinearOpMode() {
     val scheduler = CommandScheduler()
 
     override fun runOpMode() {
         val hubs = hardwareMap.getAll(LynxModule::class.java) as MutableList<LynxModule>
         hubs.forEach { it.bulkCachingMode = LynxModule.BulkCachingMode.AUTO }
 
-        val motor = hardwareMap["m0"] as DcMotorEx
+        val motor = hardwareMap["m0e"] as DcMotorEx
         motor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         motor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODERS
         motor.direction = DcMotorSimple.Direction.FORWARD
@@ -34,7 +34,7 @@ class MotorTest : LinearOpMode() {
                     telemetry.addData("Power: ", power.toString())
                     telemetry.update()
 
-                    sync()
+//                    sync()
                 }
             },
         )

@@ -1,12 +1,6 @@
 package org.firstinspires.ftc.teamcode
 
-import com.bylazar.field.CanvasRotation
-import com.bylazar.field.FieldPresetParams
-import com.bylazar.field.PanelsField
-import com.bylazar.field.Style
-import com.bylazar.telemetry.PanelsTelemetry
 import com.millburnx.cmdx.Command
-import com.millburnx.cmdx.commandGroups.Parallel
 import com.millburnx.cmdx.runtimeGroups.CommandScheduler
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver
 import com.qualcomm.hardware.lynx.LynxModule
@@ -23,8 +17,6 @@ import kotlin.math.max
 
 @TeleOp(name = "BasicDrive")
 class BasicDrive : LinearOpMode() {
-    val panelsField = PanelsField.field
-    val panelsTelemetry = PanelsTelemetry.telemetry
     val scheduler = CommandScheduler()
 
     override fun runOpMode() {
@@ -68,22 +60,6 @@ class BasicDrive : LinearOpMode() {
 
         telemetry.isAutoClear = true
 
-        panelsField.setOffsets(
-            FieldPresetParams(
-                name = "Custom",
-                flipY = true,
-                reverseXY = false,
-                offsetX = 0.0,
-                offsetY = 0.0,
-                rotation = CanvasRotation.DEG_90,
-            )
-        )
-        panelsField.setStyle(
-            Style(
-                "", "#3F51B5", 1.0
-            )
-        )
-
         waitForStart()
 
         scheduler.schedule(
@@ -103,7 +79,7 @@ class BasicDrive : LinearOpMode() {
                     br.power = (rVec.x + rVec.y - rotate) / denominator
                     bl.power = (rVec.x - rVec.y + rotate) / denominator
 
-                    sync()
+//                    sync()
                 }
             },
         )
@@ -113,20 +89,7 @@ class BasicDrive : LinearOpMode() {
                 while (opModeIsActive() && !isStopRequested) {
                     odom.update()
 
-                    panelsField.moveCursor(odom.getPosX(DistanceUnit.INCH), odom.getPosY(DistanceUnit.INCH))
-                    panelsField.circle(18.0/2.0)
-                    panelsField.update()
-
-                    panelsTelemetry.addData("pose x", odom.position.getX(DistanceUnit.INCH))
-                    panelsTelemetry.addData("pose y", odom.position.getY(DistanceUnit.INCH))
-                    panelsTelemetry.addData("pose h", -odom.position.getHeading(AngleUnit.DEGREES))
-                    panelsTelemetry.addData("loop time", odom.loopTime)
-                    panelsTelemetry.addData("hz", odom.frequency)
-                    panelsTelemetry.addData("x", odom.encoderX)
-                    panelsTelemetry.addData("y", odom.encoderY)
-                    panelsTelemetry.update(telemetry)
-
-                    sync()
+//                    sync()
                 }
             }
         )

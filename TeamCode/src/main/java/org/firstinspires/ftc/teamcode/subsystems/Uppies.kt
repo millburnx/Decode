@@ -1,14 +1,15 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
+import com.acmerobotics.dashboard.config.Config
 import com.millburnx.cmdx.Command
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
-import com.qualcomm.robotcore.hardware.Servo
+import kotlin.math.absoluteValue
 
-class AxonCR(hardwareMap: HardwareMap, name: String, encoderName: String) {
-    val servo = hardwareMap.crservo[encoderName].apply {
-        direction = DcMotorSimple.Direction.REVERSE
+class AxonCR(hardwareMap: HardwareMap, name: String, encoderName: String, reverse: Boolean = false) {
+    val servo = hardwareMap.crservo[name].apply {
+        direction = if (reverse) DcMotorSimple.Direction.REVERSE else DcMotorSimple.Direction.FORWARD
     }
     var power
         get() = servo.power
@@ -40,64 +41,86 @@ class AxonCR(hardwareMap: HardwareMap, name: String, encoderName: String) {
     }
 }
 
+class SingleP(public var kP: Double) {
+    fun calc(target: Double, current: Double): Double {
+        var error = target - current
+        if (error < 0.0 && error.absoluteValue > 20.0 / 360.0) {
+            error = (target + 1) - current
+        }
+        return kP * error
+    }
+}
+
+@Config
 class Uppies(opMode: LinearOpMode) : Subsystem("Uppies") {
 //    val left = AxonCR(opMode.hardwareMap, "s0", "a0")
 //    val leftController = BasicPID(PIDCoefficients(kP, kI, kD))
 
-    val left = opMode.hardwareMap.servo["s0"].apply { direction = Servo.Direction.FORWARD}
+    val right = AxonCR(opMode.hardwareMap, "s0", "a0", true)
+    val left = AxonCR(opMode.hardwareMap, "s1", "a1")
 
-    var state: Positions = Positions.OPEN;
+    var leftState: Positions = Positions.OPEN;
+    var rightState: Positions = Positions.OPEN;
 
-    var prevButton = opMode.gamepad1.right_bumper
 
     val states = listOf<Positions>(
         Positions.OPEN,
-        Positions.ONE_LOADED,
-        Positions.TWO_LOADED,
-        Positions.ONE_SHOT,
-        Positions.TWO_SHOT,
-        Positions.THREE_SHOT
+        Positions.BOTTOM,
+        Positions.TOP,
     )
+
+    val controller = SingleP(kP)
 
     override val run: suspend Command.() -> Unit = {
         with(opMode) {
+            var prevLeft = gamepad1.left_bumper
+            var prevRight = gamepad1.right_bumper
             while (opModeIsActive() && !isStopRequested) {
+                left.updatePosition()
+                right.updatePosition()
+                controller.kP = kP
                 // update state
-                val button = opMode.gamepad1.right_bumper
-                if (prevButton != button && button) {
+                val newLeft = opMode.gamepad1.left_bumper
+                if (prevLeft != newLeft && newLeft) {
                     // button pressed
-                    state = states[(states.indexOf(state) + 1) % states.size]
+                    leftState = states[(states.indexOf(leftState) + 1) % states.size]
                 }
-                prevButton = button
-                left.position = state.getPosition()
+                val newRight = opMode.gamepad1.right_bumper
+                if (prevRight != newRight && newRight) {
+                    // button pressed
+                    rightState = states[(states.indexOf(rightState) + 1) % states.size]
+                }
+                prevLeft = newLeft
+                prevRight = newRight
 
-//                left.updatePosition()
-//                left.power = leftController.calculate(state.getPosition(), left.position)
-                opMode.telemetry.addData("State", state)
+                left.power = controller.calc(leftState.getPosition(true), left.rawPosition)
+                right.power = controller.calc(rightState.getPosition(false), right.rawPosition)
+
+                opMode.telemetry.addData("left state", leftState)
+                opMode.telemetry.addData("right state", rightState)
+                opMode.telemetry.addData("left pos", left.rawPosition)
+                opMode.telemetry.addData("right pos", right.rawPosition)
                 opMode.telemetry.update()
                 sync()
             }
         }
     }
 
-    override val command = Command("Uppies",cleanup,run)
+    override val command = Command(this.name,cleanup,run)
 
     enum class Positions {
-        OPEN, ONE_LOADED, TWO_LOADED, ONE_SHOT, TWO_SHOT, THREE_SHOT;
+        OPEN, BOTTOM, TOP;
 
-        fun getPosition(): Double = when (this) {
-            Positions.OPEN -> open
-            Positions.ONE_LOADED -> one_loaded
-            Positions.TWO_LOADED -> two_loaded
-            Positions.ONE_SHOT -> one_shot
-            Positions.TWO_SHOT -> two_shot
-            Positions.THREE_SHOT -> three_shot
+        fun getPosition(left: Boolean): Double = when (this) {
+            OPEN -> if (left) openLeft else openRight
+            BOTTOM -> if (left) bottomLeft else bottomRight
+            TOP -> if (left) topLeft else topRight
         }
     }
 
     companion object {
         @JvmField
-        var kP = 0.0
+        var kP = 0.4
 
         @JvmField
         var kI = 0.0
@@ -106,21 +129,21 @@ class Uppies(opMode: LinearOpMode) : Subsystem("Uppies") {
         var kD = 0.0
 
         @JvmField
-        var open = 0.0 / 360.0
+        var openLeft = 0.0 / 360.0
 
         @JvmField
-        var one_loaded = 60.0 / 360.0
+        var bottomLeft = 0.0 / 360.0
 
         @JvmField
-        var two_loaded = 120.0 / 360.0
+        var topLeft = 0.0 / 360.0
 
         @JvmField
-        var one_shot = 180.0 / 360.0
+        var openRight = 0.0 / 360.0
 
         @JvmField
-        var two_shot = 240 / 360.0
+        var bottomRight = 0.0 / 360.0
 
         @JvmField
-        var three_shot = 350 / 360.0
+        var topRight = 0.0 / 360.0
     }
 }
