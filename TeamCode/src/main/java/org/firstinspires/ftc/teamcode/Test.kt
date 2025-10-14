@@ -13,16 +13,16 @@ import org.firstinspires.ftc.teamcode.subsystems.Uppies
 @TeleOp(name = "Test")
 class Test : LinearOpMode() {
     val scheduler = CommandScheduler()
-    val telemetry = MultipleTelemetry(super.telemetry, FtcDashboard.getInstance().telemetry)
+    val tel = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
     override fun runOpMode() {
         val hubs = hardwareMap.getAll(LynxModule::class.java) as MutableList<LynxModule>
         hubs.forEach { it.bulkCachingMode = LynxModule.BulkCachingMode.AUTO }
 
         val flyWheel = FlyWheel(this)
-        val uppies = Uppies(this)
+        val uppies = Uppies(this, tel)
 
-        super.telemetry.isAutoClear = true
+//        super.telemetry.isAutoClear = true
 
         waitForStart()
 

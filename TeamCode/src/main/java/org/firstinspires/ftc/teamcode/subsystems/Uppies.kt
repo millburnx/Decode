@@ -1,14 +1,17 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
+import com.ThermalEquilibrium.homeostasis.Controllers.Feedback.BasicPID
+import com.ThermalEquilibrium.homeostasis.Parameters.PIDCoefficients
 import com.acmerobotics.dashboard.config.Config
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.millburnx.cmdx.Command
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
+import com.qualcomm.robotcore.hardware.CRServo
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
-import kotlin.math.absoluteValue
 
-class AxonCR(hardwareMap: HardwareMap, name: String, encoderName: String, reverse: Boolean = false) {
-    val servo = hardwareMap.crservo[name].apply {
+class AxonCR(hardwareMap: HardwareMap, name: String, encoderName: String, reverse: Boolean = false, val encoderReverse: Boolean = false) {
+    val servo: CRServo = hardwareMap.crservo[name].apply {
         direction = if (reverse) DcMotorSimple.Direction.REVERSE else DcMotorSimple.Direction.FORWARD
     }
     var power
@@ -18,14 +21,15 @@ class AxonCR(hardwareMap: HardwareMap, name: String, encoderName: String, revers
         }
 
     val encoder = hardwareMap.analogInput[encoderName]
-    var rawPosition: Double = 0.0
-    var rotations: Int = 0
+    var rawPosition: Double = 0.0 //kedaar wuz here
+    var rotations: Int = 0 //kedaar wuz also here
     val position
         get() = rotations + rawPosition
 
     fun updatePosition(): Double {
         val oldPosition = rawPosition
-        rawPosition = encoder.voltage / 3.3
+        val raw = encoder.voltage / 3.3
+        if (encoderReverse) rawPosition = raw else rawPosition = 1 - raw
 
         val angleDifference: Double = rawPosition - oldPosition
         val threshold = 0.5
@@ -41,23 +45,13 @@ class AxonCR(hardwareMap: HardwareMap, name: String, encoderName: String, revers
     }
 }
 
-class SingleP(public var kP: Double) {
-    fun calc(target: Double, current: Double): Double {
-        var error = target - current
-        if (error < 0.0 && error.absoluteValue > 20.0 / 360.0) {
-            error = (target + 1) - current
-        }
-        return kP * error
-    }
-}
-
 @Config
-class Uppies(opMode: LinearOpMode) : Subsystem("Uppies") {
+class Uppies(opMode: LinearOpMode, tel: MultipleTelemetry) : Subsystem("Uppies") {
 //    val left = AxonCR(opMode.hardwareMap, "s0", "a0")
 //    val leftController = BasicPID(PIDCoefficients(kP, kI, kD))
 
-    val right = AxonCR(opMode.hardwareMap, "s0", "a0", true)
-    val left = AxonCR(opMode.hardwareMap, "s1", "a1")
+    val right = AxonCR(opMode.hardwareMap, "s0", "a0", reverse = true, encoderReverse = true)
+    val left = AxonCR(opMode.hardwareMap, "s1", "a1", reverse = true)
 
     var leftState: Positions = Positions.OPEN;
     var rightState: Positions = Positions.OPEN;
@@ -69,7 +63,11 @@ class Uppies(opMode: LinearOpMode) : Subsystem("Uppies") {
         Positions.TOP,
     )
 
-    val controller = SingleP(kP)
+    val pidLeft = BasicPID(PIDCoefficients(kP, kI, kD))
+    val pidRight = BasicPID(PIDCoefficients(kP, kI, kD))
+
+    var leftRotations = 0
+    var rightRotations = 0
 
     override val run: suspend Command.() -> Unit = {
         with(opMode) {
@@ -78,29 +76,36 @@ class Uppies(opMode: LinearOpMode) : Subsystem("Uppies") {
             while (opModeIsActive() && !isStopRequested) {
                 left.updatePosition()
                 right.updatePosition()
-                controller.kP = kP
                 // update state
                 val newLeft = opMode.gamepad1.left_bumper
-                if (prevLeft != newLeft && newLeft) {
+                if (!prevLeft && newLeft) {
                     // button pressed
+                    if (leftState == states.last()) leftRotations++
                     leftState = states[(states.indexOf(leftState) + 1) % states.size]
                 }
                 val newRight = opMode.gamepad1.right_bumper
-                if (prevRight != newRight && newRight) {
-                    // button pressed
+                if (!prevRight && newRight) {
+                    if (rightState == states.last()) rightRotations++
                     rightState = states[(states.indexOf(rightState) + 1) % states.size]
                 }
                 prevLeft = newLeft
                 prevRight = newRight
 
-                left.power = controller.calc(leftState.getPosition(true), left.rawPosition)
-                right.power = controller.calc(rightState.getPosition(false), right.rawPosition)
+                val leftTarget = leftRotations + leftState.getPosition(true)
+                val rightTarget = rightRotations + rightState.getPosition(false)
 
-                opMode.telemetry.addData("left state", leftState)
-                opMode.telemetry.addData("right state", rightState)
-                opMode.telemetry.addData("left pos", left.rawPosition)
-                opMode.telemetry.addData("right pos", right.rawPosition)
-                opMode.telemetry.update()
+                left.power = pidLeft.calculate(leftTarget, left.position)
+                right.power = pidRight.calculate(rightTarget, right.position)
+
+                tel.addData("left state", leftState)
+                tel.addData("right state", rightState)
+                tel.addData("left target", leftTarget)
+                tel.addData("right target", rightTarget)
+                tel.addData("left raw pos", left.rawPosition)
+                tel.addData("right raw pos", right.rawPosition)
+                tel.addData("left pos", left.position)
+                tel.addData("right pos", right.position)
+                tel.update()
                 sync()
             }
         }
@@ -120,7 +125,7 @@ class Uppies(opMode: LinearOpMode) : Subsystem("Uppies") {
 
     companion object {
         @JvmField
-        var kP = 0.4
+        var kP = 3.0
 
         @JvmField
         var kI = 0.0
@@ -129,21 +134,21 @@ class Uppies(opMode: LinearOpMode) : Subsystem("Uppies") {
         var kD = 0.0
 
         @JvmField
-        var openLeft = 0.0 / 360.0
+        var openLeft = 0.1
 
         @JvmField
-        var bottomLeft = 0.0 / 360.0
+        var bottomLeft = 0.225
 
         @JvmField
-        var topLeft = 0.0 / 360.0
+        var topLeft = 0.425
 
         @JvmField
-        var openRight = 0.0 / 360.0
+        var openRight = 0.125
 
         @JvmField
-        var bottomRight = 0.0 / 360.0
+        var bottomRight = 0.275
 
         @JvmField
-        var topRight = 0.0 / 360.0
+        var topRight = 0.475
     }
 }
