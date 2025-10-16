@@ -1,12 +1,8 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.util
 
-import androidx.annotation.Dimension
-import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
-import kotlin.math.sign
 import kotlin.math.sin
-import kotlin.math.sqrt
 
 /**
  * Represents a 2D vector/point
@@ -63,12 +59,12 @@ data class Vec2d(
     fun distanceTo(other: Vec2d): Double {
         val xDiff = x - other.x
         val yDiff = y - other.y
-        return sqrt(xDiff * xDiff + yDiff * yDiff)
+        return kotlin.math.sqrt(xDiff * xDiff + yDiff * yDiff)
     }
 
-    fun magnituide(): Double = sqrt(x * x + y * y)
+    fun magnituide(): Double = kotlin.math.sqrt(x * x + y * y)
 
-    fun normalize(): Double = sqrt(this.dot(this))
+    fun normalize(): Double = kotlin.math.sqrt(this.dot(this))
 
     fun dot(other: Vec2d): Double = x * other.x + y * other.y
 
@@ -104,11 +100,11 @@ data class Vec2d(
     /**
      * Returns a copy of the vector with the absolute value of each component
      */
-    fun abs() = Vec2d(abs(x), abs(y))
+    fun abs() = Vec2d(kotlin.math.abs(x), kotlin.math.abs(y))
 
-    fun sqrt() = Vec2d(sqrt(x), sqrt(y))
+    fun sqrt() = Vec2d(kotlin.math.sqrt(x), kotlin.math.sqrt(y))
 
-    fun sign() = Vec2d(sign(x), sign(y))
+    fun sign() = Vec2d(kotlin.math.sign(x), kotlin.math.sign(y))
 
     fun coerceIn(
         min: Vec2d,

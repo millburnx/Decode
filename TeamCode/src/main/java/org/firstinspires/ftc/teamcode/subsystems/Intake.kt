@@ -14,7 +14,7 @@ class Intake(opMode: LinearOpMode) : Subsystem("Intake") {
                 power = -(gamepad1.right_trigger - gamepad1.left_trigger).toDouble()
 
                 motor.power = power
-//                sync()
+                sync()
             }
         }
     }
