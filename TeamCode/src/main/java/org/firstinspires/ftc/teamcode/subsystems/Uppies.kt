@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.CRServo
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
+import org.firstinspires.ftc.teamcode.util.ManualAxon
 
 class AxonCR(hardwareMap: HardwareMap, name: String, encoderName: String, reverse: Boolean = false, val encoderReverse: Boolean = false) {
     val servo: CRServo = hardwareMap.crservo[name].apply {
@@ -47,11 +48,8 @@ class AxonCR(hardwareMap: HardwareMap, name: String, encoderName: String, revers
 
 @Config
 class Uppies(opMode: LinearOpMode, tel: MultipleTelemetry) : Subsystem("Uppies") {
-//    val left = AxonCR(opMode.hardwareMap, "s0", "a0")
-//    val leftController = BasicPID(PIDCoefficients(kP, kI, kD))
-
-    val right = AxonCR(opMode.hardwareMap, "s0", "a0", reverse = true, encoderReverse = true)
-    val left = AxonCR(opMode.hardwareMap, "s1", "a1", reverse = true)
+    val left = ManualAxon(opMode.hardwareMap, "s1", "a1", reverse = true)
+    val right = ManualAxon(opMode.hardwareMap, "s0", "a0", reverse = true, encoderReverse = true)
 
     var leftState: Positions = Positions.OPEN;
     var rightState: Positions = Positions.OPEN;
@@ -127,9 +125,6 @@ class Uppies(opMode: LinearOpMode, tel: MultipleTelemetry) : Subsystem("Uppies")
         with(opMode) {
             var prevButton = gamepad1.right_bumper
             while (opModeIsActive() && !isStopRequested) {
-                left.updatePosition()
-                right.updatePosition()
-
                 val newButton = gamepad1.right_bumper
                 if (!prevButton && newButton) {
                     next()

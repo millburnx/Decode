@@ -6,7 +6,13 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.teamcode.subsystems.motorSetup
 import kotlin.math.abs
 
-open class CachedMotor(val hardwareMap: HardwareMap, val name: String, val reverse: Boolean = false, float: Boolean = true, val threshold: Double = 0.05) {
+open class CachedMotor(
+    val hardwareMap: HardwareMap,
+    val name: String,
+    val reverse: Boolean = false,
+    float: Boolean = true,
+    val threshold: Double = 0.05
+) {
     val motor = (hardwareMap[name] as DcMotorEx).apply {
         motorSetup(this, reverse = reverse, float = float)
     }

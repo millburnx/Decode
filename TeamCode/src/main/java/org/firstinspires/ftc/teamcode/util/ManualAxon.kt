@@ -3,15 +3,16 @@ package org.firstinspires.ftc.teamcode.util
 import com.qualcomm.robotcore.hardware.HardwareMap
 import kotlin.math.abs
 
-class ManualMotor(
+class ManualAxon(
     hardwareMap: HardwareMap,
     name: String,
+    encoderName: String,
     reverse: Boolean = false,
-    float: Boolean = true,
+    encoderReverse: Boolean = false,
     threshold: Double = 0.05
-) : CachedMotor(hardwareMap, name, reverse, float, threshold) {
+) : CachedAxon(hardwareMap, name, encoderName, reverse, encoderReverse, threshold) {
     init {
-        ManualManager.motors.add(this)
+        ManualManager.axons.add(this)
     }
 
     override var power = 0.0
@@ -26,8 +27,9 @@ class ManualMotor(
 
     fun update() {
         if (pending) {
-            motor.power = power
+            axon.power = power
             pending = false
         }
+        axon.updatePosition()
     }
 }
