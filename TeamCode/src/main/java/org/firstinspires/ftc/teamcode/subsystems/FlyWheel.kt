@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
+import org.firstinspires.ftc.teamcode.util.ManualMotor
 
 fun motorSetup(motor: DcMotorEx, reverse: Boolean = false, float: Boolean = false) {
     motor.zeroPowerBehavior = if (float) DcMotor.ZeroPowerBehavior.FLOAT else DcMotor.ZeroPowerBehavior.BRAKE
@@ -14,8 +15,8 @@ fun motorSetup(motor: DcMotorEx, reverse: Boolean = false, float: Boolean = fals
 }
 
 class FlyWheel(opMode: LinearOpMode) : Subsystem("FlyWheel") {
-    val left = (opMode.hardwareMap["m1e"] as DcMotorEx).apply { motorSetup(this, reverse = true, float = true) }
-    val right = (opMode.hardwareMap["m2e"] as DcMotorEx).apply { motorSetup(this, reverse = true, float = true) }
+    val left = ManualMotor(opMode.hardwareMap, "m1", reverse = true)
+    val right = ManualMotor(opMode.hardwareMap, "m2", reverse = true)
 
     var running = false
 

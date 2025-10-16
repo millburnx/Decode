@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Drivetrain
 import org.firstinspires.ftc.teamcode.subsystems.FlyWheel
 import org.firstinspires.ftc.teamcode.subsystems.Intake
 import org.firstinspires.ftc.teamcode.subsystems.Uppies
+import org.firstinspires.ftc.teamcode.util.ManualManager
 
 
 @TeleOp(name = "IntakeDrive")
@@ -25,6 +26,7 @@ class IntakeDrive : LinearOpMode() {
             tel.update()
 
             hubs.forEach { it.clearBulkCache() }
+            ManualManager.update()
         }
     }
 
@@ -35,6 +37,8 @@ class IntakeDrive : LinearOpMode() {
     override fun runOpMode() {
         hubs = hardwareMap.getAll(LynxModule::class.java)
         hubs.forEach { it.bulkCachingMode = LynxModule.BulkCachingMode.MANUAL }
+
+        ManualManager.init()
 
         val drivetrain = Drivetrain(this)
         val intake = Intake(this)

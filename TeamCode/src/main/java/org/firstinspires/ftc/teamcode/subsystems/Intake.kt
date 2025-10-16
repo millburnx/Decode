@@ -2,10 +2,10 @@ package org.firstinspires.ftc.teamcode.subsystems
 
 import com.millburnx.cmdx.Command
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import com.qualcomm.robotcore.hardware.DcMotorEx
+import org.firstinspires.ftc.teamcode.util.ManualMotor
 
 class Intake(opMode: LinearOpMode) : Subsystem("Intake") {
-    val motor = (opMode.hardwareMap["m0e"] as DcMotorEx).apply { motorSetup(this, reverse = true) }
+    val motor = ManualMotor(opMode.hardwareMap, "m0e", reverse = true)
     var power: Double = 0.0
 
     override val run: suspend Command.() -> Unit = {

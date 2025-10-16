@@ -2,16 +2,15 @@ package org.firstinspires.ftc.teamcode.subsystems
 
 import com.millburnx.cmdx.Command
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import com.qualcomm.robotcore.hardware.DcMotorEx
+import org.firstinspires.ftc.teamcode.util.ManualMotor
 import kotlin.math.abs
 import kotlin.math.max
 
 class Drivetrain(opMode: LinearOpMode) : Subsystem("Intake") {
-
-    val fl = (opMode.hardwareMap["m0"] as DcMotorEx).apply { motorSetup(this, reverse = false) }
-    val fr = (opMode.hardwareMap["m3"] as DcMotorEx).apply { motorSetup(this, reverse = true) }
-    val br = (opMode.hardwareMap["m2"] as DcMotorEx).apply { motorSetup(this, reverse = true) }
-    val bl = (opMode.hardwareMap["m1"] as DcMotorEx).apply { motorSetup(this, reverse = false) }
+    val fl = ManualMotor(opMode.hardwareMap, "m0", reverse = false)
+    val fr = ManualMotor(opMode.hardwareMap, "m1", reverse = true)
+    val br = ManualMotor(opMode.hardwareMap, "m2", reverse = true)
+    val bl = ManualMotor(opMode.hardwareMap, "m3", reverse = false)
 
     override val run: suspend Command.() -> Unit = {
         with(opMode) {
