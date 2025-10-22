@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
+import com.acmerobotics.dashboard.config.Config
 import com.millburnx.cmdx.Command
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.DcMotor
@@ -14,9 +15,10 @@ fun motorSetup(motor: DcMotorEx, reverse: Boolean = false, float: Boolean = fals
     motor.direction = if (reverse) DcMotorSimple.Direction.REVERSE else DcMotorSimple.Direction.FORWARD
 }
 
+@Config
 class FlyWheel(opMode: LinearOpMode) : Subsystem("FlyWheel") {
-    val left = ManualMotor(opMode.hardwareMap, "m1", reverse = true)
-    val right = ManualMotor(opMode.hardwareMap, "m2", reverse = true)
+    val left = ManualMotor(opMode.hardwareMap, "m1e", reverse = true)
+    val right = ManualMotor(opMode.hardwareMap, "m2e", reverse = true)
 
     var running = false
 
@@ -31,16 +33,23 @@ class FlyWheel(opMode: LinearOpMode) : Subsystem("FlyWheel") {
                 wasDown = isDown
 
                 if (running) {
-                    left.power = 1.0
-                    right.power = 1.0
+                    left.power = power
+                    right.power = power
                 } else {
                     left.power = 0.0
                     right.power = 0.0
                 }
+                opMode.telemetry.addData("fw running", running)
+                opMode.telemetry.addData("fw power", power)
                 sync()
             }
         }
     }
 
     override val command = Command(this.name,cleanup,run)
+
+    companion object {
+        @JvmField
+        var power: Double = 0.7
+    }
 }

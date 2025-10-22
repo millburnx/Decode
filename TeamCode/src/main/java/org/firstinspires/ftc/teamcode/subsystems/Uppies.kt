@@ -1,9 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
-import com.ThermalEquilibrium.homeostasis.Controllers.Feedback.BasicPID
-import com.ThermalEquilibrium.homeostasis.Parameters.PIDCoefficients
 import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
+import com.arcrobotics.ftclib.controller.PIDController
 import com.millburnx.cmdx.Command
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.CRServo
@@ -48,8 +47,8 @@ class AxonCR(hardwareMap: HardwareMap, name: String, encoderName: String, revers
 
 @Config
 class Uppies(opMode: LinearOpMode, tel: MultipleTelemetry) : Subsystem("Uppies") {
-    val left = ManualAxon(opMode.hardwareMap, "s1", "a1", reverse = true)
-    val right = ManualAxon(opMode.hardwareMap, "s0", "a0", reverse = true, encoderReverse = true)
+    val left = ManualAxon(opMode.hardwareMap, "s0", "a0", reverse = false, encoderReverse = false)
+    val right = ManualAxon(opMode.hardwareMap, "s1", "a1", reverse = true, encoderReverse = true)
 
     var leftState: Positions = Positions.OPEN;
     var rightState: Positions = Positions.OPEN;
@@ -74,8 +73,8 @@ class Uppies(opMode: LinearOpMode, tel: MultipleTelemetry) : Subsystem("Uppies")
         States.LOAD_THREE,
     )
 
-    val pidLeft = BasicPID(PIDCoefficients(kP, kI, kD))
-    val pidRight = BasicPID(PIDCoefficients(kP, kI, kD))
+    val pidLeft = PIDController(kP, kI, kD)
+    val pidRight = PIDController(kP, kI, kD)
 
     var leftRotations = 0
     var rightRotations = 0
@@ -134,8 +133,16 @@ class Uppies(opMode: LinearOpMode, tel: MultipleTelemetry) : Subsystem("Uppies")
                 val leftTarget = leftRotations + leftState.getPosition(true)
                 val rightTarget = rightRotations + rightState.getPosition(false)
 
-                left.power = pidLeft.calculate(leftTarget, left.position)
-                right.power = pidRight.calculate(rightTarget, right.position)
+                pidLeft.p = kP
+                pidLeft.i = kI
+                pidLeft.d = kD
+
+                pidRight.p = kP
+                pidRight.i = kI
+                pidRight.d = kD
+
+                left.power = pidLeft.calculate(left.position, leftTarget)
+                right.power = pidRight.calculate(right.position, rightTarget)
 
                 tel.addData("state", state)
                 tel.addData("left state", leftState)
@@ -175,30 +182,30 @@ class Uppies(opMode: LinearOpMode, tel: MultipleTelemetry) : Subsystem("Uppies")
 
     companion object {
         @JvmField
-        var kP = 5.0 * 0.8
+        var kP = 2.0
 
         @JvmField
         var kI = 0.0
 
         @JvmField
-        var kD = 5.0 * 0.1
+        var kD = 0.05
 
         @JvmField
-        var openLeft = 0.075
+        var openLeft = 0.14
 
         @JvmField
-        var bottomLeft = 0.175
+        var bottomLeft = 0.19
 
         @JvmField
-        var topLeft = 0.44
+        var topLeft = 0.45
 
         @JvmField
-        var openRight = 0.075
+        var openRight = 0.125
 
         @JvmField
         var bottomRight = 0.175
 
         @JvmField
-        var topRight = 0.44
+        var topRight = 0.42
     }
 }
