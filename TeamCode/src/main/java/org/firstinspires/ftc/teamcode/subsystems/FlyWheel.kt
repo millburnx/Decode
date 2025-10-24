@@ -23,7 +23,7 @@ class FlyWheel(opMode: LinearOpMode) : Subsystem("FlyWheel") {
     var running = false
 
     override val run: suspend Command.() -> Unit = {
-        with (opMode) {
+        with(opMode) {
             var wasDown = gamepad1.x
             while (opModeIsActive() && !isStopRequested) {
                 val isDown = gamepad1.x
@@ -31,7 +31,6 @@ class FlyWheel(opMode: LinearOpMode) : Subsystem("FlyWheel") {
                     running = !running
                 }
                 wasDown = isDown
-
                 if (running) {
                     left.power = power
                     right.power = power
@@ -46,10 +45,10 @@ class FlyWheel(opMode: LinearOpMode) : Subsystem("FlyWheel") {
         }
     }
 
-    override val command = Command(this.name,cleanup,run)
+    override val command = Command(this.name, cleanup, run)
 
     companion object {
         @JvmField
-        var power: Double = 0.7
+        var power: Double = 0.65
     }
 }

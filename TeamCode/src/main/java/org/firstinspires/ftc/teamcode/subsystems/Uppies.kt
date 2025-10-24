@@ -9,8 +9,16 @@ import com.qualcomm.robotcore.hardware.CRServo
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.teamcode.util.ManualAxon
+import org.firstinspires.ftc.teamcode.util.SleepFor
+import org.firstinspires.ftc.teamcode.util.WaitFor
 
-class AxonCR(hardwareMap: HardwareMap, name: String, encoderName: String, reverse: Boolean = false, val encoderReverse: Boolean = false) {
+class AxonCR(
+    hardwareMap: HardwareMap,
+    name: String,
+    encoderName: String,
+    reverse: Boolean = false,
+    val encoderReverse: Boolean = false
+) {
     val servo: CRServo = hardwareMap.crservo[name].apply {
         direction = if (reverse) DcMotorSimple.Direction.REVERSE else DcMotorSimple.Direction.FORWARD
     }
@@ -46,31 +54,20 @@ class AxonCR(hardwareMap: HardwareMap, name: String, encoderName: String, revers
 }
 
 @Config
-class Uppies(opMode: LinearOpMode, tel: MultipleTelemetry) : Subsystem("Uppies") {
+class Uppies(opMode: LinearOpMode, tel: MultipleTelemetry, intake: Intake, flyWheel: FlyWheel) : Subsystem("Uppies") {
     val left = ManualAxon(opMode.hardwareMap, "s0", "a0", reverse = false, encoderReverse = false)
     val right = ManualAxon(opMode.hardwareMap, "s1", "a1", reverse = true, encoderReverse = true)
 
     var leftState: Positions = Positions.OPEN;
     var rightState: Positions = Positions.OPEN;
 
-    var state: States = States.OPEN
-
-
-    val positions = listOf<Positions>(
-        Positions.OPEN,
-        Positions.BOTTOM,
-        Positions.TOP,
-    )
+    var state: States = States.RIGHT_SHOT
 
     val states = listOf<States>(
-        States.OPEN,
-        States.ONE_BALL,
-        States.TWO_BALL,
-        States.SHOOT_ONE,
-        States.LOAD_TWO,
-        States.THIRD_BALL,
-        States.SHOOT_TWO,
-        States.LOAD_THREE,
+        States.LEFT_LOADED,
+        States.LEFT_SHOT,
+        States.RIGHT_LOADED,
+        States.RIGHT_SHOT,
     )
 
     val pidLeft = PIDController(kP, kI, kD)
@@ -79,45 +76,60 @@ class Uppies(opMode: LinearOpMode, tel: MultipleTelemetry) : Subsystem("Uppies")
     var leftRotations = 0
     var rightRotations = 0
 
-    fun nextLeft() {
-        if (leftState == positions.last()) leftRotations++
-        leftState = positions[(positions.indexOf(leftState) + 1) % positions.size]
-    }
-
-    fun nextRight() {
-        if (rightState == positions.last()) rightRotations++
-        rightState = positions[(positions.indexOf(rightState) + 1) % positions.size]
-    }
-
     fun next() {
         state = states[(states.indexOf(state) + 1) % states.size]
         when (state) {
-            States.OPEN -> {
-                nextRight()
+            States.LEFT_LOADED -> leftState = Positions.LOADED
+            States.LEFT_SHOT -> {
+                leftRotations++
+                leftState = Positions.OPEN
             }
-            States.ONE_BALL -> {
-                nextRight()
-                nextRight()
-            }
-            States.TWO_BALL -> {
-                nextLeft()
-            }
-            States.SHOOT_ONE -> {
-                nextRight()
-            }
-            States.LOAD_TWO -> {
-                nextLeft()
-            }
-            States.THIRD_BALL -> {
-                nextRight()
-            }
-            States.SHOOT_TWO -> {
-                nextLeft()
-            }
-            States.LOAD_THREE -> {
-                nextRight()
+
+            States.RIGHT_LOADED -> rightState = Positions.LOADED
+            States.RIGHT_SHOT -> {
+                rightRotations++
+                rightState = Positions.OPEN
             }
         }
+    }
+
+    val loadBall: suspend Command.() -> Unit = {
+        intake.power = -1.0 // run intake
+        SleepFor(intakeDuration)
+        next() // load 2
+        intake.power = -0.5
+        WaitFor { atPosition() }
+        intake.power = 0.0 // stop intake
+    }
+
+    val autoFireCommand = Command("auto-fire") {
+        intake.locked = true
+        flyWheel.running = true
+        intake.power = 0.0
+        WaitFor { atPosition() }
+        SleepFor(flyWheelDuration)
+        next() // fire first ball
+        WaitFor { atPosition() }
+        println("uppies log | firing first ball | $state")
+        loadBall()
+        println("uppies log | load second ball | $state")
+        next() // fire 2
+        WaitFor { atPosition() }
+        println("uppies log | firing second ball | $state")
+        loadBall()
+        println("uppies log | load third ball | $state")
+        next() // fire 3
+        WaitFor { atPosition() }
+        println("uppies log | firing third ball | $state")
+        intake.locked = false
+        flyWheel.running = false
+    }
+
+    fun atPosition(): Boolean {
+        val leftError = left.position - (leftRotations + leftState.getPosition(true))
+        val rightError = right.position - (rightRotations + rightState.getPosition(false))
+
+        return leftError > threshold && rightError > threshold
     }
 
     override val run: suspend Command.() -> Unit = {
@@ -158,25 +170,21 @@ class Uppies(opMode: LinearOpMode, tel: MultipleTelemetry) : Subsystem("Uppies")
         }
     }
 
-    override val command = Command(this.name,cleanup,run)
+    override val command = Command(this.name, cleanup, run)
 
     enum class States {
-        OPEN,
-        ONE_BALL,
-        TWO_BALL,
-        SHOOT_ONE,
-        LOAD_TWO,
-        THIRD_BALL,
-        SHOOT_TWO,
-        LOAD_THREE,
+        LEFT_LOADED,
+        LEFT_SHOT,
+        RIGHT_LOADED,
+        RIGHT_SHOT
     }
+
     enum class Positions {
-        OPEN, BOTTOM, TOP;
+        OPEN, LOADED;
 
         fun getPosition(left: Boolean): Double = when (this) {
             OPEN -> if (left) openLeft else openRight
-            BOTTOM -> if (left) bottomLeft else bottomRight
-            TOP -> if (left) topLeft else topRight
+            LOADED -> if (left) loadedLeft else loadedRight
         }
     }
 
@@ -194,18 +202,21 @@ class Uppies(opMode: LinearOpMode, tel: MultipleTelemetry) : Subsystem("Uppies")
         var openLeft = 0.14
 
         @JvmField
-        var bottomLeft = 0.19
-
-        @JvmField
-        var topLeft = 0.45
-
-        @JvmField
         var openRight = 0.125
 
         @JvmField
-        var bottomRight = 0.175
+        var loadedLeft = 0.43
 
         @JvmField
-        var topRight = 0.42
+        var loadedRight = 0.4
+
+        @JvmField
+        var threshold = -0.05
+
+        @JvmField
+        var intakeDuration = 2000L
+
+        @JvmField
+        var flyWheelDuration = 2000L
     }
 }

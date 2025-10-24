@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
+import com.millburnx.cmdx.Command
 import com.millburnx.cmdx.runtimeGroups.CommandScheduler
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
@@ -12,6 +13,7 @@ import org.firstinspires.ftc.teamcode.subsystems.FlyWheel
 import org.firstinspires.ftc.teamcode.subsystems.Intake
 import org.firstinspires.ftc.teamcode.subsystems.Uppies
 import org.firstinspires.ftc.teamcode.util.ManualManager
+import org.firstinspires.ftc.teamcode.util.SleepFor
 
 
 @TeleOp(name = "IntakeDrive")
@@ -43,7 +45,7 @@ class IntakeDrive : LinearOpMode() {
         val drivetrain = Drivetrain(this)
         val intake = Intake(this)
         val flyWheel = FlyWheel(this)
-        val uppies = Uppies(this, tel)
+        val uppies = Uppies(this, tel, intake, flyWheel)
 
         telemetry.isAutoClear = true
 
@@ -54,7 +56,26 @@ class IntakeDrive : LinearOpMode() {
         scheduler.schedule(flyWheel.command)
         scheduler.schedule(uppies.command)
 
+        var prevAutoFireButton = gamepad1.b
         while (opModeIsActive() && !isStopRequested) {
+            val newAutoFireButton = gamepad1.b
+            if (newAutoFireButton && !prevAutoFireButton) {
+                println("${uppies.autoFireCommand.job} | ${uppies.autoFireCommand.job?.isActive}")
+                if (uppies.autoFireCommand.job?.isActive == true) {
+                    uppies.autoFireCommand.cancel()
+                    println("CANCELING AUTO")
+                    scheduler.schedule(Command("Auto Canceller") {
+                        SleepFor(1000)
+                        intake.power = 0.0
+                        intake.locked = false
+                        flyWheel.running = false
+                        println("CANCELING AUTO 2")
+                    })
+                } else {
+                    scheduler.schedule(uppies.autoFireCommand)
+                }
+            }
+            prevAutoFireButton= newAutoFireButton
         }
     }
 }
