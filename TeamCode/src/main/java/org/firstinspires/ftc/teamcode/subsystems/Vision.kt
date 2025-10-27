@@ -1,8 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
 import android.util.Size
-import com.acmerobotics.dashboard.config.Config
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
+import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
@@ -14,8 +13,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor
 
-@Config
-class Vision(opMode: LinearOpMode, tel: MultipleTelemetry) : Subsystem("Vision") {
+@Configurable
+class Vision(opMode: LinearOpMode) : Subsystem("Vision") {
     val aprilTagProcessor = AprilTagProcessor.Builder()
         .setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary())
         .build()
@@ -42,18 +41,18 @@ class Vision(opMode: LinearOpMode, tel: MultipleTelemetry) : Subsystem("Vision")
         with(opMode) {
             while (opModeIsActive() && !isStopRequested) {
                 aprilTags = aprilTagProcessor.detections
-                tel.addData("april tags", aprilTags.size)
+                telemetry.addData("april tags", aprilTags.size)
                 val firstTag = aprilTags.firstOrNull()
                 if (firstTag != null) {
-                    tel.addData("dist", firstTag.ftcPose.range)
-                    tel.addData("heading", -firstTag.ftcPose.bearing)
+                    telemetry.addData("dist", firstTag.ftcPose.range)
+                    telemetry.addData("heading", -firstTag.ftcPose.bearing)
 
                     val pose = Pose2d() // replace with odom
                     val absoluteHeading = pose.radians + Math.toRadians(-firstTag.ftcPose.bearing)
                     angleError = -firstTag.ftcPose.bearing
                     targetPose = pose + Vec2d(firstTag.ftcPose.range, 0).rotate(absoluteHeading)
                 }
-                tel.update()
+                telemetry.update()
                 sync()
             }
         }

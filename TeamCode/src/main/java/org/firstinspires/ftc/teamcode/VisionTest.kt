@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.controller.PIDController
+import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import com.millburnx.cmdx.runtimeGroups.CommandScheduler
 import com.qualcomm.hardware.lynx.LynxModule
@@ -19,7 +20,7 @@ import org.firstinspires.ftc.teamcode.util.normalizeDegrees
 import kotlin.math.abs
 
 
-@Config
+@Configurable
 @TeleOp(name = "VisionTest")
 class VisionTest : LinearOpMode() {
     val timer = ElapsedTime()
@@ -28,7 +29,7 @@ class VisionTest : LinearOpMode() {
             val loopHertz = 1.0 / timer.seconds()
             timer.reset()
 
-            tel.addData("hz", loopHertz)
+            telemetry.addData("hz", loopHertz)
 //            tel.update()
 
             hubs.forEach { it.clearBulkCache() }
@@ -36,7 +37,7 @@ class VisionTest : LinearOpMode() {
         }
     }
 
-    val tel = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
+//    val tel = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
     var hubs: List<LynxModule> = emptyList()
 
@@ -47,8 +48,8 @@ class VisionTest : LinearOpMode() {
         ManualManager.init()
 //        telemetry.isAutoClear = true
 
-        val vision = Vision(this, tel)
-        val odom = Odom(this, tel)
+        val vision = Vision(this)
+        val odom = Odom(this)
         val drivetrain = Drivetrain(this)
 
         waitForStart()

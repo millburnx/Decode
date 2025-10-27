@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
-import com.acmerobotics.dashboard.config.Config
+import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.DcMotor
@@ -15,7 +15,7 @@ fun motorSetup(motor: DcMotorEx, reverse: Boolean = false, float: Boolean = fals
     motor.direction = if (reverse) DcMotorSimple.Direction.REVERSE else DcMotorSimple.Direction.FORWARD
 }
 
-@Config
+@Configurable
 class FlyWheel(opMode: LinearOpMode) : Subsystem("FlyWheel") {
     val left = ManualMotor(opMode.hardwareMap, "m1e", reverse = true)
     val right = ManualMotor(opMode.hardwareMap, "m2e", reverse = true)

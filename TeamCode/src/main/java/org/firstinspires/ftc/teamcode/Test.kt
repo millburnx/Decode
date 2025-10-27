@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode
 
-import com.acmerobotics.dashboard.FtcDashboard
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.millburnx.cmdx.runtimeGroups.CommandScheduler
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
@@ -12,7 +10,6 @@ import org.firstinspires.ftc.teamcode.subsystems.FlyWheel
 @TeleOp(name = "Test")
 class Test : LinearOpMode() {
     val scheduler = CommandScheduler()
-    val tel = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
     override fun runOpMode() {
         val hubs = hardwareMap.getAll(LynxModule::class.java) as MutableList<LynxModule>

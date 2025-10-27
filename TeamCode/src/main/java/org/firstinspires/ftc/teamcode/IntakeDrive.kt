@@ -30,8 +30,6 @@ class IntakeDrive : LinearOpMode() {
         }
     }
 
-    val tel = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
-
     var hubs: List<LynxModule> = emptyList()
 
     override fun runOpMode() {
@@ -43,7 +41,7 @@ class IntakeDrive : LinearOpMode() {
         val drivetrain = Drivetrain(this)
         val intake = Intake(this)
         val flyWheel = FlyWheel(this)
-        val uppies = Uppies(this, tel, intake, flyWheel)
+        val uppies = Uppies(this, intake, flyWheel)
 
         telemetry.isAutoClear = true
 

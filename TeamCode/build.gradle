@@ -21,10 +21,12 @@ android {
 dependencies {
     implementation project(':FtcRobotController')
 
-//    implementation('com.github.AshOnDiscord:FTC-OffSeason:CmdX-v0.1.1')
-    implementation('com.millburnx:cmdx:+')
+//    implementation 'com.github.Ashondiscord:Ftc-offseason:0c0de61789'
+//    implementation('com.millburnx:cmdx:+')
+    implementation 'com.github.Ashondiscord:Ftc-offseason:CmdX-v0.1.2'
 
-    implementation 'com.acmerobotics.dashboard:dashboard:0.5.0'
+
+//    implementation 'com.acmerobotics.dashboard:dashboard:0.5.0'
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
 //    implementation 'com.github.Thermal-Equilibrium:homeostasis-FTC:1.0.8'
     implementation 'org.ftclib.ftclib:core:2.1.1'

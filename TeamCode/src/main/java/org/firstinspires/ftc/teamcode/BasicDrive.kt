@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode
 
-import com.acmerobotics.dashboard.FtcDashboard
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.millburnx.cmdx.Command
 import com.millburnx.cmdx.runtimeGroups.CommandScheduler
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver
@@ -23,16 +21,14 @@ import kotlin.math.max
 
 @TeleOp(name = "BasicDrive")
 class BasicDrive : LinearOpMode() {
-    val tel = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
-
     val timer = ElapsedTime()
     val scheduler = CommandScheduler().apply {
         onSync = {
             val loopHertz = 1.0 / timer.seconds()
             timer.reset()
 
-            tel.addData("hz", loopHertz)
-            tel.update()
+            telemetry.addData("hz", loopHertz)
+            telemetry.update()
 
             hubs.forEach { it.clearBulkCache() }
             ManualManager.update()
@@ -91,11 +87,20 @@ class BasicDrive : LinearOpMode() {
                     val strafe = gamepad1.left_stick_x.toDouble()
                     val rotate = gamepad1.right_stick_x.toDouble()
 
+
                     val heading = odom.getHeading(AngleUnit.RADIANS)
 
                     val rVec = Vec2d(forward, strafe).rotate(heading - Math.toRadians(90.0)) * Vec2d(1.0, 1.1)
 
                     val denominator = max(abs(rVec.x) + abs(rVec.y) + abs(rotate), 1.0)
+
+//                    val right_y = gamepad1.right_stick_y.toDouble()
+
+//                    fl.power = forward;
+//                    fr.power = strafe;
+//                    br.power = rotate;
+//                    bl.power = right_y;
+
                     fl.power = (rVec.x + rVec.y + rotate) / denominator
                     fr.power = (rVec.x - rVec.y - rotate) / denominator
                     br.power = (rVec.x + rVec.y - rotate) / denominator
@@ -118,7 +123,7 @@ class BasicDrive : LinearOpMode() {
                         pose.getHeading(AngleUnit.DEGREES)
                     )
 
-                    tel.addData("pose", pose2D.toString())
+                    telemetry.addData("pose", pose2D.toString())
 
                     sync()
                 }

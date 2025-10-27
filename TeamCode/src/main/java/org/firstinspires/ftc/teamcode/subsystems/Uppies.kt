@@ -1,8 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
-import com.acmerobotics.dashboard.config.Config
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.controller.PIDController
+import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.CRServo
@@ -53,8 +52,8 @@ class AxonCR(
     }
 }
 
-@Config
-class Uppies(opMode: LinearOpMode, tel: MultipleTelemetry, intake: Intake, flyWheel: FlyWheel) : Subsystem("Uppies") {
+@Configurable
+class Uppies(opMode: LinearOpMode, intake: Intake, flyWheel: FlyWheel) : Subsystem("Uppies") {
     val left = ManualAxon(opMode.hardwareMap, "s0", "a0", reverse = false, encoderReverse = false)
     val right = ManualAxon(opMode.hardwareMap, "s1", "a1", reverse = true, encoderReverse = true)
 
@@ -161,15 +160,15 @@ class Uppies(opMode: LinearOpMode, tel: MultipleTelemetry, intake: Intake, flyWh
                 left.power = pidLeft.calculate(left.position, leftTarget)
                 right.power = pidRight.calculate(right.position, rightTarget)
 
-                tel.addData("state", state)
-                tel.addData("left state", leftState)
-                tel.addData("right state", rightState)
-                tel.addData("left target", leftTarget)
-                tel.addData("right target", rightTarget)
-                tel.addData("left raw pos", left.rawPosition)
-                tel.addData("right raw pos", right.rawPosition)
-                tel.addData("left pos", left.position)
-                tel.addData("right pos", right.position)
+                telemetry.addData("state", state)
+                telemetry.addData("left state", leftState)
+                telemetry.addData("right state", rightState)
+                telemetry.addData("left target", leftTarget)
+                telemetry.addData("right target", rightTarget)
+                telemetry.addData("left raw pos", left.rawPosition)
+                telemetry.addData("right raw pos", right.rawPosition)
+                telemetry.addData("left pos", left.position)
+                telemetry.addData("right pos", right.position)
                 sync()
             }
         }

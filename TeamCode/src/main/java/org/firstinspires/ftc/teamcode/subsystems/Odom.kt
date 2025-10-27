@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.millburnx.cmdx.Command
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
@@ -8,7 +7,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.util.Pose2d
 
-class Odom(opMode: LinearOpMode, tel: MultipleTelemetry) : Subsystem("Odom") {
+class Odom(opMode: LinearOpMode) : Subsystem("Odom") {
     val odom = opMode.hardwareMap["odom"] as GoBildaPinpointDriver
 
     init {
@@ -36,7 +35,7 @@ class Odom(opMode: LinearOpMode, tel: MultipleTelemetry) : Subsystem("Odom") {
             while (opModeIsActive() && !isStopRequested) {
                 odom.update()
 
-                tel.addData("Pose", pose)
+                telemetry.addData("Pose", pose)
             }
         }
     }
