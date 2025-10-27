@@ -102,7 +102,12 @@ class Uppies(opMode: LinearOpMode, tel: MultipleTelemetry, intake: Intake, flyWh
         intake.power = 0.0 // stop intake
     }
 
-    val autoFireCommand = Command("auto-fire") {
+    val autoFireCommand = Command("auto-fire", {
+        println("uppies log | cancelling")
+        intake.power = 0.0
+        intake.locked = false
+        flyWheel.running = false
+    }) {
         intake.locked = true
         flyWheel.running = true
         intake.power = 0.0

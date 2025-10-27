@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
-import com.millburnx.cmdx.Command
 import com.millburnx.cmdx.runtimeGroups.CommandScheduler
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
@@ -13,7 +12,6 @@ import org.firstinspires.ftc.teamcode.subsystems.FlyWheel
 import org.firstinspires.ftc.teamcode.subsystems.Intake
 import org.firstinspires.ftc.teamcode.subsystems.Uppies
 import org.firstinspires.ftc.teamcode.util.ManualManager
-import org.firstinspires.ftc.teamcode.util.SleepFor
 
 
 @TeleOp(name = "IntakeDrive")
@@ -22,9 +20,9 @@ class IntakeDrive : LinearOpMode() {
     val scheduler = CommandScheduler().apply {
         onSync = {
             val loopHertz = 1.0 / timer.seconds()
-            tel.addData("hz", loopHertz)
             timer.reset()
 
+            tel.addData("hz", loopHertz)
             tel.update()
 
             hubs.forEach { it.clearBulkCache() }
@@ -62,15 +60,10 @@ class IntakeDrive : LinearOpMode() {
             if (newAutoFireButton && !prevAutoFireButton) {
                 println("${uppies.autoFireCommand.job} | ${uppies.autoFireCommand.job?.isActive}")
                 if (uppies.autoFireCommand.job?.isActive == true) {
+                    // TODO: I don't think this canceling works? But you can ignore if its not a quick fix
+                    // Cuz theoretically the library should be fine but who knows lol
                     uppies.autoFireCommand.cancel()
                     println("CANCELING AUTO")
-                    scheduler.schedule(Command("Auto Canceller") {
-                        SleepFor(1000)
-                        intake.power = 0.0
-                        intake.locked = false
-                        flyWheel.running = false
-                        println("CANCELING AUTO 2")
-                    })
                 } else {
                     scheduler.schedule(uppies.autoFireCommand)
                 }

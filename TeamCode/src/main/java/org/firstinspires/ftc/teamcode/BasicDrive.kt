@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode
 
+import com.acmerobotics.dashboard.FtcDashboard
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.millburnx.cmdx.Command
 import com.millburnx.cmdx.runtimeGroups.CommandScheduler
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver
@@ -9,8 +11,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
+import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.teamcode.util.ManualManager
+import org.firstinspires.ftc.teamcode.util.Pose2d
 import org.firstinspires.ftc.teamcode.util.Vec2d
 import kotlin.math.abs
 import kotlin.math.max
@@ -18,10 +23,26 @@ import kotlin.math.max
 
 @TeleOp(name = "BasicDrive")
 class BasicDrive : LinearOpMode() {
-    val scheduler = CommandScheduler()
+    val tel = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
+
+    val timer = ElapsedTime()
+    val scheduler = CommandScheduler().apply {
+        onSync = {
+            val loopHertz = 1.0 / timer.seconds()
+            timer.reset()
+
+            tel.addData("hz", loopHertz)
+            tel.update()
+
+            hubs.forEach { it.clearBulkCache() }
+            ManualManager.update()
+        }
+    }
+
+    var hubs: List<LynxModule> = emptyList()
 
     override fun runOpMode() {
-        val hubs = hardwareMap.getAll(LynxModule::class.java) as MutableList<LynxModule>
+        hubs = hardwareMap.getAll(LynxModule::class.java) as MutableList<LynxModule>
         hubs.forEach { it.bulkCachingMode = LynxModule.BulkCachingMode.AUTO }
 
         val fl = hardwareMap["m0"] as DcMotorEx
@@ -80,7 +101,7 @@ class BasicDrive : LinearOpMode() {
                     br.power = (rVec.x + rVec.y - rotate) / denominator
                     bl.power = (rVec.x - rVec.y + rotate) / denominator
 
-//                    sync()
+                    sync()
                 }
             },
         )
@@ -90,12 +111,21 @@ class BasicDrive : LinearOpMode() {
                 while (opModeIsActive() && !isStopRequested) {
                     odom.update()
 
-//                    sync()
+                    val pose = odom.position
+                    val pose2D = Pose2d(
+                        pose.getX(DistanceUnit.INCH),
+                        pose.getY(DistanceUnit.INCH),
+                        pose.getHeading(AngleUnit.DEGREES)
+                    )
+
+                    tel.addData("pose", pose2D.toString())
+
+                    sync()
                 }
             }
         )
 
         while (opModeIsActive() && !isStopRequested) {
-         }
+        }
     }
 }
