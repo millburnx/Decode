@@ -28,3 +28,5 @@ android {
 }
 
 apply from: '../build.dependencies.gradle'
+
+//eric if you see this you need to touch some grass
