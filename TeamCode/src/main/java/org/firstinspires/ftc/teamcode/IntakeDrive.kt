@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode
 
-import com.acmerobotics.dashboard.FtcDashboard
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.millburnx.cmdx.runtimeGroups.CommandScheduler
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
@@ -22,8 +20,8 @@ class IntakeDrive : LinearOpMode() {
             val loopHertz = 1.0 / timer.seconds()
             timer.reset()
 
-            tel.addData("hz", loopHertz)
-            tel.update()
+            telemetry.addData("hz", loopHertz)
+            telemetry.update()
 
             hubs.forEach { it.clearBulkCache() }
             ManualManager.update()
