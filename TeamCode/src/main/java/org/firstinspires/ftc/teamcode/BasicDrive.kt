@@ -41,10 +41,10 @@ class BasicDrive : LinearOpMode() {
         hubs = hardwareMap.getAll(LynxModule::class.java) as MutableList<LynxModule>
         hubs.forEach { it.bulkCachingMode = LynxModule.BulkCachingMode.AUTO }
 
-        val fl = hardwareMap["m0"] as DcMotorEx
-        val fr = hardwareMap["m3"] as DcMotorEx
-        val br = hardwareMap["m2"] as DcMotorEx
-        val bl = hardwareMap["m1"] as DcMotorEx
+        val br = hardwareMap["m0"] as DcMotorEx
+        val fl = hardwareMap["m3"] as DcMotorEx
+        val bl = hardwareMap["m2"] as DcMotorEx
+        val fr = hardwareMap["m1"] as DcMotorEx
 
         val odom = hardwareMap["odom"] as GoBildaPinpointDriver
 
@@ -84,13 +84,13 @@ class BasicDrive : LinearOpMode() {
             Command {
                 while (opModeIsActive() && !isStopRequested) {
                     val forward = -gamepad1.left_stick_y.toDouble()
-                    val strafe = gamepad1.left_stick_x.toDouble()
+                    val strafe = -gamepad1.left_stick_x.toDouble()
                     val rotate = gamepad1.right_stick_x.toDouble()
 
 
                     val heading = odom.getHeading(AngleUnit.RADIANS)
 
-                    val rVec = Vec2d(forward, strafe).rotate(heading - Math.toRadians(90.0)) * Vec2d(1.0, 1.1)
+                    val rVec = Vec2d(strafe, forward).rotate(heading - Math.toRadians(90.0)) * Vec2d(1.0, 1.1)
 
                     val denominator = max(abs(rVec.x) + abs(rVec.y) + abs(rotate), 1.0)
 
