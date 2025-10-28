@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.teamcode.util.ManualMotor
 
 class Intake(opMode: LinearOpMode) : Subsystem("Intake") {
-    val motor = ManualMotor(opMode.hardwareMap, "m0e", reverse = true)
+    val motor = ManualMotor(opMode.hardwareMap, "m2e", reverse = true)
     var power: Double = 0.0
     var locked: Boolean = false
 

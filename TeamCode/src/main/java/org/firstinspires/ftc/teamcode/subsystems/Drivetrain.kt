@@ -8,10 +8,10 @@ import kotlin.math.abs
 import kotlin.math.max
 
 class Drivetrain(opMode: LinearOpMode) : Subsystem("Intake") {
-    val fl = ManualMotor(opMode.hardwareMap, "m0", reverse = true)
+    val fl = ManualMotor(opMode.hardwareMap, "m3", reverse = true)
     val fr = ManualMotor(opMode.hardwareMap, "m1", reverse = false)
-    val br = ManualMotor(opMode.hardwareMap, "m2", reverse = false)
-    val bl = ManualMotor(opMode.hardwareMap, "m3", reverse = true)
+    val br = ManualMotor(opMode.hardwareMap, "m0", reverse = false)
+    val bl = ManualMotor(opMode.hardwareMap, "m2", reverse = true)
 
     fun drive(direction: Pose2d) {
         val denominator = max(abs(direction.y) + abs(direction.x) + abs(direction.heading), 1.0)
