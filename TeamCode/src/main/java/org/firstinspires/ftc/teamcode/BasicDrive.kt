@@ -41,10 +41,10 @@ class BasicDrive : LinearOpMode() {
         hubs = hardwareMap.getAll(LynxModule::class.java) as MutableList<LynxModule>
         hubs.forEach { it.bulkCachingMode = LynxModule.BulkCachingMode.AUTO }
 
-        val br = hardwareMap["m0"] as DcMotorEx
-        val fl = hardwareMap["m3"] as DcMotorEx
-        val bl = hardwareMap["m2"] as DcMotorEx
-        val fr = hardwareMap["m1"] as DcMotorEx
+        val br = hardwareMap["m3"] as DcMotorEx // m3
+        val fl = hardwareMap["m0"] as DcMotorEx // m0
+        val bl = hardwareMap["m1"] as DcMotorEx // m1
+        val fr = hardwareMap["m2"] as DcMotorEx // m2
 
         val odom = hardwareMap["odom"] as GoBildaPinpointDriver
 
