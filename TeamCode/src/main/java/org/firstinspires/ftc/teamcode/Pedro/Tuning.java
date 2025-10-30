@@ -940,7 +940,7 @@ class DriveTuner extends OpMode {
  * @version 1.0, 3/12/2024
  */
 class Line extends OpMode {
-    public static double DISTANCE = 40;
+    public static double DISTANCE = 48;
     private boolean forward = true;
 
     private Path forwards;
@@ -1005,7 +1005,7 @@ class Line extends OpMode {
  * @version 1.0, 3/13/2024
  */
 class CentripetalTuner extends OpMode {
-    public static double DISTANCE = 20;
+    public static double DISTANCE = 24;
     private boolean forward = true;
 
     private Path forwards;
