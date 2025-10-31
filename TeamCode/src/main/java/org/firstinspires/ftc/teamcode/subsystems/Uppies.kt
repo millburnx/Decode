@@ -139,7 +139,7 @@ class Uppies(opMode: LinearOpMode, intake: Intake, flyWheel: FlyWheel) : Subsyst
     override val run: suspend Command.() -> Unit = {
         with(opMode) {
             var prevButton = gamepad1.right_bumper
-            while (opModeIsActive() && !isStopRequested) {
+            while (!isStopRequested) {
                 val newButton = gamepad1.right_bumper
                 if (!prevButton && newButton) {
                     next()

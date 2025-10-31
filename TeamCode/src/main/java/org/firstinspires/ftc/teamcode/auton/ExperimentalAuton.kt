@@ -14,6 +14,8 @@ import org.firstinspires.ftc.teamcode.subsystems.PedroDrive
 import org.firstinspires.ftc.teamcode.subsystems.Uppies
 import org.firstinspires.ftc.teamcode.util.ManualManager
 import org.firstinspires.ftc.teamcode.util.Pose2d
+import org.firstinspires.ftc.teamcode.util.SleepFor
+import org.firstinspires.ftc.teamcode.util.WaitFor
 import org.firstinspires.ftc.teamcode.util.rad
 import org.firstinspires.ftc.teamcode.util.toPedro
 
@@ -40,10 +42,10 @@ class ExperimentalAuton : LinearOpMode() {
             .addPath(
                 BezierLine(
                     Pose2d(56.000, 8.000).toPedro(),
-                    Pose2d(39.711, 34.699).toPedro()
+                    Pose2d(56.000, 36.000).toPedro()
                 )
             )
-            .setLinearHeadingInterpolation(90.0.rad(), 45.0.rad())
+            .setLinearHeadingInterpolation(120.0.rad(), 0.0.rad())
 //            .addTemporalCallback(500.0) {
 //                intake.power = 1.0
 //            }
@@ -53,11 +55,12 @@ class ExperimentalAuton : LinearOpMode() {
         pedro.follower.pathBuilder()
             .addPath(
                 BezierLine(
-                    Pose2d(39.711, 34.699).toPedro(),
-                    Pose2d(22.169, 35.084).toPedro()
+                    Pose2d(56.000, 36.000).toPedro(),
+                    Pose2d(19.000, 36.000).toPedro()
                 )
             )
             .setTangentHeadingInterpolation()
+            .setReversed()
             .build()
 
     fun Path3(pedro: PedroDrive) =
@@ -92,21 +95,24 @@ class ExperimentalAuton : LinearOpMode() {
 
         telemetry.isAutoClear = true
 
+        uppies.next()
+        scheduler.schedule(uppies.command)
+
         waitForStart()
 
         scheduler.schedule(pedro.command)
         scheduler.schedule(intake.command)
         scheduler.schedule(flyWheel.command)
-        scheduler.schedule(uppies.command)
 
         scheduler.schedule(Sequential {
-            Command { flyWheel.running = true }
+//            Command { flyWheel.running = true }
+//            Command { uppies.autoFireCommand }
             +uppies.autoFireCommand
             +FollowPathCommand(pedro.follower, path1)
-            Command { intake.power = 1.0 }
-            +FollowPathCommand(pedro.follower, path2)
-            +FollowPathCommand(pedro.follower, path3)
-            +uppies.autoFireCommand
+//            Command { intake.power = 1.0 }
+//            +FollowPathCommand(pedro.follower, path2)
+//            +FollowPathCommand(pedro.follower, path3)
+//            +uppies.autoFireCommand
             // you can also use integrate stuff by manually calling the stuff
             // rather than pedro callbacks. the follow path command is quite simple.
         })

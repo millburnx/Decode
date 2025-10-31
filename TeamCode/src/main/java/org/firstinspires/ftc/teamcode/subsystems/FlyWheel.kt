@@ -18,8 +18,8 @@ fun motorSetup(motor: DcMotorEx, reverse: Boolean = false, float: Boolean = fals
 
 @Configurable
 class FlyWheel(opMode: LinearOpMode) : Subsystem("FlyWheel") {
-    val left = ManualMotor(opMode.hardwareMap, "m1e", reverse = true)
-    val right = ManualMotor(opMode.hardwareMap, "m0e", reverse = true)
+    val left = ManualMotor(opMode.hardwareMap, "m2e", reverse = true)
+    val right = ManualMotor(opMode.hardwareMap, "m1e", reverse = true)
 
     var running = false
 
