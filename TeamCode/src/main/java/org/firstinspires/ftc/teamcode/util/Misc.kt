@@ -8,3 +8,6 @@ fun normalizeRadians(radians: Double): Double {
 }
 
 fun normalizeDegrees(angle: Double): Double = Math.toDegrees(normalizeRadians(Math.toRadians(angle)))
+
+fun Double.rad() = Math.toRadians(this)
+fun Double.deg() = Math.toDegrees(this)
