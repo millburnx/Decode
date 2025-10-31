@@ -9,7 +9,7 @@ data class Pose2d(
     val heading: Double = 0.0,
 ) {
     constructor(x: Double, y: Double, heading: Double) : this(Vec2d(x, y), heading)
-    constructor(position: Double, heading: Double) : this(Vec2d(position), heading)
+    constructor(x: Double, y: Double) : this(Vec2d(x,y), 0.0)
     constructor(values: Array<Double>) : this(values[0], values[1], values[2])
 
     val x: Double

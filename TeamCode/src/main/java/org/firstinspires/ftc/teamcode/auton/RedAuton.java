@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.auton;
 
-
+//remember to rename the file for BlueAuton
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
@@ -12,6 +12,7 @@ import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.Pedro.Constants;
+import org.firstinspires.ftc.teamcode.subsystems.FlyWheel;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 
 import com.pedropathing.util.Timer;
@@ -30,12 +31,14 @@ public class RedAuton extends OpMode {
     private Paths paths; // Paths defined in the Paths class
     public DcMotorEx intakeMotor;
 
+    public FlyWheel flyWheel;
+
     @Override
     public void init() {
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(104, 9, Math.toRadians(90)));
+        follower.setStartingPose(new Pose(56, 8, Math.toRadians(90)));
 
         paths = new Paths(follower); // Build paths
 
@@ -48,6 +51,9 @@ public class RedAuton extends OpMode {
         intakeMotor = hardwareMap.get(DcMotorEx.class, "m0e");
         intakeMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+
+        //flyWheel = new FlyWheel(this);
     }
 
     @Override
@@ -71,7 +77,7 @@ public class RedAuton extends OpMode {
 
     public static class Paths {
 
-        public PathChain Path1, Path2;
+        public PathChain Path1, Path2, Path3;
 
 
 
@@ -80,21 +86,23 @@ public class RedAuton extends OpMode {
             Path1 = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(104.000, 9.000), new Pose(105.000, 106.000))
+                            new BezierLine(new Pose(56.000, 8.000), new Pose(39.711, 34.699))
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(45))
-                    .addTemporalCallback(500, new Runnable() {
-                        @Override
-                        public void run() {
-                            // figure out callbacks or something
-                        }
-                    })
+                    .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(180))
                     .build();
 
             Path2 = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(105.000, 106.000), new Pose(124.000, 106.000))
+                            new BezierLine(new Pose(39.711, 34.699), new Pose(22.169, 35.084))
+                    )
+                    .setTangentHeadingInterpolation()
+                    .build();
+
+            Path3 = follower
+                    .pathBuilder()
+                    .addPath(
+                            new BezierLine(new Pose(22.169, 35.084), new Pose(56.096, 7.325))
                     )
                     .setTangentHeadingInterpolation()
                     .build();
@@ -116,6 +124,14 @@ public class RedAuton extends OpMode {
                     setPathState(2);
                     break;
                 }
+            case 2:
+                if(!follower.isBusy())
+                {
+                    follower.followPath(paths.Path3);
+                    setPathState(3);
+                    break;
+
+                }
         }
 //        return pathState;
         return pathState;
@@ -125,5 +141,7 @@ public class RedAuton extends OpMode {
         pathState = pState;
         pathTimer.resetTimer();
     }
+
+
 }
 
