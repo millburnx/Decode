@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.auton
 
 import com.millburnx.cmdx.commandGroups.Sequential
 import com.millburnx.cmdx.runtimeGroups.CommandScheduler
+import com.pedropathing.geometry.BezierCurve
 import com.pedropathing.geometry.BezierLine
+import com.pedropathing.geometry.Pose
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
@@ -14,10 +16,8 @@ import org.firstinspires.ftc.teamcode.subsystems.PedroDrive
 import org.firstinspires.ftc.teamcode.subsystems.Uppies
 import org.firstinspires.ftc.teamcode.util.ManualManager
 import org.firstinspires.ftc.teamcode.util.Pose2d
-import org.firstinspires.ftc.teamcode.util.SleepFor
-import org.firstinspires.ftc.teamcode.util.WaitFor
-import org.firstinspires.ftc.teamcode.util.rad
 import org.firstinspires.ftc.teamcode.util.toPedro
+
 
 @TeleOp(name = "Experimental Auton")
 class ExperimentalAuton : LinearOpMode() {
@@ -28,6 +28,7 @@ class ExperimentalAuton : LinearOpMode() {
             timer.reset()
 
             telemetry.addData("hz", loopHertz)
+            telemetry.addData("cmd", this.runner.commandList.joinToString(", "))
             telemetry.update()
 
             hubs.forEach { it.clearBulkCache() }
@@ -38,43 +39,49 @@ class ExperimentalAuton : LinearOpMode() {
     var hubs: List<LynxModule> = emptyList()
 
     fun Path1(pedro: PedroDrive, intake: Intake) =
-        pedro.follower.pathBuilder()
+        pedro.follower
+            .pathBuilder()
             .addPath(
-                BezierLine(
-                    Pose2d(56.000, 8.000).toPedro(),
-                    Pose2d(56.000, 36.000).toPedro()
-                )
+                BezierLine(Pose2d(56.000, 8.000).toPedro(), Pose(56.000, 12.000))
             )
-            .setLinearHeadingInterpolation(120.0.rad(), 0.0.rad())
-//            .addTemporalCallback(500.0) {
-//                intake.power = 1.0
-//            }
-            .build()
+            .setLinearHeadingInterpolation(Math.toRadians(90.0), Math.toRadians(112.0))
+            .build();
+
 
     fun Path2(pedro: PedroDrive) =
-        pedro.follower.pathBuilder()
+        pedro.follower
+            .pathBuilder()
             .addPath(
-                BezierLine(
-                    Pose2d(56.000, 36.000).toPedro(),
-                    Pose2d(19.000, 36.000).toPedro()
+                BezierCurve(
+                    Pose(56.000, 12.000),
+                    Pose(56.000, 36.000),
+                    Pose(44.000, 36.000)
                 )
             )
             .setTangentHeadingInterpolation()
-            .setReversed()
-            .build()
+            .build();
 
     fun Path3(pedro: PedroDrive) =
-        pedro.follower.pathBuilder()
+        pedro.follower
+            .pathBuilder()
             .addPath(
-                BezierLine(
-                    Pose2d(22.169, 35.084).toPedro(),
-                    Pose2d(56.096, 7.325).toPedro()
-                )
+                BezierLine(Pose(44.000, 36.000), Pose(12.000, 36.000))
             )
             .setTangentHeadingInterpolation()
-            .build()
+            .build();
 
-
+    fun Path4(pedro: PedroDrive) =
+        pedro.follower
+            .pathBuilder()
+            .addPath(
+                BezierCurve(
+                    Pose(12.000, 36.000),
+                    Pose(12.000, 12.000),
+                    Pose(56.000, 12.000)
+                )
+            )
+            .setLinearHeadingInterpolation(Math.toRadians(180.0), Math.toRadians(112.0))
+            .build();
 
     override fun runOpMode() {
         hubs = hardwareMap.getAll(LynxModule::class.java)
@@ -82,7 +89,7 @@ class ExperimentalAuton : LinearOpMode() {
 
         ManualManager.init()
 
-        val pedro = PedroDrive(this, Pose2d(56.0,8.0,90.0))
+        val pedro = PedroDrive(this, Pose2d(56.0, 8.0, 90.0))
         val intake = Intake(this)
         val flyWheel = FlyWheel(this)
         val uppies = Uppies(this, intake, flyWheel)
@@ -92,6 +99,7 @@ class ExperimentalAuton : LinearOpMode() {
         val path1 = Path1(pedro, intake)
         val path2 = Path2(pedro)
         val path3 = Path3(pedro)
+        val path4 = Path4(pedro)
 
         telemetry.isAutoClear = true
 
@@ -107,12 +115,13 @@ class ExperimentalAuton : LinearOpMode() {
         scheduler.schedule(Sequential {
 //            Command { flyWheel.running = true }
 //            Command { uppies.autoFireCommand }
-            +uppies.autoFireCommand
             +FollowPathCommand(pedro.follower, path1)
-//            Command { intake.power = 1.0 }
-//            +FollowPathCommand(pedro.follower, path2)
-//            +FollowPathCommand(pedro.follower, path3)
-//            +uppies.autoFireCommand
+            +uppies.autoFireCommand
+            +FollowPathCommand(pedro.follower, path2)
+            Command { intake.power = 1.0 }
+            +FollowPathCommand(pedro.follower, path3)
+            +FollowPathCommand(pedro.follower, path4)
+            +uppies.autoFireCommand
             // you can also use integrate stuff by manually calling the stuff
             // rather than pedro callbacks. the follow path command is quite simple.
         })

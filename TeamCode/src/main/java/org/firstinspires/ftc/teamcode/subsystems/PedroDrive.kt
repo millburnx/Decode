@@ -15,6 +15,7 @@ class PedroDrive(opMode: LinearOpMode, startingPose: Pose2d = Pose2d()) : Subsys
     override val run: suspend Command.() -> Unit = {
         with(opMode) {
             while (opModeIsActive() && !isStopRequested) {
+                follower.update()
                 sync()
             }
         }
