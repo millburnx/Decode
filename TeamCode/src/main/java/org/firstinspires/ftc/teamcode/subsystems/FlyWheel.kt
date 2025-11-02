@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.subsystems
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
@@ -22,6 +21,7 @@ class FlyWheel(opMode: LinearOpMode) : Subsystem("FlyWheel") {
     val right = ManualMotor(opMode.hardwareMap, "m1e", reverse = true)
 
     var running = false
+    var power = FarPower;
 
     override val run: suspend Command.() -> Unit = {
         with(opMode) {
@@ -50,6 +50,8 @@ class FlyWheel(opMode: LinearOpMode) : Subsystem("FlyWheel") {
 
     companion object {
         @JvmField
-        var power: Double = 1.0
+        var FarPower: Double = 1.0
+        @JvmField
+        var ClosePower: Double = .7
     }
 }
