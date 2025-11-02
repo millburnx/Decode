@@ -52,6 +52,8 @@ class FlyWheel(opMode: LinearOpMode) : Subsystem("FlyWheel") {
         @JvmField
         var FarPower: Double = 1.0
         @JvmField
-        var ClosePower: Double = .7
+        var TeleopClosePower: Double = 0.71
+        @JvmField
+        var ClosePower: Double = .675
     }
 }

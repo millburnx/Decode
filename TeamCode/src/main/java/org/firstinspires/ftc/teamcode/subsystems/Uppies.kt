@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.CRServo
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
+import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.util.ManualAxon
 import org.firstinspires.ftc.teamcode.util.SleepFor
 import org.firstinspires.ftc.teamcode.util.WaitFor
@@ -60,13 +61,13 @@ class Uppies(opMode: LinearOpMode, intake: Intake, flyWheel: FlyWheel) : Subsyst
     var leftState: Positions = Positions.OPEN;
     var rightState: Positions = Positions.OPEN;
 
-    var state: States = States.RIGHT_SHOT
+    var state: States = States.LEFT_SHOT
 
     val states = listOf<States>(
         States.LEFT_LOADED,
         States.LEFT_SHOT,
-        States.RIGHT_LOADED,
-        States.RIGHT_SHOT,
+//        States.RIGHT_LOADED,
+//        States.RIGHT_SHOT,
     )
 
     val pidLeft = PIDController(kP, kI, kD)
@@ -84,31 +85,32 @@ class Uppies(opMode: LinearOpMode, intake: Intake, flyWheel: FlyWheel) : Subsyst
                 leftState = Positions.OPEN
             }
 
-            States.RIGHT_LOADED -> rightState = Positions.LOADED
-            States.RIGHT_SHOT -> {
-                rightRotations++
-                rightState = Positions.OPEN
-            }
+//            States.RIGHT_LOADED -> rightState = Positions.LOADED
+//            States.RIGHT_SHOT -> {
+//                rightRotations++
+//                rightState = Positions.OPEN
+//            }
         }
     }
 
     fun prev() {
         if (state == States.LEFT_LOADED) {
-            state == States.LEFT_SHOT
+            state = States.LEFT_SHOT
             leftState = Positions.OPEN
             rightState = Positions.OPEN
         }
-        if (state == States.RIGHT_LOADED) {
-            state == States.RIGHT_SHOT
-            leftState = Positions.OPEN
-            rightState = Positions.OPEN
-        }
+//        if (state == States.RIGHT_LOADED) {
+//            state = States.LEFT_SHOT
+//            leftState = Positions.OPEN
+//            rightState = Positions.OPEN
+//        }
     }
 
     val loadBall: suspend Command.() -> Unit = {
         intake.power = -1.0 // run intake
         SleepFor(intakeDuration)
         next() // load 2
+        SleepFor(250)
         intake.power = -0.5
         WaitFor { atPosition() }
         intake.power = 0.0 // stop intake
@@ -137,6 +139,93 @@ class Uppies(opMode: LinearOpMode, intake: Intake, flyWheel: FlyWheel) : Subsyst
         println("uppies log | load third ball | $state")
         next() // fire 3
         WaitFor { atPosition() }
+        println("uppies log | firing third ball | $state")
+        intake.locked = false
+        flyWheel.running = false
+    }
+
+    val autoFireCommandTeleop = Command("auto-fire-teleop", {
+        println("uppies log | cancelling")
+        intake.power = 0.0
+        intake.locked = false
+        flyWheel.running = false
+    }) {
+        intake.locked = true
+        flyWheel.running = true
+        intake.power = 0.0
+        WaitFor { atPosition() }
+        SleepFor(flyWheelDuration)
+        next() // fire first ball
+        WaitFor { atPosition() }
+        println("uppies log | firing first ball | $state")
+        loadBall()
+        println("uppies log | load second ball | $state")
+        next() // fire 2
+        WaitFor { atPosition() }
+        println("uppies log | firing second ball | $state")
+//        loadBall()
+//        println("uppies log | load third ball | $state")
+//        next() // fire 3
+//        WaitFor { atPosition() }
+//        println("uppies log | firing third ball | $state")
+        intake.locked = false
+        flyWheel.running = false
+    }
+
+    val loadBallNew: suspend Command.() -> Unit = {
+        intake.power = -1.0 // run intake
+        SleepFor(intakeDuration)
+        next() // load 2
+        SleepFor(250)
+        intake.power = -0.5
+        uppiesValidator()
+        intake.power = 0.0 // stop intake
+    }
+
+    val uppiesValidator: suspend Command.() -> Unit = {
+        val elapsedTime = ElapsedTime()
+        while (!atPosition() && elapsedTime.milliseconds() < 3000) {
+            sync()
+        }
+        if (!atPosition()) {
+            // shit is stuck tspmo
+            prev()
+            intake.power = 0.5
+            SleepFor(500) // reverse intake
+            // ---
+            intake.power = -1.0 // run intake
+            SleepFor(intakeDuration)
+            next() // load 2
+            SleepFor(250)
+            intake.power = -0.5
+            SleepFor(500)
+            intake.power = 0.0
+        }
+    }
+
+    val autoFireCommandNew = Command("auto-fire-new", {
+        println("uppies log | cancelling")
+        intake.power = 0.0
+        intake.locked = false
+        flyWheel.running = false
+    }) {
+        intake.locked = true
+        flyWheel.running = true
+        intake.power = 0.0
+        uppiesValidator()
+        SleepFor(flyWheelDuration)
+        next() // fire first ball
+        uppiesValidator()
+        println("uppies log | firing first ball | $state")
+        loadBallNew()
+        println("uppies log | load second ball | $state")
+        next() // fire 2
+        uppiesValidator()
+        println("uppies log | firing second ball | $state")
+        loadBallNew()
+        println("uppies log | load third ball | $state")
+        next() // fire 3
+        uppiesValidator()
         println("uppies log | firing third ball | $state")
         intake.locked = false
         flyWheel.running = false
@@ -198,8 +287,8 @@ class Uppies(opMode: LinearOpMode, intake: Intake, flyWheel: FlyWheel) : Subsyst
     enum class States {
         LEFT_LOADED,
         LEFT_SHOT,
-        RIGHT_LOADED,
-        RIGHT_SHOT
+//        RIGHT_LOADED,
+//        RIGHT_SHOT
     }
 
     enum class Positions {
@@ -237,9 +326,9 @@ class Uppies(opMode: LinearOpMode, intake: Intake, flyWheel: FlyWheel) : Subsyst
         var threshold = -0.05
 
         @JvmField
-        var intakeDuration = 2000L
+        var intakeDuration = 1500L
 
         @JvmField
-        var flyWheelDuration = 2000L
+        var flyWheelDuration = 500L
     }
 }

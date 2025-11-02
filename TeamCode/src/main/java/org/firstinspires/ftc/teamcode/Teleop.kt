@@ -13,9 +13,9 @@ import org.firstinspires.ftc.teamcode.subsystems.PedroDrive
 import org.firstinspires.ftc.teamcode.subsystems.Uppies
 import org.firstinspires.ftc.teamcode.util.APIDFController
 import org.firstinspires.ftc.teamcode.util.ManualManager
-import org.firstinspires.ftc.teamcode.util.RisingEdgeDetector
 import org.firstinspires.ftc.teamcode.util.Vec2d
 import org.firstinspires.ftc.teamcode.util.deg
+import org.firstinspires.ftc.teamcode.util.rad
 import kotlin.math.absoluteValue
 
 
@@ -69,19 +69,38 @@ class Teleop : LinearOpMode() {
                     assistPID.d = Assist.kD
 
                     val targetHeading = Vec2d().angleTo(Vec2d(gamepad2.right_stick_x, -gamepad2.right_stick_y))
-                    val error = assistPID.calculate(pedro.follower.pose.heading.deg(), targetHeading.deg())
+                    val error = assistPID.calculate((pedro.follower.pose.heading - offsetHeading).deg(), targetHeading.deg())
+                    telemetry.addLine("$targetHeading $error")
                     error
                 } else {
                     -gamepad1.right_stick_x.toDouble()
                 }
 
-                pedro.follower.setTeleOpDrive(
-                    -(if (override) gamepad2 else gamepad1).left_stick_y.toDouble(),
-                    -(if (override) gamepad2 else gamepad1).left_stick_x.toDouble(),
-                    rx,
-                    override, // Robot Centric
-                    offsetHeading,
-                )
+                telemetry.addData("override", override)
+
+//                pedro.follower.setTeleOpDrive(
+//                    (if (override) -gamepad2.left_stick_y else -gamepad1.left_stick_x).toDouble(),
+//                    (if (override) -gamepad2.left_stick_x else gamepad1.left_stick_y).toDouble(),
+//                    rx,
+//                    !override, // Robot Centric
+//                    offsetHeading + 90.0.rad(),
+//                )
+                if (override) {
+                    pedro.follower.setTeleOpDrive(
+                        -gamepad2.left_stick_y.toDouble(),
+                        -gamepad2.left_stick_x.toDouble(),
+                        rx,
+                        true,
+                        offsetHeading + 90.0.rad()
+                    )
+                } else {
+                    pedro.follower.setTeleOpDrive(
+                        -gamepad1.left_stick_y.toDouble(),
+                        -gamepad1.left_stick_x.toDouble(),
+                        rx,
+                        true
+                    )
+                }
                 sync()
             }
         })
@@ -90,53 +109,46 @@ class Teleop : LinearOpMode() {
         scheduler.schedule(flyWheel.command)
         scheduler.schedule(uppies.command)
 
-        val autoFireTrigger = RisingEdgeDetector({ gamepad1.b }) {
-            println("${uppies.autoFireCommand.job} | ${uppies.autoFireCommand.job?.isActive}")
-            if (uppies.autoFireCommand.job?.isActive == true) {
-                // TODO: I don't think this canceling works? But you can ignore if its not a quick fix
-                // Cuz theoretically the library should be fine but who knows lol
-                uppies.autoFireCommand.cancel()
-                println("CANCELING AUTO")
-            } else {
-                scheduler.schedule(uppies.autoFireCommand)
-            }
-        }
-
-        scheduler.schedule(autoFireTrigger.command)
-
-        val setHeading = RisingEdgeDetector({ gamepad2.x }) {
-            offsetHeading = pedro.follower.pose.heading
-        }
-        scheduler.schedule(setHeading.command)
-
         var flyWheelClose = true
+
+        scheduler.schedule(Command {
+            while (opModeIsActive()) {
+                if (gamepad1.bWasPressed()) {
+                    println("${uppies.autoFireCommandTeleop.job} | ${uppies.autoFireCommandTeleop.job?.isActive}")
+                    if (uppies.autoFireCommandTeleop.job?.isActive == true) {
+                        // TODO: I don't think this canceling works? But you can ignore if its not a quick fix
+                        // Cuz theoretically the library should be fine but who knows lol
+                        uppies.autoFireCommandTeleop.cancel()
+                        println("CANCELING AUTO")
+                    } else {
+                        scheduler.schedule(uppies.autoFireCommandTeleop)
+                    }
+                }
+                if (gamepad2.xWasPressed()) {
+                    offsetHeading = pedro.follower.pose.heading
+                }
+                if (gamepad2.leftBumperWasPressed()) {
+                    if (flyWheelClose) {
+                        FlyWheel.TeleopClosePower -= 0.05
+                    } else {
+                        FlyWheel.FarPower -= 0.05
+                    }
+                }
+                if (gamepad2.rightBumperWasPressed()) {
+                    if (flyWheelClose) {
+                        FlyWheel.TeleopClosePower += 0.05
+                    } else {
+                        FlyWheel.FarPower += 0.05
+                    }
+                }
+                flyWheel.power = if (flyWheelClose) FlyWheel.TeleopClosePower else FlyWheel.FarPower
+                telemetry.addData("flywheel power - $flyWheelClose", flyWheel.power)
+                sync()
+            }
+        })
 
         if (gamepad2.dpad_right) flyWheelClose = true
         if (gamepad2.dpad_left) flyWheelClose = false
-
-        val decreasePower = RisingEdgeDetector({ gamepad2.left_bumper }) {
-            if (flyWheelClose) {
-                FlyWheel.ClosePower -= 0.05
-            } else {
-                FlyWheel.FarPower -= 0.05
-            }
-        }
-        val increasePower = RisingEdgeDetector({ gamepad2.right_bumper }) {
-            if (flyWheelClose) {
-                FlyWheel.ClosePower += 0.05
-            } else {
-                FlyWheel.FarPower += 0.05
-            }
-        }
-
-        scheduler.schedule(decreasePower.command)
-        scheduler.schedule(increasePower.command)
-        scheduler.schedule(Command("flywheel power") {
-            while (opModeIsActive() && !isStopRequested) {
-                flyWheel.power = if (flyWheelClose) FlyWheel.ClosePower else FlyWheel.FarPower
-                telemetry.addData("flywheel power - $flyWheelClose", flyWheel.power)
-            }
-        })
 
         while (opModeIsActive() && !isStopRequested) {
         }
@@ -148,7 +160,7 @@ class Teleop : LinearOpMode() {
 @Configurable
 object Assist {
     @JvmField
-    var kP = 0.0
+    var kP = 0.05
 
     @JvmField
     var kI = 0.0

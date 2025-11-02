@@ -19,8 +19,8 @@ import org.firstinspires.ftc.teamcode.util.Pose2d
 import org.firstinspires.ftc.teamcode.util.SleepFor
 
 
-@Autonomous(name = "Blue Far Auton", preselectTeleOp = "Teleop")
-class BlueFarAuton : LinearOpMode() {
+@Autonomous(name = "Red Short Auton", preselectTeleOp = "Teleop")
+class RedShortAuton : LinearOpMode() {
     val timer = ElapsedTime()
     val scheduler = CommandScheduler().apply {
         onSync = {
@@ -42,9 +42,9 @@ class BlueFarAuton : LinearOpMode() {
         pedro.follower
             .pathBuilder()
             .addPath(
-                BezierLine(Pose(56.000, 8.000), Pose(56.000, 12.000))
+                BezierLine(Pose(144.0 - 28.000, 133.000), Pose(144.0 - 50.000, 110.000))
             )
-            .setLinearHeadingInterpolation(Math.toRadians(90.0), Math.toRadians(112.0))
+            .setLinearHeadingInterpolation(Math.toRadians(35.0), Math.toRadians(35.0))
             .build();
 
 
@@ -53,40 +53,46 @@ class BlueFarAuton : LinearOpMode() {
             .pathBuilder()
             .addPath(
                 BezierCurve(
-                    Pose(56.000, 12.000),
-                    Pose(56.000, 36.000),
-                    Pose(44.000, 36.000)
+                    Pose(144.0 - 50.000, 110.000),
+                    Pose(144.0 - 60.000, 98.000),
+                    Pose(144.0 - 45.000, 92.000)
                 )
             )
-            .setLinearHeadingInterpolation(Math.toRadians(112.0), Math.toRadians(0.0))
+            .setLinearHeadingInterpolation(Math.toRadians(45.0), Math.toRadians(180.0))
             .build();
 
     fun Path3(pedro: PedroDrive, uppies: Uppies) =
         pedro.follower
             .pathBuilder()
             .addPath(
-                BezierLine(Pose(44.000, 36.000), Pose(16.000, 36.000))
+                BezierLine(Pose(144.0 - 45.000, 92.000), Pose(144.0 - 20.000, 92.000))
             )
-            .setConstantHeadingInterpolation(Math.toRadians(Math.toRadians(0.0)))
-            .addParametricCallback(0.8) {
+            .setConstantHeadingInterpolation(Math.toRadians(180.0))
+            .addParametricCallback(1.0) {
                 uppies.next()
             }
             .build();
 
-    fun Path4(pedro: PedroDrive, intake: Intake) =
+    fun Path4(pedro: PedroDrive) =
         pedro.follower
             .pathBuilder()
             .addPath(
                 BezierCurve(
-                    Pose(16.000, 36.000),
-                    Pose(16.000, 12.000),
-                    Pose(56.000, 12.000)
+                    Pose(144.0 - 20.000, 92.000),
+                    Pose(144.0 - 40.000, 92.000),
+                    Pose(144.0 - 50.000, 110.000)
                 )
             )
-            .addParametricCallback(0.5) {
-                intake.power = -0.1
-            }
-            .setLinearHeadingInterpolation(Math.toRadians(0.0), Math.toRadians(108.0))
+            .setLinearHeadingInterpolation(Math.toRadians(180.0), Math.toRadians(45.0))
+            .build();
+
+    fun Path5(pedro: PedroDrive) =
+        pedro.follower
+            .pathBuilder()
+            .addPath(
+                BezierLine(Pose(144.0 - 40.000, 110.000), Pose(144.0 - 60.000, 130.000))
+            )
+            .setLinearHeadingInterpolation(Math.toRadians(45.0), Math.toRadians(90.0))
             .build();
 
     override fun runOpMode() {
@@ -95,7 +101,7 @@ class BlueFarAuton : LinearOpMode() {
 
         ManualManager.init()
 
-        val pedro = PedroDrive(this, Pose2d(56.0, 8.0, 90.0))
+        val pedro = PedroDrive(this, Pose2d(144.0-28.0, 133.0, 35.0))
         val intake = Intake(this)
         val flyWheel = FlyWheel(this)
         val uppies = Uppies(this, intake, flyWheel)
@@ -104,8 +110,9 @@ class BlueFarAuton : LinearOpMode() {
 
         val path1 = Path1(pedro, intake)
         val path2 = Path2(pedro)
-        val path3 = Path3(pedro,uppies)
-        val path4 = Path4(pedro, intake)
+        val path3 = Path3(pedro, uppies)
+        val path4 = Path4(pedro)
+        val path5 = Path5(pedro)
 
         telemetry.isAutoClear = true
 
@@ -117,6 +124,7 @@ class BlueFarAuton : LinearOpMode() {
         scheduler.schedule(pedro.command)
         scheduler.schedule(intake.command)
         scheduler.schedule(flyWheel.command)
+        flyWheel.power = FlyWheel.ClosePower
 
         scheduler.schedule(Sequential {
 //            Command { flyWheel.running = true }
@@ -126,11 +134,10 @@ class BlueFarAuton : LinearOpMode() {
             +FollowPathCommand(pedro.follower, path2)
             Command { intake.locked = true; intake.power = -1.0 }
             +FollowPathCommand(pedro.follower, path3)
+            Command { SleepFor(1000) }
             +FollowPathCommand(pedro.follower, path4)
-            Command { intake.power = 0.1; SleepFor(250)}
             +uppies.autoFireCommand
-            // you can also use integrate stuff by manually calling the stuff
-            // rather than pedro callbacks. the follow path command is quite simple.
+            +FollowPathCommand(pedro.follower, path5)
         })
 
         while (opModeIsActive() && !isStopRequested) {
