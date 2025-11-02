@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode
 
-import com.arcrobotics.ftclib.controller.PIDController
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import com.millburnx.cmdx.runtimeGroups.CommandScheduler
@@ -12,9 +11,12 @@ import org.firstinspires.ftc.teamcode.subsystems.FlyWheel
 import org.firstinspires.ftc.teamcode.subsystems.Intake
 import org.firstinspires.ftc.teamcode.subsystems.PedroDrive
 import org.firstinspires.ftc.teamcode.subsystems.Uppies
+import org.firstinspires.ftc.teamcode.util.APIDFController
 import org.firstinspires.ftc.teamcode.util.ManualManager
+import org.firstinspires.ftc.teamcode.util.RisingEdgeDetector
 import org.firstinspires.ftc.teamcode.util.Vec2d
 import org.firstinspires.ftc.teamcode.util.deg
+import kotlin.math.absoluteValue
 
 
 @TeleOp(name = "Teleop")
@@ -52,64 +54,101 @@ class Teleop : LinearOpMode() {
 
         pedro.follower.startTeleopDrive();
 
-        var headingLock = false
-        val assistPID = PIDController(Assist.kP, Assist.kI, Assist.kD)
+        val assistPID = APIDFController(Assist.kP, Assist.kI, Assist.kD, 0.0)
+
+        var offsetHeading = 0.0
 
         scheduler.schedule(pedro.command)
         scheduler.schedule(Command("pedro teleop") {
-                while (opModeIsActive() && !isStopRequested) {
-                    if (!headingLock) {
-                        pedro.follower.setTeleOpDrive(
-                            -gamepad1.left_stick_y.toDouble(),
-                            -gamepad1.left_stick_x.toDouble(),
-                            -gamepad1.right_stick_x.toDouble(),
-                            true // Robot Centric
-                        )
-                    } else {
-                        assistPID.p = Assist.kP
-                        assistPID.i = Assist.kI
-                        assistPID.d = Assist.kD
+            while (opModeIsActive() && !isStopRequested) {
+                val override = (gamepad2.left_stick_x.absoluteValue > 0.3 || gamepad2.left_stick_y.absoluteValue > 0.3)
 
-                        val targetHeading = Vec2d().angleTo(Vec2d(gamepad2.right_stick_x, -gamepad2.right_stick_y))
-                        val error = assistPID.calculate(pedro.follower.pose.heading.deg(), targetHeading.deg())
+                val rx = if (gamepad2.right_stick_x.absoluteValue > 0.5 || gamepad2.right_stick_y.absoluteValue > 0.5) {
+                    assistPID.p = Assist.kP
+                    assistPID.i = Assist.kI
+                    assistPID.d = Assist.kD
 
-                        pedro.follower.setTeleOpDrive(
-                            -gamepad1.left_stick_y.toDouble(),
-                            -gamepad1.left_stick_x.toDouble(),
-                            error,
-                            true // Robot Centric
-                        )
-                    }
-                    sync()
+                    val targetHeading = Vec2d().angleTo(Vec2d(gamepad2.right_stick_x, -gamepad2.right_stick_y))
+                    val error = assistPID.calculate(pedro.follower.pose.heading.deg(), targetHeading.deg())
+                    error
+                } else {
+                    -gamepad1.right_stick_x.toDouble()
+                }
+
+                pedro.follower.setTeleOpDrive(
+                    -(if (override) gamepad2 else gamepad1).left_stick_y.toDouble(),
+                    -(if (override) gamepad2 else gamepad1).left_stick_x.toDouble(),
+                    rx,
+                    override, // Robot Centric
+                    offsetHeading,
+                )
+                sync()
             }
         })
+
         scheduler.schedule(intake.command)
         scheduler.schedule(flyWheel.command)
         scheduler.schedule(uppies.command)
 
-        var prevAutoFireButton = gamepad1.b
-        var prevHeadingLock = gamepad1.dpad_right
-        while (opModeIsActive() && !isStopRequested) {
-            val newAutoFireButton = gamepad1.b
-            if (newAutoFireButton && !prevAutoFireButton) {
-                println("${uppies.autoFireCommand.job} | ${uppies.autoFireCommand.job?.isActive}")
-                if (uppies.autoFireCommand.job?.isActive == true) {
-                    // TODO: I don't think this canceling works? But you can ignore if its not a quick fix
-                    // Cuz theoretically the library should be fine but who knows lol
-                    uppies.autoFireCommand.cancel()
-                    println("CANCELING AUTO")
-                } else {
-                    scheduler.schedule(uppies.autoFireCommand)
-                }
+        val autoFireTrigger = RisingEdgeDetector({ gamepad1.b }) {
+            println("${uppies.autoFireCommand.job} | ${uppies.autoFireCommand.job?.isActive}")
+            if (uppies.autoFireCommand.job?.isActive == true) {
+                // TODO: I don't think this canceling works? But you can ignore if its not a quick fix
+                // Cuz theoretically the library should be fine but who knows lol
+                uppies.autoFireCommand.cancel()
+                println("CANCELING AUTO")
+            } else {
+                scheduler.schedule(uppies.autoFireCommand)
             }
-            prevAutoFireButton = newAutoFireButton
+        }
 
-            val newHeadingLock = gamepad1.dpad_left
-            if (newHeadingLock && !prevHeadingLock) {
-                headingLock = !headingLock
+        scheduler.schedule(autoFireTrigger.command)
+
+        val setHeading = RisingEdgeDetector({ gamepad2.x }) {
+            offsetHeading = pedro.follower.pose.heading
+        }
+        scheduler.schedule(setHeading.command)
+
+        var flyWheelClose = true
+
+        if (gamepad2.dpad_right) flyWheelClose = true
+        if (gamepad2.dpad_left) flyWheelClose = false
+
+        val decreasePower = RisingEdgeDetector({gamepad2.left_bumper}) {
+            if (flyWheelClose) {
+                FlyWheel.ClosePower -= 0.05
+            } else {
+                FlyWheel.FarPower -= 0.05
             }
-            telemetry.addData("headingLock", headingLock)
-            prevHeadingLock = newHeadingLock
+        }
+        val increasePower = RisingEdgeDetector({ gamepad2.right_bumper}) {
+            if (flyWheelClose) {
+                FlyWheel.ClosePower += 0.05
+            } else {
+                FlyWheel.FarPower += 0.05
+            }
+        }
+
+        flyWheel.power = if (flyWheelClose) FlyWheel.ClosePower else FlyWheel.FarPower
+
+//        var prevAutoFireButton = gamepad1.b
+//        while (opModeIsActive() && !isStopRequested) {
+//            val newAutoFireButton = gamepad1.b
+//            if (newAutoFireButton && !prevAutoFireButton) {
+//                println("${uppies.autoFireCommand.job} | ${uppies.autoFireCommand.job?.isActive}")
+//                if (uppies.autoFireCommand.job?.isActive == true) {
+//                    // TODO: I don't think this canceling works? But you can ignore if its not a quick fix
+//                    // Cuz theoretically the library should be fine but who knows lol
+//                    uppies.autoFireCommand.cancel()
+//                    println("CANCELING AUTO")
+//                } else {
+//                    scheduler.schedule(uppies.autoFireCommand)
+//                }
+//            }
+//            prevAutoFireButton = newAutoFireButton
+//        }
+
+        while (opModeIsActive() && !isStopRequested) {
         }
         scheduler.runner.cancel()
     }
@@ -120,8 +159,10 @@ class Teleop : LinearOpMode() {
 object Assist {
     @JvmField
     var kP = 0.0
+
     @JvmField
     var kI = 0.0
+
     @JvmField
     var kD = 0.0
 }
