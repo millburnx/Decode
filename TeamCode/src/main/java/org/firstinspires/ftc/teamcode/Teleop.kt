@@ -114,14 +114,14 @@ class Teleop : LinearOpMode() {
         if (gamepad2.dpad_right) flyWheelClose = true
         if (gamepad2.dpad_left) flyWheelClose = false
 
-        val decreasePower = RisingEdgeDetector({gamepad2.left_bumper}) {
+        val decreasePower = RisingEdgeDetector({ gamepad2.left_bumper }) {
             if (flyWheelClose) {
                 FlyWheel.ClosePower -= 0.05
             } else {
                 FlyWheel.FarPower -= 0.05
             }
         }
-        val increasePower = RisingEdgeDetector({ gamepad2.right_bumper}) {
+        val increasePower = RisingEdgeDetector({ gamepad2.right_bumper }) {
             if (flyWheelClose) {
                 FlyWheel.ClosePower += 0.05
             } else {
@@ -129,24 +129,14 @@ class Teleop : LinearOpMode() {
             }
         }
 
-        flyWheel.power = if (flyWheelClose) FlyWheel.ClosePower else FlyWheel.FarPower
-
-//        var prevAutoFireButton = gamepad1.b
-//        while (opModeIsActive() && !isStopRequested) {
-//            val newAutoFireButton = gamepad1.b
-//            if (newAutoFireButton && !prevAutoFireButton) {
-//                println("${uppies.autoFireCommand.job} | ${uppies.autoFireCommand.job?.isActive}")
-//                if (uppies.autoFireCommand.job?.isActive == true) {
-//                    // TODO: I don't think this canceling works? But you can ignore if its not a quick fix
-//                    // Cuz theoretically the library should be fine but who knows lol
-//                    uppies.autoFireCommand.cancel()
-//                    println("CANCELING AUTO")
-//                } else {
-//                    scheduler.schedule(uppies.autoFireCommand)
-//                }
-//            }
-//            prevAutoFireButton = newAutoFireButton
-//        }
+        scheduler.schedule(decreasePower.command)
+        scheduler.schedule(increasePower.command)
+        scheduler.schedule(Command("flywheel power") {
+            while (opModeIsActive() && !isStopRequested) {
+                flyWheel.power = if (flyWheelClose) FlyWheel.ClosePower else FlyWheel.FarPower
+                telemetry.addData("flywheel power - $flyWheelClose", flyWheel.power)
+            }
+        })
 
         while (opModeIsActive() && !isStopRequested) {
         }

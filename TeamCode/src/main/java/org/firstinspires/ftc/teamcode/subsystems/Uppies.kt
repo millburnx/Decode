@@ -92,6 +92,19 @@ class Uppies(opMode: LinearOpMode, intake: Intake, flyWheel: FlyWheel) : Subsyst
         }
     }
 
+    fun prev() {
+        if (state == States.LEFT_LOADED) {
+            state == States.LEFT_SHOT
+            leftState = Positions.OPEN
+            rightState = Positions.OPEN
+        }
+        if (state == States.RIGHT_LOADED) {
+            state == States.RIGHT_SHOT
+            leftState = Positions.OPEN
+            rightState = Positions.OPEN
+        }
+    }
+
     val loadBall: suspend Command.() -> Unit = {
         intake.power = -1.0 // run intake
         SleepFor(intakeDuration)
@@ -138,13 +151,19 @@ class Uppies(opMode: LinearOpMode, intake: Intake, flyWheel: FlyWheel) : Subsyst
 
     override val run: suspend Command.() -> Unit = {
         with(opMode) {
-            var prevButton = gamepad1.right_bumper
+            var prevRevButton = gamepad1.left_bumper
+            var prevAdvButton = gamepad1.right_bumper
             while (!isStopRequested) {
-                val newButton = gamepad1.right_bumper
-                if (!prevButton && newButton) {
+                val newRevButton = gamepad1.left_bumper
+                val newAdvButton = gamepad1.right_bumper
+                if (!prevRevButton && newRevButton) {
+                    prev()
+                }
+                if (!prevAdvButton && newAdvButton) {
                     next()
                 }
-                prevButton = newButton
+                prevRevButton = newRevButton
+                prevAdvButton = newAdvButton
 
                 val leftTarget = leftRotations + leftState.getPosition(true)
                 val rightTarget = rightRotations + rightState.getPosition(false)
