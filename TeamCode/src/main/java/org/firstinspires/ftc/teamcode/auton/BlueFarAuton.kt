@@ -16,11 +16,10 @@ import org.firstinspires.ftc.teamcode.subsystems.PedroDrive
 import org.firstinspires.ftc.teamcode.subsystems.Uppies
 import org.firstinspires.ftc.teamcode.util.ManualManager
 import org.firstinspires.ftc.teamcode.util.Pose2d
-import org.firstinspires.ftc.teamcode.util.toPedro
 
 
-@TeleOp(name = "Experimental Auton")
-class ExperimentalAuton : LinearOpMode() {
+@TeleOp(name = "Blue Far Auton")
+class BlueFarAuton : LinearOpMode() {
     val timer = ElapsedTime()
     val scheduler = CommandScheduler().apply {
         onSync = {
@@ -42,7 +41,7 @@ class ExperimentalAuton : LinearOpMode() {
         pedro.follower
             .pathBuilder()
             .addPath(
-                BezierLine(Pose2d(56.000, 8.000).toPedro(), Pose(56.000, 12.000))
+                BezierLine(Pose(56.000, 8.000), Pose(56.000, 12.000))
             )
             .setLinearHeadingInterpolation(Math.toRadians(90.0), Math.toRadians(112.0))
             .build();
@@ -58,16 +57,19 @@ class ExperimentalAuton : LinearOpMode() {
                     Pose(44.000, 36.000)
                 )
             )
-            .setTangentHeadingInterpolation()
+            .setLinearHeadingInterpolation(Math.toRadians(112.0), Math.toRadians(0.0))
             .build();
 
-    fun Path3(pedro: PedroDrive) =
+    fun Path3(pedro: PedroDrive, uppies: Uppies) =
         pedro.follower
             .pathBuilder()
             .addPath(
-                BezierLine(Pose(44.000, 36.000), Pose(12.000, 36.000))
+                BezierLine(Pose(44.000, 36.000), Pose(16.000, 36.000))
             )
-            .setTangentHeadingInterpolation()
+            .setConstantHeadingInterpolation(Math.toRadians(Math.toRadians(0.0)))
+            .addParametricCallback(0.8) {
+                uppies.next()
+            }
             .build();
 
     fun Path4(pedro: PedroDrive) =
@@ -75,12 +77,12 @@ class ExperimentalAuton : LinearOpMode() {
             .pathBuilder()
             .addPath(
                 BezierCurve(
-                    Pose(12.000, 36.000),
-                    Pose(12.000, 12.000),
+                    Pose(16.000, 36.000),
+                    Pose(16.000, 12.000),
                     Pose(56.000, 12.000)
                 )
             )
-            .setLinearHeadingInterpolation(Math.toRadians(180.0), Math.toRadians(112.0))
+            .setLinearHeadingInterpolation(Math.toRadians(0.0), Math.toRadians(108.0))
             .build();
 
     override fun runOpMode() {
@@ -98,7 +100,7 @@ class ExperimentalAuton : LinearOpMode() {
 
         val path1 = Path1(pedro, intake)
         val path2 = Path2(pedro)
-        val path3 = Path3(pedro)
+        val path3 = Path3(pedro,uppies)
         val path4 = Path4(pedro)
 
         telemetry.isAutoClear = true
@@ -118,7 +120,7 @@ class ExperimentalAuton : LinearOpMode() {
             +FollowPathCommand(pedro.follower, path1)
             +uppies.autoFireCommand
             +FollowPathCommand(pedro.follower, path2)
-            Command { intake.power = 1.0 }
+            Command { intake.locked = true; intake.power = -1.0 }
             +FollowPathCommand(pedro.follower, path3)
             +FollowPathCommand(pedro.follower, path4)
             +uppies.autoFireCommand
@@ -128,5 +130,6 @@ class ExperimentalAuton : LinearOpMode() {
 
         while (opModeIsActive() && !isStopRequested) {
         }
+        scheduler.runner.cancel()
     }
 }

@@ -50,6 +50,6 @@ class FlyWheel(opMode: LinearOpMode) : Subsystem("FlyWheel") {
 
     companion object {
         @JvmField
-        var power: Double = 0.65
+        var power: Double = 1.0
     }
 }
