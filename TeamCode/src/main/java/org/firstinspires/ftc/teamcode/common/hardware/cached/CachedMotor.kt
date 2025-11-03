@@ -1,9 +1,9 @@
-package org.firstinspires.ftc.teamcode.util
+package org.firstinspires.ftc.teamcode.common.hardware.cached
 
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.HardwareMap
-import org.firstinspires.ftc.teamcode.subsystems.motorSetup
+import org.firstinspires.ftc.teamcode.common.hardware.motorSetup
 import kotlin.math.abs
 
 open class CachedMotor(

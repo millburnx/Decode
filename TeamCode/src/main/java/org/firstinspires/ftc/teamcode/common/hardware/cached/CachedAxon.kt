@@ -1,7 +1,7 @@
-package org.firstinspires.ftc.teamcode.util
+package org.firstinspires.ftc.teamcode.common.hardware.cached
 
 import com.qualcomm.robotcore.hardware.HardwareMap
-import org.firstinspires.ftc.teamcode.subsystems.AxonCR
+import org.firstinspires.ftc.teamcode.common.hardware.AxonCR
 import kotlin.math.abs
 
 open class CachedAxon(

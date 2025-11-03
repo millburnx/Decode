@@ -1,6 +1,7 @@
-package org.firstinspires.ftc.teamcode.util
+package org.firstinspires.ftc.teamcode.common.hardware.manual
 
 import com.qualcomm.robotcore.hardware.HardwareMap
+import org.firstinspires.ftc.teamcode.common.hardware.cached.CachedMotor
 import kotlin.math.abs
 
 class ManualMotor(
