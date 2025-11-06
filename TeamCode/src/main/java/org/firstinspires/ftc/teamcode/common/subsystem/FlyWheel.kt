@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.common.subsystem
 
+import com.arcrobotics.ftclib.controller.PIDController
+import com.arcrobotics.ftclib.controller.wpilibcontroller.SimpleMotorFeedforward
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.util.WaitFor
@@ -21,7 +23,7 @@ class FlyWheel(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("FlyWh
     val teleopState = TeleopData()
 
     override val run: suspend Command.() -> Unit = {
-        with (opMode) {
+        with(opMode) {
             WaitFor { isStarted || !isStopRequested }
             while (!isStopRequested) {
                 if (isTeleop) {
@@ -60,11 +62,37 @@ class FlyWheel(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("FlyWh
     companion object {
         @JvmField
         var ShootingVelocity = 0.7
+
         @JvmField
         var IntakingVelocity = -1.0
+
         @JvmField
         var targetVelocity = 100.0
     }
 
     data class TeleopData(var prevX: Boolean = false, var prevB: Boolean = false)
+}
+
+@Configurable
+class FlyWheelController() {
+    val PID = PIDController(kP, kI, kD)
+    val FF = SimpleMotorFeedforward(kS, kV, 0.0)
+
+    fun calculate(currentVelocity: Double, targetVelocity: Double, voltage: Double): Double {
+        val pid = PID.calculate(currentVelocity, targetVelocity)
+        val ff = FF.calculate(targetVelocity)
+        val voltageCompensation = (12.0 / voltage)
+        val weightedVoltageCompensation = 1 + (1 - voltageCompensation) * voltageWeight
+
+        return (pid + ff) * weightedVoltageCompensation
+    }
+
+    companion object {
+        @JvmField var kP = 0.0
+        @JvmField var kI = 0.0
+        @JvmField var kD = 0.0
+        @JvmField var kS = 0.0
+        @JvmField var kV = 0.0
+        @JvmField var voltageWeight = 0.0
+    }
 }

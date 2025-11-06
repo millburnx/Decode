@@ -83,9 +83,7 @@ class Uppies(
                     teleopState.prevRightBumper = currentRightBumper
                 }
                 flywheelSync()
-                leftPID.p = kP
-                leftPID.i = kI
-                leftPID.d = kD
+                leftPID.setPID(kP, kI, kD)
                 leftServo.power = leftPID.calculate(leftServo.position, leftTarget)
                 tel.addData("left state", leftState)
                 tel.addData("left position", leftServo.position)

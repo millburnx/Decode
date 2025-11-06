@@ -19,9 +19,10 @@ open class CachedMotor(
 
     open var power = 0.0
         set(value) {
-            if (abs(value - field) > threshold) {
-                field = value
-                motor.power = value
+            val clamped = value.coerceIn(-1.0, 1.0)
+            if (abs(clamped - field) > threshold) {
+                field = clamped
+                motor.power = clamped
             }
         }
 
