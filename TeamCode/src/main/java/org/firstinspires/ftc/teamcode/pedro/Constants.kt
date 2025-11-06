@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.pedro
 
+import com.pedropathing.control.FilteredPIDFCoefficients
+import com.pedropathing.control.PIDFCoefficients
 import com.pedropathing.follower.Follower
 import com.pedropathing.follower.FollowerConstants
 import com.pedropathing.ftc.FollowerBuilder
@@ -18,15 +20,15 @@ object Constants {
         .forwardZeroPowerAcceleration(-154.736)
         .lateralZeroPowerAcceleration(-148.621)
         .centripetalScaling(0.0)
-//        .translationalPIDFCoefficients(PIDFCoefficients(0.0, 0.0, 0.0, 0.0))
-//        .headingPIDFCoefficients(PIDFCoefficients(0.0, 0.0, 0.0, 0.0))
-//        .drivePIDFCoefficients(FilteredPIDFCoefficients(0.0, 0.0, 0.0, 0.6, 0.0))
-//        .useSecondaryTranslationalPIDF(true)
-//        .useSecondaryHeadingPIDF(true)
-//        .useSecondaryDrivePIDF(true)
-//        .secondaryTranslationalPIDFCoefficients(PIDFCoefficients(0.0, 0.0, 0.0, 0.0))
-//        .secondaryHeadingPIDFCoefficients(PIDFCoefficients(0.0, 0.0, 0.0, 0.0))
-//        .secondaryDrivePIDFCoefficients(FilteredPIDFCoefficients(0.0, 0.0, 0.0, 0.0, 0.0))
+        .translationalPIDFCoefficients(PIDFCoefficients(0.35, 0.0, 0.01, 0.03))
+        .headingPIDFCoefficients(PIDFCoefficients(1.5, 0.0, 0.1, 0.03))
+        .drivePIDFCoefficients(FilteredPIDFCoefficients(0.01, 0.0, 0.0, 0.6, 0.3))
+        .useSecondaryTranslationalPIDF(true)
+        .useSecondaryHeadingPIDF(true)
+        .useSecondaryDrivePIDF(true)
+        .secondaryTranslationalPIDFCoefficients(PIDFCoefficients(0.4, 0.0, 0.03, 0.03))
+        .secondaryHeadingPIDFCoefficients(PIDFCoefficients(2.0, 0.0, 0.2, 0.03))
+        .secondaryDrivePIDFCoefficients(FilteredPIDFCoefficients(0.015, 0.0, 0.0, 0.6, 0.3))
 
     fun MecanumConstants.setMotors() = apply {
         rightFrontMotorName("m2")
@@ -58,7 +60,7 @@ object Constants {
         .forwardEncoderDirection(EncoderDirection.REVERSED)
         .strafeEncoderDirection(EncoderDirection.REVERSED)
 
-    val pathConstraints: PathConstraints = PathConstraints(0.99, 100.0, 1.0, 1.0)
+    val pathConstraints: PathConstraints = PathConstraints(0.99, 100.0, .25, 2.0)
 
     fun createFollower(hardwareMap: HardwareMap): Follower {
         return FollowerBuilder(followerConstants, hardwareMap)

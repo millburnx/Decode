@@ -47,4 +47,7 @@ open class CachedMotor(
                 }
             }
         }
+
+    val velocity
+        get() = motor.velocity
 }
