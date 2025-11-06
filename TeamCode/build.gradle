@@ -21,8 +21,8 @@ android {
 dependencies {
     implementation project(':FtcRobotController')
 
-    implementation 'com.github.AshOnDiscord.FTC-OffSeason:cmdx:34e2ea1904'
-    implementation 'com.github.AshOnDiscord.FTC-OffSeason:cmdxpedro:34e2ea1904'
+    implementation 'com.github.AshOnDiscord.FTC-OffSeason:cmdx:e3af407403'
+    implementation 'com.github.AshOnDiscord.FTC-OffSeason:cmdxpedro:e3af407403'
 
 //    implementation('com.millburnx:cmdx:+')
 //    implementation('com.millburnx:cmdxpedro:+')

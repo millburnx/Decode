@@ -6,6 +6,7 @@ import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.util.WaitFor
 import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualAxon
 import org.firstinspires.ftc.teamcode.opmode.OpMode
+import kotlin.math.abs
 
 @Configurable
 class Uppies(
@@ -13,56 +14,60 @@ class Uppies(
     val flyWheelState: () -> FlyWheel.State,
     var isTeleop: Boolean = false
 ) : Subsystem("Uppies") {
-    val leftServo = ManualAxon(opMode.hardwareMap, "s0", "a0", threshold = 0.01)
-    var leftState = LeftState.INTAKE_READY
-    var leftRotations = 0;
-    val leftTarget: Double
-        get() = leftRotations + when (leftState) {
-            LeftState.INTAKE_READY -> IntakeReadyPosition
-            LeftState.LOADER_READY -> LoaderReadyPosition
-            LeftState.LOADED -> LoadedPosition
+    val servo = ManualAxon(opMode.hardwareMap, "s0", "a0", threshold = 0.001)
+    var state = State.INTAKE_READY
+    var rotations = 0;
+    val target: Double
+        get() = rotations + when (state) {
+            State.INTAKE_READY -> IntakeReadyPosition
+            State.LOADER_READY -> LoaderReadyPosition
+            State.LOADED -> LoadedPosition
         }
-    val leftPID = PIDController(kP, kI, kD)
+
+    val atTarget: Boolean
+        get() = abs(servo.position - target) <= threshold
+
+    val pid = PIDController(kP, kI, kD)
 
     val teleopState = TeleopData()
 
     fun prevState() {
-        leftState = if (leftState == LeftState.LOADED) {
+        state = if (state == State.LOADED) {
             if (flyWheelState() == FlyWheel.State.INTAKING) {
-                LeftState.LOADER_READY
+                State.LOADER_READY
             } else {
-                LeftState.INTAKE_READY
+                State.INTAKE_READY
             }
         } else {
-            if (leftState == LeftState.INTAKE_READY) {
-                leftRotations--
+            if (state == State.INTAKE_READY) {
+                rotations--
             }
-            LeftState.LOADED
+            State.LOADED
         }
     }
 
     fun nextState() {
-        leftState = if (leftState == LeftState.LOADED) {
+        state = if (state == State.LOADED) {
             if (flyWheelState() == FlyWheel.State.INTAKING) {
-                leftRotations--
-                LeftState.LOADER_READY
+                rotations--
+                State.LOADER_READY
             } else {
-                leftRotations++
-                LeftState.INTAKE_READY
+                rotations++
+                State.INTAKE_READY
             }
         } else {
-            LeftState.LOADED
+            State.LOADED
         }
     }
 
     fun flywheelSync() {
-        if (flyWheelState() == FlyWheel.State.INTAKING && leftState == LeftState.INTAKE_READY) {
-            leftRotations--
-            leftState = LeftState.LOADER_READY
+        if (flyWheelState() == FlyWheel.State.INTAKING && state == State.INTAKE_READY) {
+            rotations--
+            state = State.LOADER_READY
         }
-        if (flyWheelState() != FlyWheel.State.INTAKING && leftState == LeftState.LOADER_READY) {
-            leftRotations++
-            leftState = LeftState.INTAKE_READY
+        if (flyWheelState() != FlyWheel.State.INTAKING && state == State.LOADER_READY) {
+            rotations++
+            state = State.INTAKE_READY
         }
     }
 
@@ -73,11 +78,11 @@ class Uppies(
                 teleOpControls()
 
                 flywheelSync()
-                leftPID.setPID(kP, kI, kD)
-                leftServo.power = leftPID.calculate(leftServo.position, leftTarget)
+                pid.setPID(kP, kI, kD)
+                servo.power = pid.calculate(servo.position, target)
 
-                tel.addData("left state", leftState)
-                tel.addData("left position", leftServo.position)
+                tel.addData("uppies state", state)
+                tel.addData("uppies position", servo.position)
                 sync()
             }
         }
@@ -98,7 +103,7 @@ class Uppies(
         }
     }
 
-    enum class LeftState {
+    enum class State {
         INTAKE_READY, LOADER_READY, LOADED,
     }
 
@@ -113,6 +118,9 @@ class Uppies(
 
         @JvmField
         var kD = 0.06
+
+        @JvmField
+        var threshold = 0.05
 
         @JvmField
         var IntakeReadyPosition = 0.125

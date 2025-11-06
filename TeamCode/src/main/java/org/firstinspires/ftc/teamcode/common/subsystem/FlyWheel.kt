@@ -7,6 +7,7 @@ import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.util.WaitFor
 import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualMotor
 import org.firstinspires.ftc.teamcode.opmode.OpMode
+import kotlin.math.abs
 
 @Configurable
 class FlyWheel(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("FlyWheel") {
@@ -19,7 +20,9 @@ class FlyWheel(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("FlyWh
 
     val atVelocity: Boolean
         get() {
-            return leftMotor.velocity >= targetVelocity && -rightMotor.velocity >= targetVelocity
+            val leftAtVelocity = abs(leftMotor.velocity - targetVelocity) <= velocityThreshold
+            val rightAtVelocity = abs(-rightMotor.velocity - targetVelocity) <= velocityThreshold
+            return leftAtVelocity && rightAtVelocity
         }
 
     val teleopState = TeleopData()
@@ -74,6 +77,9 @@ class FlyWheel(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("FlyWh
 
         @JvmField
         var IntakingVelocity = -1600.0
+
+        @JvmField
+        var velocityThreshold = 200.0
     }
 
     data class TeleopData(var prevX: Boolean = false, var prevB: Boolean = false)
@@ -94,11 +100,22 @@ class FlyWheelController() {
     }
 
     companion object {
-        @JvmField var kP = 0.0
-        @JvmField var kI = 0.0
-        @JvmField var kD = 0.0
-        @JvmField var kS = 0.0
-        @JvmField var kV = 0.0
-        @JvmField var voltageWeight = 0.0
+        @JvmField
+        var kP = 0.0
+
+        @JvmField
+        var kI = 0.0
+
+        @JvmField
+        var kD = 0.0
+
+        @JvmField
+        var kS = 0.0
+
+        @JvmField
+        var kV = 0.0
+
+        @JvmField
+        var voltageWeight = 0.0
     }
 }

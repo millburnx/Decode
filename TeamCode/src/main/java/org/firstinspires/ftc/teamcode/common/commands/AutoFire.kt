@@ -2,23 +2,72 @@ package org.firstinspires.ftc.teamcode.common.commands
 
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
+import com.millburnx.cmdx.ICommand
+import com.millburnx.cmdx.commandGroups.Sequential
 import com.millburnx.cmdxpedro.util.SleepFor
 import com.millburnx.cmdxpedro.util.WaitFor
+import org.firstinspires.ftc.teamcode.common.commands.AutoFireSettings.intakeDuration
 import org.firstinspires.ftc.teamcode.common.subsystem.FlyWheel
 import org.firstinspires.ftc.teamcode.common.subsystem.Intake
 import org.firstinspires.ftc.teamcode.common.subsystem.Uppies
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
-fun AutoFire(opMode: OpMode, intake: Intake, flyWheel: FlyWheel, uppies: Uppies) = Command("AutoFire") {
+fun AutoFire(opMode: OpMode, intake: Intake, flyWheel: FlyWheel, uppies: Uppies): ICommand {
     with(opMode) {
-        require(isStarted)
-        lock(intake, flyWheel, uppies)
-        intake.power = 0.0
-        flyWheel.state = FlyWheel.State.SHOOTING
-        WaitFor { flyWheel.atVelocity == true }
-        unlock(intake, flyWheel, uppies)
+        suspend fun Command.shootBall() {
+            WaitFor { (flyWheel.atVelocity && uppies.atTarget) || isStopRequested }
+            uppies.nextState()
+        }
+
+        suspend fun Command.loadBall() {
+            intake.power = 0.5
+            SleepFor({ isStopRequested }) { intakeDuration }
+            uppies.nextState()
+        }
+
+        return Sequential("Auto Fire") {
+            Command("Prepare Subsystems") {
+                if (!isStarted) parentGroup?.cancel()
+                lock(intake, flyWheel, uppies)
+                intake.power = 0.0
+                flyWheel.state = FlyWheel.State.SHOOTING
+            }
+            Command("Verify First Ball") {
+                if (uppies.state != Uppies.State.LOADED) {
+                    loadBall()
+                }
+            }
+            Command("Shoot First Ball") { shootBall() }
+            Command("Load Second Ball") { loadBall() }
+            Command("Shoot Second Ball") { shootBall() }
+            Command("Load Third Ball") { loadBall() }
+            Command("Shoot Third Ball") { shootBall() }
+            Command("Reset Subsystems") {
+                intake.power = 0.0
+                flyWheel.state = FlyWheel.State.IDLE
+                unlock(intake, flyWheel, uppies)
+            }
+        }
     }
 }
+
+@Configurable
+object AutoFireSettings {
+    @JvmField
+    var intakeDuration = 500L
+}
+
+//fun AutoFire(opMode: OpMode, intake: Intake, flyWheel: FlyWheel, uppies: Uppies) = Command("AutoFire") {
+//    with(opMode) {
+//        require(isStarted)
+//        lock(intake, flyWheel, uppies)
+//        intake.power = 0.0
+//        flyWheel.state = FlyWheel.State.SHOOTING
+//        WaitFor { flyWheel.atVelocity }
+//        uppies.nextState()
+//        unlock(intake, flyWheel, uppies)
+//    }
+//}
 
 private fun lock(intake: Intake, flyWheel: FlyWheel, uppies: Uppies) {
     intake.isTeleop = false
