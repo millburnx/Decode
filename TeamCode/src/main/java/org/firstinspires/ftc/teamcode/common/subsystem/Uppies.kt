@@ -70,25 +70,31 @@ class Uppies(
         with(opMode) {
             WaitFor { isStarted || !isStopRequested }
             while (!isStopRequested) {
-                if (isTeleop) {
-                    val currentLeftBumper = gp1.left_bumper
-                    val currentRightBumper = gp1.right_bumper
-                    if (currentLeftBumper && !teleopState.prevLeftBumper) {
-                        prevState()
-                    }
-                    if (currentRightBumper && !teleopState.prevRightBumper) {
-                        nextState()
-                    }
-                    teleopState.prevLeftBumper = currentLeftBumper
-                    teleopState.prevRightBumper = currentRightBumper
-                }
+                teleOpControls()
+
                 flywheelSync()
                 leftPID.setPID(kP, kI, kD)
                 leftServo.power = leftPID.calculate(leftServo.position, leftTarget)
+
                 tel.addData("left state", leftState)
                 tel.addData("left position", leftServo.position)
                 sync()
             }
+        }
+    }
+
+    private fun OpMode.teleOpControls() {
+        if (isTeleop) {
+            val currentLeftBumper = gp1.left_bumper
+            val currentRightBumper = gp1.right_bumper
+            if (currentLeftBumper && !teleopState.prevLeftBumper) {
+                prevState()
+            }
+            if (currentRightBumper && !teleopState.prevRightBumper) {
+                nextState()
+            }
+            teleopState.prevLeftBumper = currentLeftBumper
+            teleopState.prevRightBumper = currentRightBumper
         }
     }
 
