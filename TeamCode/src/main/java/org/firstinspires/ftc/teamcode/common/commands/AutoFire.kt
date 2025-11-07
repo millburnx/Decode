@@ -7,6 +7,8 @@ import com.millburnx.cmdx.commandGroups.Sequential
 import com.millburnx.cmdxpedro.util.SleepFor
 import com.millburnx.cmdxpedro.util.WaitFor
 import org.firstinspires.ftc.teamcode.common.commands.AutoFireSettings.intakeDuration
+import org.firstinspires.ftc.teamcode.common.commands.AutoFireSettings.jamDuration
+import org.firstinspires.ftc.teamcode.common.commands.AutoFireSettings.unjamDuration
 import org.firstinspires.ftc.teamcode.common.subsystem.FlyWheel
 import org.firstinspires.ftc.teamcode.common.subsystem.Intake
 import org.firstinspires.ftc.teamcode.common.subsystem.Uppies
@@ -19,10 +21,36 @@ fun AutoFire(opMode: OpMode, intake: Intake, flyWheel: FlyWheel, uppies: Uppies)
             uppies.nextState()
         }
 
-        suspend fun Command.loadBall() {
+        suspend fun Command.attemptUnjam() {
+            uppies.prevState()
+            intake.power = -0.25
+            SleepFor({ isStopRequested }) { unjamDuration }
+        }
+
+        suspend fun Command.attemptLoad() {
             intake.power = 0.5
             SleepFor({ isStopRequested }) { intakeDuration }
             uppies.nextState()
+            // check for a jam
+        }
+
+        suspend fun Command.isJammed(): Boolean {
+            SleepFor({ isStopRequested || uppies.atTarget }) { jamDuration }
+            return !uppies.atTarget
+        }
+
+        suspend fun Command.loadBall(jamProtection: Boolean = false) {
+            if (!jamProtection) {
+                intake.power = 0.5
+                SleepFor({ isStopRequested }) { intakeDuration }
+                uppies.nextState()
+            } else {
+                attemptLoad()
+                while (isJammed()) {
+                    attemptUnjam()
+                    attemptLoad()
+                }
+            }
         }
 
         return Sequential("Auto Fire") {
@@ -55,6 +83,12 @@ fun AutoFire(opMode: OpMode, intake: Intake, flyWheel: FlyWheel, uppies: Uppies)
 object AutoFireSettings {
     @JvmField
     var intakeDuration = 500L
+
+    @JvmField
+    var jamDuration = 500L
+
+    @JvmField
+    var unjamDuration = 500L
 }
 
 //fun AutoFire(opMode: OpMode, intake: Intake, flyWheel: FlyWheel, uppies: Uppies) = Command("AutoFire") {

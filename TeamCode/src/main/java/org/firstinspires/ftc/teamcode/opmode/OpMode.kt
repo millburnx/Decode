@@ -25,10 +25,12 @@ abstract class OpMode : LinearOpMode() {
     var hubs: List<LynxModule> = emptyList()
     val scheduler = CommandScheduler().apply {
         onSync = {
+            val ms = loopTimer.milliseconds()
             val loopHertz = 1.0 / loopTimer.seconds()
             loopTimer.reset()
 
             tel.addData("hz", loopHertz)
+            tel.addData("ms", ms)
             tel.update(telemetry)
 
             // hardware
