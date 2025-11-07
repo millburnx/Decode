@@ -2,10 +2,10 @@ package org.firstinspires.ftc.teamcode.common.commands
 
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
-import com.millburnx.cmdx.ICommand
 import com.millburnx.cmdx.commandGroups.Sequential
 import com.millburnx.cmdxpedro.util.SleepFor
 import com.millburnx.cmdxpedro.util.WaitFor
+import kotlinx.coroutines.isActive
 import org.firstinspires.ftc.teamcode.common.commands.AutoFireSettings.intakeDuration
 import org.firstinspires.ftc.teamcode.common.commands.AutoFireSettings.jamDuration
 import org.firstinspires.ftc.teamcode.common.commands.AutoFireSettings.unjamDuration
@@ -14,7 +14,27 @@ import org.firstinspires.ftc.teamcode.common.subsystem.Intake
 import org.firstinspires.ftc.teamcode.common.subsystem.Uppies
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
-fun AutoFire(opMode: OpMode, intake: Intake, flyWheel: FlyWheel, uppies: Uppies): ICommand {
+fun TeleopAutoFire(opMode: OpMode, intake: Intake, flyWheel: FlyWheel, uppies: Uppies): Command = Command("Auto Fire Triggerer") {
+    with (opMode) {
+        val autoFire = AutoFire(this, intake, flyWheel, uppies)
+        WaitFor { isStarted }
+        var prevButton = gp1.a
+        while (!isStopRequested) {
+            val currentButton = gp1.a
+            if (currentButton && !prevButton) {
+                if (autoFire.currentScope?.isActive ?: false) {
+                    // already scheduled, cancel
+                    autoFire.cancel()
+                } else {
+                    scheduler.schedule(autoFire)
+                }
+            }
+            prevButton = currentButton
+        }
+    }
+}
+
+fun AutoFire(opMode: OpMode, intake: Intake, flyWheel: FlyWheel, uppies: Uppies): Sequential {
     with(opMode) {
         suspend fun Command.shootBall() {
             WaitFor { (flyWheel.atVelocity && uppies.atTarget) || isStopRequested }

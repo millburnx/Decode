@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmode.teleop
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.common.commands.AutoFire
+import org.firstinspires.ftc.teamcode.common.commands.TeleopAutoFire
 import org.firstinspires.ftc.teamcode.common.subsystem.FlyWheel
 import org.firstinspires.ftc.teamcode.common.subsystem.Intake
 import org.firstinspires.ftc.teamcode.common.subsystem.Pedro
@@ -15,7 +15,8 @@ class Teleop : OpMode() {
         val flyWheel = FlyWheel(this, isTeleop = true)
         val uppies = Uppies(this, { flyWheel.state }, isTeleop = true)
         val pedro = Pedro(this, isTeleop = true)
-        val autoFire = AutoFire(this, intake, flyWheel, uppies)
+
+        scheduler.schedule(TeleopAutoFire(this, intake, flyWheel, uppies))
 //        scheduler.schedule(TeleOpStopper(this))
     }
 }

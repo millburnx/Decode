@@ -52,8 +52,8 @@ class FlyWheel(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("FlyWh
 
     private fun OpMode.teleOpControls() {
         if (isTeleop) {
-            val currentX = gamepad1.x
-            val currentB = gamepad1.b
+            val currentX = gp1.x
+            val currentB = gp1.b
             if (currentX && !teleopState.prevX) {
                 state = if (state == State.SHOOTING) State.IDLE else State.SHOOTING
             }
