@@ -11,7 +11,7 @@ class Intake(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Intake"
 
     override val run: suspend Command.() -> Unit = {
         with (opMode) {
-            WaitFor { isStarted || !isStopRequested }
+            WaitFor { isStarted || isStopRequested }
             while (!isStopRequested) {
                 if (isTeleop) {
                     power = (gp1.right_trigger - gp1.left_trigger).toDouble();

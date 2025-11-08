@@ -73,7 +73,7 @@ class Uppies(
 
     override val run: suspend Command.() -> Unit = {
         with(opMode) {
-            WaitFor { isStarted || !isStopRequested }
+            WaitFor { isStarted || isStopRequested }
             while (!isStopRequested) {
                 teleOpControls()
 

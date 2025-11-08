@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.opmode.OpMode
 fun TeleopAutoFire(opMode: OpMode, intake: Intake, flyWheel: FlyWheel, uppies: Uppies): Command = Command("Auto Fire Triggerer") {
     with (opMode) {
         val autoFire = AutoFire(this, intake, flyWheel, uppies)
-        WaitFor { isStarted }
+        WaitFor { isStarted || isStopRequested }
         var prevButton = gp1.a
         while (!isStopRequested) {
             val currentButton = gp1.a

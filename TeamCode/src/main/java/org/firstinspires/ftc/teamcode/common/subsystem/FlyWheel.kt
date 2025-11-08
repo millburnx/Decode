@@ -29,7 +29,7 @@ class FlyWheel(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("FlyWh
 
     override val run: suspend Command.() -> Unit = {
         with(opMode) {
-            WaitFor { isStarted || !isStopRequested }
+            WaitFor { isStarted || isStopRequested }
             while (!isStopRequested) {
                 teleOpControls()
 

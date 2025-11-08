@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmode.teleop
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.commands.TeleopAutoFire
 import org.firstinspires.ftc.teamcode.common.subsystem.Apriltags
+import org.firstinspires.ftc.teamcode.common.subsystem.AutoTargetting
 import org.firstinspires.ftc.teamcode.common.subsystem.FlyWheel
 import org.firstinspires.ftc.teamcode.common.subsystem.Intake
 import org.firstinspires.ftc.teamcode.common.subsystem.Pedro
@@ -25,6 +26,8 @@ class Teleop : OpMode() {
         VisionManager.init()
         val apriltags = Apriltags()
         VisionManager.build()
+
+        val autoTargetting = AutoTargetting(this, pedro, apriltags)
 
         scheduler.schedule(TeleopAutoFire(this, intake, flyWheel, uppies))
 //        scheduler.schedule(TeleOpStopper(this))

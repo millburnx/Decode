@@ -24,8 +24,8 @@ class Apriltags : Subsystem("Apriltags") {
         VisionManager.processors.add(processor)
     }
 
-    val apriltags: List<AprilTagDetection>
-        get() = processor.detections.toList()
+    val apriltags: Map<Int, AprilTagDetection>
+        get() = processor.detections.associateBy { it.id }
 
     override val run: suspend Command.() -> Unit = {
         // we don't actually have to do anything here
