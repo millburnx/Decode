@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.common.subsystem
 import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.util.Pose2d
 import com.millburnx.cmdxpedro.util.WaitFor
+import com.millburnx.cmdxpedro.util.toDegrees
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
 class AutoTargetting(opMode: OpMode, pedro: Pedro, apriltags: Apriltags) : Subsystem("Auto Targeting") {
@@ -23,12 +24,12 @@ class AutoTargetting(opMode: OpMode, pedro: Pedro, apriltags: Apriltags) : Subsy
                 prevButton = currentButton
 
                 if (!enabled || target == null) {
-                    pedro.isTeleop = true
-                    if (!pedro.follower.isTeleopDrive) pedro.follower.startTeleopDrive(true)
+                    pedro.isLocked = false
                     continue
                 }
-                pedro.isTeleop = false
-                pedro.follower.turnTo(pedro.pose.position.angle(target.position))
+                pedro.isLocked = true
+                val targetHeading = pedro.pose.position.angle(target.position)
+                pedro.headingLock.targetHeading = targetHeading.toDegrees()
             }
         }
     }
