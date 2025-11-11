@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.common.subsystem
 import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.util.Pose2d
 import com.millburnx.cmdxpedro.util.WaitFor
-import com.millburnx.cmdxpedro.util.toDegrees
 import org.firstinspires.ftc.teamcode.common.roundTo
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
@@ -13,7 +12,7 @@ class AutoTargetting(opMode: OpMode, pedro: Pedro, apriltags: Apriltags) : Subsy
     var target: Pose2d? = null
 
     override val run: suspend Command.() -> Unit = {
-        with (opMode) {
+        with(opMode) {
             WaitFor { isStarted || isStopRequested }
             while (!isStopRequested) {
                 val apriltag = apriltags.apriltags[20] ?: apriltags.apriltags[24]
@@ -29,15 +28,15 @@ class AutoTargetting(opMode: OpMode, pedro: Pedro, apriltags: Apriltags) : Subsy
                 if (gp1.current.y && !gp1.prev.y) {
                     enabled = !enabled
                 }
-
-                if (!enabled || target == null) {
-                    pedro.isLocked = false
-                    sync()
-                    continue
+                val newLocked = enabled && target != null
+                if (newLocked != pedro.isLocked) {
+                    pedro.isLocked = newLocked
+                    if (newLocked) {
+                        pedro.follower.turnTo(pedro.pose.position.angle(target!!.position))
+                    } else {
+                        pedro.follower.startTeleopDrive(true)
+                    }
                 }
-                pedro.isLocked = true
-                val targetHeading = pedro.pose.position.angle(target!!.position)
-                pedro.headingLock.targetHeading = targetHeading.toDegrees()
                 sync()
             }
         }
