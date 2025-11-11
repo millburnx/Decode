@@ -29,8 +29,6 @@ class Uppies(
 
     val pid = PIDController(kP, kI, kD)
 
-    val teleopState = TeleopData()
-
     fun prevState() {
         state = if (state == State.LOADED) {
             if (flyWheelState() == FlyWheel.State.INTAKING) {
@@ -89,25 +87,14 @@ class Uppies(
     }
 
     private fun OpMode.teleOpControls() {
-        if (isTeleop) {
-            val currentLeftBumper = gp1.left_bumper
-            val currentRightBumper = gp1.right_bumper
-            if (currentLeftBumper && !teleopState.prevLeftBumper) {
-                prevState()
-            }
-            if (currentRightBumper && !teleopState.prevRightBumper) {
-                nextState()
-            }
-            teleopState.prevLeftBumper = currentLeftBumper
-            teleopState.prevRightBumper = currentRightBumper
-        }
+        if (isTeleop) return
+        if (gp1.current.leftBumper && !gp1.prev.leftBumper) prevState()
+        if (gp1.current.rightBumper && !gp1.prev.rightBumper) nextState()
     }
 
     enum class State {
         INTAKE_READY, LOADER_READY, LOADED,
     }
-
-    data class TeleopData(var prevLeftBumper: Boolean = false, var prevRightBumper: Boolean = false)
 
     companion object {
         @JvmField

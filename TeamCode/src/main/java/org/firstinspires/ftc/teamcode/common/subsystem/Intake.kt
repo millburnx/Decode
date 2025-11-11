@@ -14,7 +14,7 @@ class Intake(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Intake"
             WaitFor { isStarted || isStopRequested }
             while (!isStopRequested) {
                 if (isTeleop) {
-                    power = (gp1.right_trigger - gp1.left_trigger).toDouble();
+                    power = gp1.current.rightTrigger - gp1.current.leftTrigger;
                 }
                 motor.power = power
                 sync()

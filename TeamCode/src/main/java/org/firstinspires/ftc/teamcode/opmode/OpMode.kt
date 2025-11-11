@@ -1,25 +1,23 @@
 package org.firstinspires.ftc.teamcode.opmode
 
-import com.bylazar.gamepad.GamepadManager
-import com.bylazar.gamepad.PanelsGamepad
+import com.bylazar.camerastream.PanelsCameraStream
 import com.bylazar.telemetry.PanelsTelemetry
 import com.millburnx.cmdx.runtimeGroups.CommandScheduler
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.teamcode.common.hardware.Gamepad
+import org.firstinspires.ftc.teamcode.common.hardware.GamepadManager
 import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualManager
 import org.firstinspires.ftc.teamcode.common.subsystem.SubsystemManager
 
 abstract class OpMode : LinearOpMode() {
     val tel = PanelsTelemetry.telemetry
-    val gm1: GamepadManager = PanelsGamepad.firstManager
-    val gm2: GamepadManager = PanelsGamepad.secondManager
 
-    val gp1: Gamepad
-        get() = gm1.asCombinedFTCGamepad(gamepad1)
-    val gp2: Gamepad
-        get() = gm2.asCombinedFTCGamepad(gamepad2)
+    val gamepadManager: GamepadManager = GamepadManager(this)
+
+    val gp1: Gamepad = gamepadManager.gamepad1
+    val gp2: Gamepad = gamepadManager.gamepad2
 
     val loopTimer = ElapsedTime()
     var hubs: List<LynxModule> = emptyList()
@@ -36,6 +34,7 @@ abstract class OpMode : LinearOpMode() {
             // hardware
             hubs.forEach { it.clearBulkCache() }
             ManualManager.update()
+            gamepadManager.update()
         }
     }
 
@@ -56,5 +55,6 @@ abstract class OpMode : LinearOpMode() {
         while (opModeIsActive()) {
         }
         scheduler.runner.cancel() // Clean up faulty commands
+        PanelsCameraStream.stopStream()
     }
 }

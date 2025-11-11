@@ -14,26 +14,24 @@ import org.firstinspires.ftc.teamcode.common.subsystem.Intake
 import org.firstinspires.ftc.teamcode.common.subsystem.Uppies
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
-fun TeleopAutoFire(opMode: OpMode, intake: Intake, flyWheel: FlyWheel, uppies: Uppies): Command = Command("Auto Fire Triggerer") {
-    with (opMode) {
-        val autoFire = AutoFire(this, intake, flyWheel, uppies)
-        WaitFor { isStarted || isStopRequested }
-        var prevButton = gp1.a
-        while (!isStopRequested) {
-            val currentButton = gp1.a
-            if (currentButton && !prevButton) {
-                if (autoFire.currentScope?.isActive ?: false) {
-                    // already scheduled, cancel
-                    autoFire.cancel()
-                } else {
-                    scheduler.schedule(autoFire)
+fun TeleopAutoFire(opMode: OpMode, intake: Intake, flyWheel: FlyWheel, uppies: Uppies): Command =
+    Command("Auto Fire Triggerer") {
+        with(opMode) {
+            val autoFire = AutoFire(this, intake, flyWheel, uppies)
+            WaitFor { isStarted || isStopRequested }
+            while (!isStopRequested) {
+                if (gp1.current.a && !gp1.prev.a) {
+                    if (autoFire.currentScope?.isActive ?: false) {
+                        // already scheduled, cancel
+                        autoFire.cancel()
+                    } else {
+                        scheduler.schedule(autoFire)
+                    }
                 }
+                sync()
             }
-            prevButton = currentButton
-            sync()
         }
     }
-}
 
 fun AutoFire(opMode: OpMode, intake: Intake, flyWheel: FlyWheel, uppies: Uppies): Sequential {
     with(opMode) {

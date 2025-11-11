@@ -15,7 +15,6 @@ class AutoTargetting(opMode: OpMode, pedro: Pedro, apriltags: Apriltags) : Subsy
     override val run: suspend Command.() -> Unit = {
         with (opMode) {
             WaitFor { isStarted || isStopRequested }
-            var prevButton = gp1.y
             while (!isStopRequested) {
                 val apriltag = apriltags.apriltags[20] ?: apriltags.apriltags[24]
                 if (apriltag != null && !enabled) target = apriltag.toPose(pedro.pose)
@@ -27,11 +26,9 @@ class AutoTargetting(opMode: OpMode, pedro: Pedro, apriltags: Apriltags) : Subsy
                 tel.addData("tag range", apriltag?.ftcPose?.range?.roundTo(2) ?: -1.0)
                 tel.addData("tag bearing", apriltag?.ftcPose?.bearing?.roundTo(2) ?: -1.0)
 
-                val currentButton = gp1.y
-                if (currentButton && !prevButton) {
+                if (gp1.current.y && !gp1.prev.y) {
                     enabled = !enabled
                 }
-                prevButton = currentButton
 
                 if (!enabled || target == null) {
                     pedro.isLocked = false

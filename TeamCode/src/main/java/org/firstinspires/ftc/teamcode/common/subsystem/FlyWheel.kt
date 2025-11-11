@@ -25,8 +25,6 @@ class FlyWheel(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("FlyWh
             return leftAtVelocity && rightAtVelocity
         }
 
-    val teleopState = TeleopData()
-
     override val run: suspend Command.() -> Unit = {
         with(opMode) {
             WaitFor { isStarted || isStopRequested }
@@ -52,16 +50,12 @@ class FlyWheel(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("FlyWh
 
     private fun OpMode.teleOpControls() {
         if (isTeleop) {
-            val currentX = gp1.x
-            val currentB = gp1.b
-            if (currentX && !teleopState.prevX) {
+            if (gp1.current.x && gp1.current.x) {
                 state = if (state == State.SHOOTING) State.IDLE else State.SHOOTING
             }
-            if (currentB && !teleopState.prevB) {
+            if (gp1.current.b && gp1.current.b) {
                 state = if (state == State.INTAKING) State.IDLE else State.INTAKING
             }
-            teleopState.prevX = currentX
-            teleopState.prevB = currentB
         }
     }
 
@@ -81,8 +75,6 @@ class FlyWheel(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("FlyWh
         @JvmField
         var velocityThreshold = 200.0
     }
-
-    data class TeleopData(var prevX: Boolean = false, var prevB: Boolean = false)
 }
 
 @Configurable

@@ -36,16 +36,16 @@ class Pedro(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Pedro") 
                 if (isTeleop) {
                     if (isLocked) {
                         follower.setTeleOpDrive(
-                            -gp1.left_stick_y.toDouble(),
-                            -gp1.left_stick_x.toDouble(),
+                            -gp1.current.leftJoyStick.y,
+                            -gp1.current.leftJoyStick.x,
                             headingLock.calc().magnitude,
                             false
                         )
                     } else {
                         follower.setTeleOpDrive(
-                            -gp1.left_stick_y.toDouble(),
-                            -gp1.left_stick_x.toDouble(),
-                            -gp1.right_stick_x.toDouble()
+                            -gp1.current.leftJoyStick.y,
+                            -gp1.current.leftJoyStick.x,
+                            -gp1.current.rightJoyStick.x
                         )
                     }
                 }
