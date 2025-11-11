@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.common
 
 import com.millburnx.cmdxpedro.util.Pose2d
 import com.millburnx.cmdxpedro.util.geometry.vector.Vec2d
+import com.pedropathing.geometry.Pose
 import java.util.*
 import kotlin.math.floor
 import kotlin.math.pow
@@ -21,4 +22,8 @@ fun Vec2d.simplifiedString(): String = String.format(Locale.US ,"(%.2f, %.2f)", 
 fun Double.roundTo(n: Int): Double {
     val factor = 10.0.pow(n)
     return round(this * factor) / factor
+}
+
+fun Pose2d.toPedro(): Pose {
+    return Pose(this.x, this.y, this.radians)
 }

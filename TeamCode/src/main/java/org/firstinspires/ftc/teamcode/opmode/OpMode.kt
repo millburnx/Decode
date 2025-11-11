@@ -1,30 +1,33 @@
 package org.firstinspires.ftc.teamcode.opmode
 
-import com.bylazar.camerastream.PanelsCameraStream
 import com.bylazar.telemetry.PanelsTelemetry
 import com.millburnx.cmdx.runtimeGroups.CommandScheduler
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.util.ElapsedTime
-import org.firstinspires.ftc.teamcode.common.hardware.Gamepad
-import org.firstinspires.ftc.teamcode.common.hardware.GamepadManager
+import org.firstinspires.ftc.teamcode.common.hardware.gamepad.Gamepad
+import org.firstinspires.ftc.teamcode.common.hardware.gamepad.GamepadManager
 import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualManager
 import org.firstinspires.ftc.teamcode.common.subsystem.SubsystemManager
 
 abstract class OpMode : LinearOpMode() {
     val tel = PanelsTelemetry.telemetry
 
-    val gamepadManager: GamepadManager = GamepadManager(this)
+    lateinit var gamepadManager: GamepadManager
 
-    val gp1: Gamepad = gamepadManager.gamepad1
-    val gp2: Gamepad = gamepadManager.gamepad2
+    val gp1: Gamepad
+        get() = gamepadManager.gamepad1
+    val gp2: Gamepad
+        get() = gamepadManager.gamepad2
 
     val loopTimer = ElapsedTime()
+    var deltaTime = 0.0
     var hubs: List<LynxModule> = emptyList()
     val scheduler = CommandScheduler().apply {
         onSync = {
             val ms = loopTimer.milliseconds()
             val loopHertz = 1.0 / loopTimer.seconds()
+            deltaTime = loopHertz
             loopTimer.reset()
 
             tel.addData("hz", loopHertz)
@@ -34,7 +37,9 @@ abstract class OpMode : LinearOpMode() {
             // hardware
             hubs.forEach { it.clearBulkCache() }
             ManualManager.update()
-            gamepadManager.update()
+            if (::gamepadManager.isInitialized) {
+                gamepadManager.update()
+            }
         }
     }
 
@@ -44,6 +49,8 @@ abstract class OpMode : LinearOpMode() {
 
     override fun runOpMode() {
         telemetry.isAutoClear = true
+
+        gamepadManager = GamepadManager(this)
 
         SubsystemManager.init()
         run()
@@ -55,6 +62,6 @@ abstract class OpMode : LinearOpMode() {
         while (opModeIsActive()) {
         }
         scheduler.runner.cancel() // Clean up faulty commands
-        PanelsCameraStream.stopStream()
+//        PanelsCameraStream.stopStream()
     }
 }

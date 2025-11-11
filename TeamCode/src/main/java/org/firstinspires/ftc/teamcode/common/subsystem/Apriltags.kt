@@ -34,6 +34,6 @@ class Apriltags : Subsystem("Apriltags") {
 }
 
 fun AprilTagDetection.toPose(currentPose: Pose2d): Pose2d {
-    val offset = Vec2d(ftcPose.range, 0).rotate(currentPose.radians + ftcPose.bearing.toRadians())
+    val offset = Vec2d(ftcPose.range).rotate(currentPose.radians + ftcPose.bearing.toRadians())
     return Pose2d(currentPose.position + offset, currentPose.heading + ftcPose.yaw)
 }

@@ -6,7 +6,7 @@ import com.millburnx.cmdxpedro.util.WaitFor
 import org.firstinspires.ftc.teamcode.common.roundTo
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
-class AutoTargetting(opMode: OpMode, pedro: Pedro, apriltags: Apriltags) : Subsystem("Auto Targeting") {
+class AutoTargeting(opMode: OpMode, pedro: Pedro, apriltags: Apriltags) : Subsystem("Auto Targeting") {
 
     var enabled = false
     var target: Pose2d? = null
@@ -32,7 +32,7 @@ class AutoTargetting(opMode: OpMode, pedro: Pedro, apriltags: Apriltags) : Subsy
                 if (newLocked != pedro.isLocked) {
                     pedro.isLocked = newLocked
                     if (newLocked) {
-                        pedro.follower.turnTo(pedro.pose.position.angle(target!!.position))
+                        pedro.follower.turnTo(pedro.pose.angleTo(target!!))
                     } else {
                         pedro.follower.startTeleopDrive(true)
                     }
