@@ -8,7 +8,6 @@ import org.firstinspires.ftc.teamcode.common.vision.VisionManager
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor
-import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor.PoseSolver
 
 class Apriltags : Subsystem("Apriltags") {
     val processor: AprilTagProcessor = AprilTagProcessor.Builder()
@@ -16,8 +15,8 @@ class Apriltags : Subsystem("Apriltags") {
         .setDrawAxes(true)
         .setDrawCubeProjection(true)
         .build().apply {
-            setDecimation(2F)
-            setPoseSolver(PoseSolver.OPENCV_IPPE)
+            setDecimation(3F)
+//            setPoseSolver(PoseSolver.OPENCV_IPPE)
         }
 
     init {

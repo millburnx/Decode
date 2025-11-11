@@ -20,7 +20,7 @@ object VisionManager {
         VisionPortal
             .Builder()
             .setCamera(opMode.hardwareMap["cam1"] as WebcamName)
-            .addProcessors(*processors.toTypedArray())
+            .addProcessors(PanelsIntegration(), *processors.toTypedArray())
             .setCameraResolution(Size(cameraSizeX, cameraSizeY))
             .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
             .enableLiveView(true)
