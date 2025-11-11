@@ -30,6 +30,7 @@ fun TeleopAutoFire(opMode: OpMode, intake: Intake, flyWheel: FlyWheel, uppies: U
                 }
             }
             prevButton = currentButton
+            sync()
         }
     }
 }

@@ -2,8 +2,8 @@ package org.firstinspires.ftc.teamcode.common.vision
 
 import android.util.Size
 import com.bylazar.configurables.annotations.Configurable
-import org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.opMode
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
+import org.firstinspires.ftc.teamcode.opmode.OpMode
 import org.firstinspires.ftc.vision.VisionPortal
 import org.firstinspires.ftc.vision.VisionProcessor
 
@@ -16,7 +16,7 @@ object VisionManager {
         processors.clear()
     }
 
-    fun build() =
+    fun build(opMode: OpMode): VisionPortal =
         VisionPortal
             .Builder()
             .setCamera(opMode.hardwareMap["cam1"] as WebcamName)

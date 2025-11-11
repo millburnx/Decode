@@ -24,6 +24,7 @@ dependencies {
     implementation 'com.github.AshOnDiscord.FTC-OffSeason:cmdx:01bc6d6334'
     implementation 'com.github.AshOnDiscord.FTC-OffSeason:cmdxpedro:01bc6d6334'
 
+//    maven local
 //    implementation('com.millburnx:cmdx:+')
 //    implementation('com.millburnx:cmdxpedro:+')
 
