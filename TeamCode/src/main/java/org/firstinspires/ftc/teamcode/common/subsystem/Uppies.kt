@@ -87,7 +87,7 @@ class Uppies(
     }
 
     private fun OpMode.teleOpControls() {
-        if (isTeleop) return
+        if (!isTeleop) return
         if (gp1.current.leftBumper && !gp1.prev.leftBumper) prevState()
         if (gp1.current.rightBumper && !gp1.prev.rightBumper) nextState()
     }
@@ -98,7 +98,7 @@ class Uppies(
 
     companion object {
         @JvmField
-        var kP = 2.0
+        var kP = 1.5
 
         @JvmField
         var kI = 0.0

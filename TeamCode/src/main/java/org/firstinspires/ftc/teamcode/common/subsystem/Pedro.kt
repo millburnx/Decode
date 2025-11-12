@@ -30,7 +30,7 @@ class Pedro(val opMode: OpMode, val startingPose: Pose2d = Pose2d(), var isTeleo
 
         with(opMode) {
             follower.update()
-            if (isTeleop) follower.startTeleopDrive(true)
+            if (isTeleop) follower.startTeleopDrive(false)
             WaitFor { isStarted || isStopRequested }
             while (!isStopRequested) {
                 follower.update()
@@ -80,6 +80,6 @@ class Pedro(val opMode: OpMode, val startingPose: Pose2d = Pose2d(), var isTeleo
         var snapThreshold = 0.1;
 
         @JvmField
-        var maxRate = 0.0;
+        var maxRate = 4.0;
     }
 }

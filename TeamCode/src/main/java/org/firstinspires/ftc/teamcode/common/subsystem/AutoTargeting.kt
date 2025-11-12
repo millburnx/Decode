@@ -34,7 +34,7 @@ class AutoTargeting(opMode: OpMode, pedro: Pedro, apriltags: Apriltags) : Subsys
                     if (newLocked) {
                         pedro.follower.turnTo(pedro.pose.angleTo(target!!))
                     } else {
-                        pedro.follower.startTeleopDrive(true)
+                        pedro.follower.startTeleopDrive(false)
                     }
                 }
                 sync()

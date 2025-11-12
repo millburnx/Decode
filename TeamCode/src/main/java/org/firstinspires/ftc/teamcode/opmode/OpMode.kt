@@ -4,6 +4,7 @@ import com.bylazar.telemetry.PanelsTelemetry
 import com.millburnx.cmdx.runtimeGroups.CommandScheduler
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
+import com.qualcomm.robotcore.hardware.VoltageSensor
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.common.hardware.gamepad.Gamepad
 import org.firstinspires.ftc.teamcode.common.hardware.gamepad.GamepadManager
@@ -19,6 +20,8 @@ abstract class OpMode : LinearOpMode() {
         get() = gamepadManager.gamepad1
     val gp2: Gamepad
         get() = gamepadManager.gamepad2
+
+    lateinit var voltageSensor: VoltageSensor
 
     val loopTimer = ElapsedTime()
     var deltaTime = 0.0
@@ -50,6 +53,7 @@ abstract class OpMode : LinearOpMode() {
     override fun runOpMode() {
         telemetry.isAutoClear = true
 
+        voltageSensor = hardwareMap.voltageSensor.get("Control Hub")
         gamepadManager = GamepadManager(this)
 
         SubsystemManager.init()
