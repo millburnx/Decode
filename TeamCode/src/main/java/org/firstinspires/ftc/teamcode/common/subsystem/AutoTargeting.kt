@@ -6,6 +6,7 @@ import com.millburnx.cmdxpedro.util.Pose2d
 import com.millburnx.cmdxpedro.util.WaitFor
 import org.firstinspires.ftc.teamcode.common.roundTo
 import org.firstinspires.ftc.teamcode.opmode.OpMode
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection
 import kotlin.math.pow
 
 @Configurable
@@ -14,13 +15,17 @@ class AutoTargeting(opMode: OpMode, pedro: Pedro, apriltags: Apriltags, setFlyWh
 
     var enabled = false
     var target: Pose2d? = null
+    var targetATag: AprilTagDetection? = null
 
     override val run: suspend Command.() -> Unit = {
         with(opMode) {
             WaitFor { isStarted || isStopRequested }
             while (!isStopRequested) {
-                val apriltag = apriltags.apriltags[20] ?: apriltags.apriltags[24]
-                if (apriltag != null && !enabled) target = apriltag.toPose(pedro.pose)
+                val apriltag = apriltags.apriltags[Apriltags.BLUE_ID] ?: apriltags.apriltags[Apriltags.RED_ID]
+                if (apriltag != null && !enabled) {
+                    targetATag = apriltag
+                    target = apriltag.toPose(pedro.pose)
+                }
 
                 tel.addData("target x", target?.x?.roundTo(2) ?: -1.0)
                 tel.addData("target y", target?.y?.roundTo(2) ?: -1.0)

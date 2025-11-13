@@ -37,6 +37,9 @@ class Apriltags : Subsystem("Apriltags") {
     companion object {
         @JvmField
         var decimation = 2F
+
+        const val BLUE_ID = 20
+        const val RED_ID = 24
     }
 }
 
