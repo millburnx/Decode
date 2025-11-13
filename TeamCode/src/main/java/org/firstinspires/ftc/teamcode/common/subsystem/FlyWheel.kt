@@ -25,6 +25,8 @@ class FlyWheel(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("FlyWh
             return leftAtVelocity && rightAtVelocity
         }
 
+    var shootingVelocity = ShootingVelocity
+
     override val run: suspend Command.() -> Unit = {
         with(opMode) {
             WaitFor { isStarted || isStopRequested }
@@ -33,7 +35,7 @@ class FlyWheel(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("FlyWh
 
                 targetVelocity = when (state) {
                     State.IDLE -> 0.0
-                    State.SHOOTING -> ShootingVelocity // replace with distance based
+                    State.SHOOTING -> shootingVelocity // replace with distance based
                     State.INTAKING -> IntakingVelocity
                 }
 
@@ -43,6 +45,7 @@ class FlyWheel(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("FlyWh
                 tel.addData("fw state", state)
                 tel.addData("fw-l velocity", -leftMotor.velocity)
                 tel.addData("fw-r velocity", rightMotor.velocity)
+                tel.addData("shooting velocity", shootingVelocity)
                 tel.addData("voltage", voltageSensor.voltage)
                 sync()
             }
@@ -69,7 +72,7 @@ class FlyWheel(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("FlyWh
 
     companion object {
         @JvmField
-        var ShootingVelocity = 2000.0
+        var ShootingVelocity = 1800.0
 
         @JvmField
         var IntakingVelocity = -1600.0

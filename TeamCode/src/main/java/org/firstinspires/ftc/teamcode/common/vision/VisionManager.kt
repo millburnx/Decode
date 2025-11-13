@@ -32,8 +32,8 @@ object VisionManager {
     }
 
     @JvmField
-    var cameraSizeX = 1280
+    var cameraSizeX = 640
 
     @JvmField
-    var cameraSizeY = 720
+    var cameraSizeY = 360
 }

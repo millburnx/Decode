@@ -31,7 +31,9 @@ class Teleop : OpMode() {
         val apriltags = Apriltags()
         VisionManager.build(this)
 
-        val autoTargeting = AutoTargeting(this, pedro, apriltags)
+        val autoTargeting = AutoTargeting(this, pedro, apriltags) { velocity ->
+            flyWheel.shootingVelocity = velocity
+        }
 
         scheduler.schedule(Command("drawer") {
             while (!isStopRequested) {
@@ -55,7 +57,7 @@ class Teleop : OpMode() {
             }
         })
 
-        scheduler.schedule(TeleopAutoFire(this, intake, flyWheel, uppies))
+        scheduler.schedule(TeleopAutoFire(this, autoTargeting, intake, flyWheel, uppies))
 //        scheduler.schedule(TeleOpStopper(this))
     }
 }

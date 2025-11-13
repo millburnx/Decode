@@ -46,19 +46,20 @@ class Pedro(val opMode: OpMode, val startingPose: Pose2d = Pose2d(), var isTeleo
                     // axis snapping
                     val processedX = processInput(prevX, gp1.current.leftJoyStick.x)
                     val processedY = processInput(prevY, gp1.current.leftJoyStick.y)
-                    if (!useAbsoluteHeading) {
+                    if (!useAbsoluteHeading || gp1.current.rightJoyStick.vector.magnitude() < 0.2) {
                         val rx = gp1.current.rightJoyStick.x
                         follower.setTeleOpDrive(
                             -processedY,
                             -processedX,
-                            -(abs(rx.pow(turningCurve).coerceIn(kS, 1.0)) * sign(rx)) * turnScaling
+                            abs(rx).pow(turningCurve).coerceIn(kS, 1.0) * sign(-rx) * turnScaling
                         )
                     } else {
-                        val targetHeading = atan2(gp1.current.rightJoyStick.y, gp1.current.rightJoyStick.x)
+                        val targetHeading = atan2(-gp1.current.rightJoyStick.y, gp1.current.rightJoyStick.x).toDegrees()
                         headingController.targetHeading = targetHeading
                         follower.setTeleOpDrive(
                             -processedY, -processedX, headingController.calc()
                         )
+                        tel.addData("target heading", targetHeading)
                     }
                     tel.addData("px", processedX)
                     tel.addData("py", processedY)

@@ -8,29 +8,34 @@ import com.millburnx.cmdxpedro.util.WaitFor
 import kotlinx.coroutines.isActive
 import org.firstinspires.ftc.teamcode.common.commands.AutoFireSettings.firstBallDelay
 import org.firstinspires.ftc.teamcode.common.commands.AutoFireSettings.intakeDuration
+import org.firstinspires.ftc.teamcode.common.commands.AutoFireSettings.intakePower
 import org.firstinspires.ftc.teamcode.common.commands.AutoFireSettings.jamDuration
 import org.firstinspires.ftc.teamcode.common.commands.AutoFireSettings.postFinishDuration
 import org.firstinspires.ftc.teamcode.common.commands.AutoFireSettings.postLoadDuration
 import org.firstinspires.ftc.teamcode.common.commands.AutoFireSettings.unjamDuration
 import org.firstinspires.ftc.teamcode.common.commands.AutoFireSettings.unjamPower
+import org.firstinspires.ftc.teamcode.common.subsystem.AutoTargeting
 import org.firstinspires.ftc.teamcode.common.subsystem.FlyWheel
 import org.firstinspires.ftc.teamcode.common.subsystem.Intake
 import org.firstinspires.ftc.teamcode.common.subsystem.Uppies
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
-fun TeleopAutoFire(opMode: OpMode, intake: Intake, flyWheel: FlyWheel, uppies: Uppies): Command =
+fun TeleopAutoFire(opMode: OpMode, autoTargeting: AutoTargeting, intake: Intake, flyWheel: FlyWheel, uppies: Uppies): Command =
     Command("Auto Fire Triggerer") {
         with(opMode) {
-            val autoFire = AutoFire(this, intake, flyWheel, uppies)
+            val autoFire = AutoFire(this, autoTargeting, intake, flyWheel, uppies)
             WaitFor { isStarted || isStopRequested }
             while (!isStopRequested) {
                 if (gp1.current.a && !gp1.prev.a) {
                     if (autoFire.currentScope?.isActive ?: false) {
-                        // already scheduled, cancel
-                        autoFire.cancel()
-                        unlock(intake, flyWheel, uppies)
-                        intake.power = 0.0
-                        flyWheel.state = FlyWheel.State.IDLE
+//                        // already scheduled, cancel
+//                        autoFire.cancel()
+//                        scheduler.schedule(Command {
+//                            sync()
+//                            unlock(intake, flyWheel, uppies)
+//                            intake.power = 0.0
+//                            flyWheel.state = FlyWheel.State.IDLE
+//                        })
                     } else {
                         scheduler.schedule(autoFire)
                     }
@@ -40,7 +45,7 @@ fun TeleopAutoFire(opMode: OpMode, intake: Intake, flyWheel: FlyWheel, uppies: U
         }
     }
 
-fun AutoFire(opMode: OpMode, intake: Intake, flyWheel: FlyWheel, uppies: Uppies): Sequential {
+fun AutoFire(opMode: OpMode, autoTargeting: AutoTargeting, intake: Intake, flyWheel: FlyWheel, uppies: Uppies): Sequential {
     with(opMode) {
         suspend fun Command.shootBall() {
             WaitFor { (flyWheel.atVelocity && uppies.atTarget) || isStopRequested }
@@ -54,7 +59,7 @@ fun AutoFire(opMode: OpMode, intake: Intake, flyWheel: FlyWheel, uppies: Uppies)
         }
 
         suspend fun Command.attemptLoad() {
-            intake.power = 0.5
+            intake.power = intakePower
             SleepFor({ isStopRequested }) { intakeDuration }
             uppies.nextState()
             // check for a jam
@@ -105,6 +110,7 @@ fun AutoFire(opMode: OpMode, intake: Intake, flyWheel: FlyWheel, uppies: Uppies)
                 intake.power = 0.0
                 flyWheel.state = FlyWheel.State.IDLE
                 unlock(intake, flyWheel, uppies)
+                autoTargeting.enabled = false
             }
         }
     }
@@ -116,10 +122,13 @@ object AutoFireSettings {
     var intakeDuration = 500L
 
     @JvmField
+    var intakePower = 0.8
+
+    @JvmField
     var jamDuration = 500L
 
     @JvmField
-    var unjamDuration = 500L
+    var unjamDuration = 250L
 
     @JvmField
     var unjamPower = -0.1
