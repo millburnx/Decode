@@ -98,7 +98,7 @@ open class CloseAuton(val isRed: Boolean) : OpMode() {
             +FollowPath(pedro.follower, preRowOne) { opModeIsActive() }
             Command { intake.power = 1.0 }
             +FollowPath(pedro.follower, intakeRowOne) { opModeIsActive() }
-            Command { SleepFor { 250 }; uppies.nextState(); SleepFor { 500 } }f
+            Command { SleepFor { 250 }; uppies.nextState(); SleepFor { 500 } }
             +FollowPath(pedro.follower, shootRowOne) { opModeIsActive() }
             Command { SleepFor { 500 } }
             +AutoFire(this@CloseAuton, null, intake, flyWheel, uppies, isTeleop = false)
