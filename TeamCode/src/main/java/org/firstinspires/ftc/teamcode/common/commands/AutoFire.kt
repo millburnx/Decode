@@ -23,7 +23,7 @@ import org.firstinspires.ftc.teamcode.opmode.OpMode
 fun TeleopAutoFire(opMode: OpMode, autoTargeting: AutoTargeting, intake: Intake, flyWheel: FlyWheel, uppies: Uppies): Command =
     Command("Auto Fire Triggerer") {
         with(opMode) {
-            val autoFire = AutoFire(this, autoTargeting, intake, flyWheel, uppies)
+            val autoFire = AutoFire(this, autoTargeting, intake, flyWheel, uppies, isTeleop = true)
             WaitFor { isStarted || isStopRequested }
             while (!isStopRequested) {
                 if (gp1.current.a && !gp1.prev.a) {
@@ -45,7 +45,7 @@ fun TeleopAutoFire(opMode: OpMode, autoTargeting: AutoTargeting, intake: Intake,
         }
     }
 
-fun AutoFire(opMode: OpMode, autoTargeting: AutoTargeting, intake: Intake, flyWheel: FlyWheel, uppies: Uppies): Sequential {
+fun AutoFire(opMode: OpMode, autoTargeting: AutoTargeting?, intake: Intake, flyWheel: FlyWheel, uppies: Uppies, isTeleop: Boolean = false): Sequential {
     with(opMode) {
         suspend fun Command.shootBall() {
             WaitFor { (flyWheel.atVelocity && uppies.atTarget) || isStopRequested }
@@ -88,7 +88,7 @@ fun AutoFire(opMode: OpMode, autoTargeting: AutoTargeting, intake: Intake, flyWh
         return Sequential("Auto Fire") {
             Command("Prepare Subsystems") {
                 if (!isStarted) parentGroup?.cancel()
-                lock(intake, flyWheel, uppies)
+                if (isTeleop) lock(intake, flyWheel, uppies)
                 intake.power = 0.0
                 flyWheel.state = FlyWheel.State.SHOOTING
             }
@@ -109,8 +109,8 @@ fun AutoFire(opMode: OpMode, autoTargeting: AutoTargeting, intake: Intake, flyWh
                 SleepFor { postFinishDuration }
                 intake.power = 0.0
                 flyWheel.state = FlyWheel.State.IDLE
-                unlock(intake, flyWheel, uppies)
-                autoTargeting.enabled = false
+                if (isTeleop) unlock(intake, flyWheel, uppies)
+                autoTargeting?.enabled = false
             }
         }
     }

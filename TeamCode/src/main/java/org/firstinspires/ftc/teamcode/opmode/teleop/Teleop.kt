@@ -34,6 +34,7 @@ class Teleop : OpMode() {
         val autoTargeting = AutoTargeting(this, pedro, apriltags) { velocity ->
             flyWheel.shootingVelocity = velocity
         }
+//        val autoDrive = AutoDrive(this, pedro, autoTargeting)
 
         scheduler.schedule(Command("drawer") {
             while (!isStopRequested) {

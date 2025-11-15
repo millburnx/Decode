@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.common.subsystem
 import com.arcrobotics.ftclib.controller.PIDController
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
-import com.millburnx.cmdxpedro.util.WaitFor
 import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualAxon
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 import kotlin.math.abs
@@ -71,7 +70,7 @@ class Uppies(
 
     override val run: suspend Command.() -> Unit = {
         with(opMode) {
-            WaitFor { isStarted || isStopRequested }
+//            WaitFor { isStarted || isStopRequested }
             while (!isStopRequested) {
                 teleOpControls()
 

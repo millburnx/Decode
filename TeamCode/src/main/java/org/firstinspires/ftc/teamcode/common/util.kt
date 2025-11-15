@@ -4,13 +4,14 @@ import com.millburnx.cmdxpedro.util.Pose2d
 import com.millburnx.cmdxpedro.util.geometry.vector.Vec2d
 import com.pedropathing.geometry.Pose
 import java.util.*
-import kotlin.math.floor
+import kotlin.math.atan2
+import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.round
+import kotlin.math.sin
 
 fun normalizeRadians(radians: Double): Double {
-    val temp = (radians + Math.PI) / (2.0 * Math.PI)
-    return (temp - floor(temp) - 0.5) * 2.0
+    return atan2(sin(radians), cos(radians))
 }
 
 fun normalizeDegrees(angle: Double): Double = Math.toDegrees(normalizeRadians(Math.toRadians(angle)))
@@ -30,6 +31,14 @@ fun Pose2d.toPedro(): Pose {
 
 fun Pose2d.fieldMirror(): Pose2d {
     return Pose2d(144.0 - this.x, this.y, normalizeDegrees(180.0 - this.degrees))
+}
+
+fun Vec2d.fieldMirror(): Vec2d {
+    return Vec2d(144.0 - this.x, this.y)
+}
+
+fun Double.fieldMirror(): Double {
+    return normalizeDegrees(180.0 - this)
 }
 
 fun Pose2d.remainingAngleTo(other: Vec2d): Double {
