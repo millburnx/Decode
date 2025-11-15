@@ -39,7 +39,7 @@ open class CloseAuton(val isRed: Boolean) : OpMode() {
         val shootBallOne = PedroPath(
             pedro.follower, Line(
                 p(Vec2d(15, 111)), p(Vec2d(32, shootY0))
-            ), LinearHeading(p(90.0), p(135.0))
+            ), LinearHeading(p(90.0), p(shootingHeading0))
         )
 
         val preRowOne = PedroPath(
@@ -49,24 +49,24 @@ open class CloseAuton(val isRed: Boolean) : OpMode() {
                 p(Vec2d(preRowX + 12, rowY1)),
                 p(Vec2d(preRowX, rowY1))
             ),
-            LinearHeading(p(135.0), p(0.0))
+            LinearHeading(p(shootingHeading0), p(0.0))
         )
 
         val intakeRowOne = PedroPath(
             pedro.follower, Line(
-                p(Vec2d(preRowX, rowY1)), p(Vec2d(16, rowY1))
+                p(Vec2d(preRowX, rowY1)), p(Vec2d(postRowX1, rowY1))
             ),
             LinearHeading(p(0.0), p(0.0))
         )
 
         val shootRowOne = PedroPath(
             pedro.follower, CubicBezier(
-                p(Vec2d(16, rowY1)),
+                p(Vec2d(postRowX1, rowY1)),
                 p(Vec2d(48, rowY1)),
                 p(Vec2d(48, rowY1)),
                 p(Vec2d(48, shootY1))
             ),
-            LinearHeading(p(0.0), p(135.0))
+            LinearHeading(p(0.0), p(shootingHeading1))
         )
 
         val preRowTwo = PedroPath(
@@ -75,24 +75,24 @@ open class CloseAuton(val isRed: Boolean) : OpMode() {
                 p(Vec2d(60, shootY1-12)),
                 p(Vec2d(60, rowY2 + 2)),
                 p(Vec2d(preRowX, rowY2 + 2)),
-            ), LinearHeading(p(135.0), p(5.0))
+            ), LinearHeading(p(shootingHeading1), p(5.0))
         )
 
         val intakeRowTwo = PedroPath(
             pedro.follower, Line(
-                p(Vec2d(preRowX, rowY2 + 2)), p(Vec2d(9, rowY2 - 2))
+                p(Vec2d(preRowX, rowY2 + 2)), p(Vec2d(postRowX2, rowY2 - 2))
             ),
             LinearHeading(p(5.0), p(0.0))
         )
 
         val shootRowTwo = PedroPath(
             pedro.follower, CubicBezier(
-                p(Vec2d(9, rowY2 - 2)),
+                p(Vec2d(postRowX2, rowY2 - 2)),
                 p(Vec2d(24, rowY2 - 2)),
-                p(Vec2d(48, 72)),
+                p(Vec2d(48, shootY2 - 24)),
                 p(Vec2d(48, shootY2)),
             ),
-            LinearHeading(p(0.0), p(135.0))
+            LinearHeading(p(0.0), p(shootingHeading2))
         )
 
         scheduler.schedule(Sequential {
@@ -130,6 +130,21 @@ open class CloseAuton(val isRed: Boolean) : OpMode() {
     companion object {
         @JvmField
         var preRowX = 48.0
+
+        @JvmField
+        var shootingHeading0 = 135.0
+
+        @JvmField
+        var shootingHeading1 = 135.0
+
+        @JvmField
+        var shootingHeading2 = 135.0
+
+        @JvmField
+        var postRowX1 = 16.0
+
+        @JvmField
+        var postRowX2 = 9.0
 
         @JvmField
         var rowY1 = 84.0
