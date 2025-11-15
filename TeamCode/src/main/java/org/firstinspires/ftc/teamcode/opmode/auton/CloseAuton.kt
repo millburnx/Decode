@@ -42,7 +42,7 @@ open class CloseAuton(val isRed: Boolean) : OpMode() {
 
         val preRowOne = PedroPath(
             pedro.follower, Line(
-                p(Vec2d(48, 96)), p(Vec2d(48, 92))
+                p(Vec2d(48, 104)), p(Vec2d(48, 92))
             ),
             LinearHeading(p(135.0), p(5.0))
         )
@@ -56,7 +56,7 @@ open class CloseAuton(val isRed: Boolean) : OpMode() {
 
         val shootRowOne = PedroPath(
             pedro.follower, CubicBezier(
-                p(Vec2d(26, 92)),
+                p(Vec2d(26, 94)),
                 p(Vec2d(28, 96)),
                 p(Vec2d(32, 96)),
                 p(Vec2d(48, 110))
@@ -82,7 +82,7 @@ open class CloseAuton(val isRed: Boolean) : OpMode() {
 
         val shootRowTwo = PedroPath(
             pedro.follower, CubicBezier(
-                p(Vec2d(9, 70)),
+                p(Vec2d(16, 70)),
                 p(Vec2d(48, 70)),
                 p(Vec2d(48, 70)),
                 p(Vec2d(48, 120)),
