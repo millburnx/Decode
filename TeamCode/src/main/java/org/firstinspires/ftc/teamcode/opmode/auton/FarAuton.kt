@@ -5,6 +5,7 @@ import com.millburnx.cmdx.commandGroups.Sequential
 import com.millburnx.cmdxpedro.FollowPath
 import com.millburnx.cmdxpedro.paths.PedroPath
 import com.millburnx.cmdxpedro.paths.heading.LinearHeading
+import com.millburnx.cmdxpedro.paths.heading.TangentialHeading
 import com.millburnx.cmdxpedro.paths.path.CubicBezier
 import com.millburnx.cmdxpedro.paths.path.Line
 import com.millburnx.cmdxpedro.util.Pose2d
@@ -21,101 +22,102 @@ import org.firstinspires.ftc.teamcode.common.subsystem.Uppies
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
 @Autonomous(preselectTeleOp = "Teleop")
-class BlueCloseAuton : CloseAuton(isRed = false)
+class BlueFarAuton : FarAuton(isRed = false)
 
 @Autonomous(preselectTeleOp = "Teleop")
-class RedCloseAuton : CloseAuton(isRed = true)
+class RedFarAuton : FarAuton(isRed = true)
 
 @Configurable
-open class CloseAuton(val isRed: Boolean) : OpMode() {
+open class FarAuton(val isRed: Boolean) : OpMode() {
     override fun run() {
         val intake = Intake(this, isTeleop = false)
         val flyWheel = FlyWheel(this, isTeleop = false)
         val uppies = Uppies(this, { flyWheel.state }, isTeleop = false)
-        val pedro = Pedro(this, Pose2d(p(Vec2d(15.0, 111.0)), p(90.0)), isTeleop = false)
+        val pedro = Pedro(this, Pose2d(p(Vec2d(56.0, 8.0)), p(90.0)), isTeleop = false)
 
         uppies.nextState()
 
-        val shootBallOne = PedroPath(
+        val shootPreload = PedroPath(
             pedro.follower, Line(
-                p(Vec2d(15, 111)), p(Vec2d(32, shootY0))
-            ), LinearHeading(p(90.0), p(shootingHeading0))
+                p(Vec2d(56.0, 8.0)),
+                p(Vec2d(shootX0, shootY0)),
+            ), LinearHeading(p(90.0), p(shootH0))
         )
 
         val preRowOne = PedroPath(
             pedro.follower, CubicBezier(
-                p(Vec2d(32, shootY0)),
-                p(Vec2d(48, shootY0)),
-                p(Vec2d(preRowX + 12, rowY1)),
-                p(Vec2d(preRowX, rowY1))
-            ),
-            LinearHeading(p(shootingHeading0), p(0.0))
+                p(Vec2d(shootX0, shootY0)),
+                p(Vec2d(shootX0, postRowX1)),
+                p(Vec2d(shootX0, postRowX1)),
+                p(Vec2d(preRowX, postRowX1)),
+            ), LinearHeading(p(shootH0), p(0.0))
         )
 
         val intakeRowOne = PedroPath(
             pedro.follower, Line(
-                p(Vec2d(preRowX, rowY1)), p(Vec2d(postRowX1, rowY1))
-            ),
-            LinearHeading(p(0.0), p(0.0))
+                p(Vec2d(preRowX, rowY1)),
+                p(Vec2d(postRowX1, rowY1)),
+            ), TangentialHeading(reverse = true)
         )
 
         val shootRowOne = PedroPath(
             pedro.follower, CubicBezier(
                 p(Vec2d(postRowX1, rowY1)),
-                p(Vec2d(48, rowY1)),
-                p(Vec2d(48, rowY1)),
-                p(Vec2d(48, shootY1))
-            ),
-            LinearHeading(p(0.0), p(shootingHeading1))
+                p(Vec2d(postRowX1 + 24.0, rowY1)),
+                p(Vec2d(shootX1 - 24.0, shootY1)),
+                p(Vec2d(shootX1, rowY1)),
+            ), LinearHeading(p(0.0), p(shootH1))
         )
 
         val preRowTwo = PedroPath(
             pedro.follower, CubicBezier(
-                p(Vec2d(48, shootY1)),
-                p(Vec2d(60, shootY1-12)),
-                p(Vec2d(60, rowY2 + 2)),
-                p(Vec2d(preRowX, rowY2 + 2)),
-            ), LinearHeading(p(shootingHeading1), p(5.0))
+                p(Vec2d(shootX1, rowY1)),
+                p(Vec2d(shootX1, rowY2 + 2.0)),
+                p(Vec2d(shootX1, rowY2 + 2.0)),
+                p(Vec2d(preRowX, rowY2 + 2.0)),
+            ), LinearHeading(p(shootH1), p(0.0))
         )
 
         val intakeRowTwo = PedroPath(
-            pedro.follower, Line(
-                p(Vec2d(preRowX, rowY2 + 2)), p(Vec2d(postRowX2, rowY2 - 2))
-            ),
-            LinearHeading(p(5.0), p(0.0))
+            pedro.follower, CubicBezier(
+                p(Vec2d(preRowX, rowY2 + 2.0)),
+                p(Vec2d(preRowX - 24.0, rowY2 + 2.0)),
+                p(Vec2d(postRowX2 + 24.0, rowY2 - 2.0)),
+                p(Vec2d(postRowX2, rowY2 - 2.0)),
+            ), TangentialHeading(reverse = true)
         )
 
         val shootRowTwo = PedroPath(
             pedro.follower, CubicBezier(
-                p(Vec2d(postRowX2, rowY2 - 2)),
-                p(Vec2d(24, rowY2 - 2)),
-                p(Vec2d(48, shootY2 - 24)),
-                p(Vec2d(48, shootY2)),
-            ),
-            LinearHeading(p(0.0), p(shootingHeading2))
+                p(Vec2d(postRowX2, rowY2)),
+                p(Vec2d(48.0, rowY2)),
+                p(Vec2d(shootX2, shootY2)),
+                p(Vec2d(shootX2, shootY2)),
+            ), LinearHeading(p(0.0), p(shootH2))
         )
 
         scheduler.schedule(Sequential {
             Command { WaitFor { isStarted } }
-            +FollowPath(pedro.follower, shootBallOne) { opModeIsActive() }
+            +FollowPath(pedro.follower, shootPreload) { opModeIsActive() }
             Command { SleepFor { 500 } }
-            +AutoFire(this@CloseAuton, null, intake, flyWheel, uppies, isTeleop = false)
+            +AutoFire(this@FarAuton, null, intake, flyWheel, uppies, isTeleop = false)
+
 
             +FollowPath(pedro.follower, preRowOne) { opModeIsActive() }
             Command { intake.power = 1.0 }
             +FollowPath(pedro.follower, intakeRowOne) { opModeIsActive() }
-            Command { SleepFor { 125 }; uppies.nextState(); SleepFor { 625 } }
+            Command { SleepFor { 125 }; uppies.nextState(); SleepFor { 375 } }
             +FollowPath(pedro.follower, shootRowOne) { opModeIsActive() }
             Command { SleepFor { 500 } }
-            +AutoFire(this@CloseAuton, null, intake, flyWheel, uppies, isTeleop = false)
+            +AutoFire(this@FarAuton, null, intake, flyWheel, uppies, isTeleop = false)
 
             +FollowPath(pedro.follower, preRowTwo) { opModeIsActive() }
             Command { intake.power = 1.0 }
             +FollowPath(pedro.follower, intakeRowTwo) { opModeIsActive() }
-            Command { SleepFor { 125 }; uppies.nextState(); SleepFor { 375 } }
+            Command { SleepFor { 125 }; uppies.nextState(); SleepFor { 625 } }
             +FollowPath(pedro.follower, shootRowTwo) { opModeIsActive() }
             Command { SleepFor { 500 } }
-            +AutoFire(this@CloseAuton, null, intake, flyWheel, uppies, isTeleop = false)
+            +AutoFire(this@FarAuton, null, intake, flyWheel, uppies, isTeleop = false)
         })
     }
 
@@ -129,36 +131,47 @@ open class CloseAuton(val isRed: Boolean) : OpMode() {
 
     companion object {
         @JvmField
-        var preRowX = 48.0
+        var preRowX = 44.0
 
         @JvmField
-        var shootingHeading0 = 135.0
-
-        @JvmField
-        var shootingHeading1 = 135.0
-
-        @JvmField
-        var shootingHeading2 = 135.0
-
-        @JvmField
-        var postRowX1 = 16.0
+        var postRowX1 = 9.0
 
         @JvmField
         var postRowX2 = 9.0
 
         @JvmField
-        var rowY1 = 84.0
+        var rowY1 = 36.0
 
         @JvmField
         var rowY2 = 60.0
 
-        @JvmField
-        var shootY0 = 111
+        // shooting
 
         @JvmField
-        var shootY1 = 96
+        var shootX0 = 56.0
 
         @JvmField
-        var shootY2 = 96
+        var shootX1 = 56.0
+
+        @JvmField
+        var shootX2 = 56.0
+
+        @JvmField
+        var shootY0 = 12.0
+
+        @JvmField
+        var shootY1 = 12.0
+
+        @JvmField
+        var shootY2 = 12.0
+
+        @JvmField
+        var shootH0 = 111.0
+
+        @JvmField
+        var shootH1 = 111.0
+
+        @JvmField
+        var shootH2 = 111.0
     }
 }
