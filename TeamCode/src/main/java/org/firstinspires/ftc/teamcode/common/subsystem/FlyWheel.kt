@@ -72,7 +72,7 @@ class FlyWheel(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("FlyWh
 
     companion object {
         @JvmField
-        var ShootingVelocity = 1800.0
+        var ShootingVelocity = 2550.0
 
         @JvmField
         var IntakingVelocity = -1600.0

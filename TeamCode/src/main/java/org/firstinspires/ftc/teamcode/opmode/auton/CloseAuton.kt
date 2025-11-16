@@ -34,18 +34,22 @@ open class CloseAuton(val isRed: Boolean) : OpMode() {
         val uppies = Uppies(this, { flyWheel.state }, isTeleop = false)
         val pedro = Pedro(this, Pose2d(p(Vec2d(15.0, 111.0)), p(90.0)), isTeleop = false)
 
+        FlyWheel.ShootingVelocity = 1750.0
+        flyWheel.shootingVelocity = 1750.0
         uppies.nextState()
+
+        tel.addData("fwv", flyWheel.shootingVelocity)
 
         val shootBallOne = PedroPath(
             pedro.follower, Line(
-                p(Vec2d(15, 111)), p(Vec2d(32, shootY0))
+                p(Vec2d(15, 111)), p(Vec2d(38, shootY0))
             ), LinearHeading(p(90.0), p(shootingHeading0))
         )
 
         val preRowOne = PedroPath(
             pedro.follower, CubicBezier(
-                p(Vec2d(32, shootY0)),
-                p(Vec2d(48, shootY0)),
+                p(Vec2d(54, shootY0)),
+                p(Vec2d(54, shootY0)),
                 p(Vec2d(preRowX + 12, rowY1)),
                 p(Vec2d(preRowX, rowY1))
             ),
@@ -72,7 +76,7 @@ open class CloseAuton(val isRed: Boolean) : OpMode() {
         val preRowTwo = PedroPath(
             pedro.follower, CubicBezier(
                 p(Vec2d(48, shootY1)),
-                p(Vec2d(60, shootY1-12)),
+                p(Vec2d(60, shootY1 - 12)),
                 p(Vec2d(60, rowY2 + 2)),
                 p(Vec2d(preRowX, rowY2 + 2)),
             ), LinearHeading(p(shootingHeading1), p(5.0))
@@ -112,7 +116,8 @@ open class CloseAuton(val isRed: Boolean) : OpMode() {
             +FollowPath(pedro.follower, preRowTwo) { opModeIsActive() }
             Command { intake.power = 1.0 }
             +FollowPath(pedro.follower, intakeRowTwo) { opModeIsActive() }
-            Command { SleepFor { 125 }; uppies.nextState(); SleepFor { 375 } }
+            Command { SleepFor { 0 }; uppies.nextState(); SleepFor { 500 } }
+            Command { intake.power = 1.0 }
             +FollowPath(pedro.follower, shootRowTwo) { opModeIsActive() }
             Command { SleepFor { 500 } }
             +AutoFire(this@CloseAuton, null, intake, flyWheel, uppies, isTeleop = false)
@@ -141,10 +146,10 @@ open class CloseAuton(val isRed: Boolean) : OpMode() {
         var shootingHeading2 = 135.0
 
         @JvmField
-        var postRowX1 = 16.0
+        var postRowX1 = 15.0
 
         @JvmField
-        var postRowX2 = 9.0
+        var postRowX2 = 8.0
 
         @JvmField
         var rowY1 = 84.0
@@ -153,7 +158,7 @@ open class CloseAuton(val isRed: Boolean) : OpMode() {
         var rowY2 = 60.0
 
         @JvmField
-        var shootY0 = 111
+        var shootY0 = 96
 
         @JvmField
         var shootY1 = 96

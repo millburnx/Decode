@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmode.auton
 
 import com.bylazar.configurables.annotations.Configurable
+import com.millburnx.cmdx.Command
 import com.millburnx.cmdx.commandGroups.Sequential
 import com.millburnx.cmdxpedro.FollowPath
 import com.millburnx.cmdxpedro.paths.PedroPath
@@ -12,6 +13,8 @@ import com.millburnx.cmdxpedro.util.Pose2d
 import com.millburnx.cmdxpedro.util.SleepFor
 import com.millburnx.cmdxpedro.util.WaitFor
 import com.millburnx.cmdxpedro.util.geometry.vector.Vec2d
+import com.pedropathing.follower.Follower
+import com.pedropathing.paths.PathChain
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import org.firstinspires.ftc.teamcode.common.commands.AutoFire
 import org.firstinspires.ftc.teamcode.common.fieldMirror
@@ -36,6 +39,8 @@ open class FarAuton(val isRed: Boolean) : OpMode() {
         val pedro = Pedro(this, Pose2d(p(Vec2d(56.0, 8.0)), p(90.0)), isTeleop = false)
 
         uppies.nextState()
+        FlyWheel.ShootingVelocity = 2550.0
+        flyWheel.shootingVelocity = 2550.0
 
         val shootPreload = PedroPath(
             pedro.follower, Line(
@@ -65,7 +70,7 @@ open class FarAuton(val isRed: Boolean) : OpMode() {
                 p(Vec2d(postRowX1, rowY1)),
                 p(Vec2d(postRowX1 + 24.0, rowY1)),
                 p(Vec2d(shootX1 - 24.0, shootY1)),
-                p(Vec2d(shootX1, rowY1)),
+                p(Vec2d(shootX1, shootY1)),
             ), LinearHeading(p(0.0), p(shootH1))
         )
 
@@ -103,7 +108,7 @@ open class FarAuton(val isRed: Boolean) : OpMode() {
             +AutoFire(this@FarAuton, null, intake, flyWheel, uppies, isTeleop = false)
 
 
-            +FollowPath(pedro.follower, preRowOne) { opModeIsActive() }
+            +FollowPathPower(pedro.follower, preRowOne, 0.75) { opModeIsActive() }
             Command { intake.power = 1.0 }
             +FollowPath(pedro.follower, intakeRowOne) { opModeIsActive() }
             Command { SleepFor { 125 }; uppies.nextState(); SleepFor { 375 } }
@@ -134,13 +139,13 @@ open class FarAuton(val isRed: Boolean) : OpMode() {
         var preRowX = 44.0
 
         @JvmField
-        var postRowX1 = 9.0
+        var postRowX1 = 10.0
 
         @JvmField
-        var postRowX2 = 9.0
+        var postRowX2 = 10.0
 
         @JvmField
-        var rowY1 = 36.0
+        var rowY1 = 34.0
 
         @JvmField
         var rowY2 = 60.0
@@ -174,4 +179,9 @@ open class FarAuton(val isRed: Boolean) : OpMode() {
         @JvmField
         var shootH2 = 111.0
     }
+}
+
+public fun FollowPathPower(follower: Follower, path: PathChain, maxPower: Double = 1.0, opModeIsActive: () -> Boolean): Command = Command() {
+    follower.followPath(path, maxPower, true)
+    WaitFor { !opModeIsActive() || !(follower.isBusy) }
 }

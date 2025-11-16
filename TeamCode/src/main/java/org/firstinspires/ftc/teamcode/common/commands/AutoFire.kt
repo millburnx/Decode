@@ -5,6 +5,7 @@ import com.millburnx.cmdx.Command
 import com.millburnx.cmdx.commandGroups.Sequential
 import com.millburnx.cmdxpedro.util.SleepFor
 import com.millburnx.cmdxpedro.util.WaitFor
+import kotlinx.coroutines.NonCancellable.isCancelled
 import kotlinx.coroutines.isActive
 import org.firstinspires.ftc.teamcode.common.commands.AutoFireSettings.firstBallDelay
 import org.firstinspires.ftc.teamcode.common.commands.AutoFireSettings.intakeDuration
@@ -20,7 +21,13 @@ import org.firstinspires.ftc.teamcode.common.subsystem.Intake
 import org.firstinspires.ftc.teamcode.common.subsystem.Uppies
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
-fun TeleopAutoFire(opMode: OpMode, autoTargeting: AutoTargeting, intake: Intake, flyWheel: FlyWheel, uppies: Uppies): Command =
+fun TeleopAutoFire(
+    opMode: OpMode,
+    autoTargeting: AutoTargeting,
+    intake: Intake,
+    flyWheel: FlyWheel,
+    uppies: Uppies
+): Command =
     Command("Auto Fire Triggerer") {
         with(opMode) {
             val autoFire = AutoFire(this, autoTargeting, intake, flyWheel, uppies, isTeleop = true)
@@ -45,10 +52,18 @@ fun TeleopAutoFire(opMode: OpMode, autoTargeting: AutoTargeting, intake: Intake,
         }
     }
 
-fun AutoFire(opMode: OpMode, autoTargeting: AutoTargeting?, intake: Intake, flyWheel: FlyWheel, uppies: Uppies, isTeleop: Boolean = false): Sequential {
+fun AutoFire(
+    opMode: OpMode,
+    autoTargeting: AutoTargeting?,
+    intake: Intake,
+    flyWheel: FlyWheel,
+    uppies: Uppies,
+    isTeleop: Boolean = false
+): Sequential {
+
     with(opMode) {
         suspend fun Command.shootBall() {
-            WaitFor { (flyWheel.atVelocity && uppies.atTarget) || isStopRequested }
+            WaitFor { (flyWheel.atVelocity && uppies.atTarget) || isStopRequested || isCancelled }
             uppies.nextState()
         }
 
@@ -82,22 +97,25 @@ fun AutoFire(opMode: OpMode, autoTargeting: AutoTargeting?, intake: Intake, flyW
                     attemptLoad()
                 }
             }
-            SleepFor { postLoadDuration }
+            SleepFor({ isStopRequested }) { postLoadDuration }
         }
 
         return Sequential("Auto Fire") {
             Command("Prepare Subsystems") {
+                if (isCancelled) return@Command
                 if (!isStarted) parentGroup?.cancel()
                 if (isTeleop) lock(intake, flyWheel, uppies)
                 intake.power = 0.0
                 flyWheel.state = FlyWheel.State.SHOOTING
             }
             Command("Verify First Ball") {
+                if (isCancelled) return@Command
                 if (uppies.state != Uppies.State.LOADED) {
                     loadBall()
                 }
             }
             Command("First Ball Wait") {
+                if (isCancelled) return@Command
                 SleepFor { firstBallDelay }
             }
             Command("Shoot First Ball") { shootBall() }
