@@ -12,6 +12,7 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.EncoderDirection
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.teamcode.common.hardware.manual.manualMecanumDrivetrain
 import kotlin.math.PI
 
 object Constants {
@@ -64,7 +65,7 @@ object Constants {
 
     fun createFollower(hardwareMap: HardwareMap): Follower {
         return FollowerBuilder(followerConstants, hardwareMap)
-            .mecanumDrivetrain(driveConstants)
+            .manualMecanumDrivetrain(driveConstants)
             .pinpointLocalizer(localizerConstants)
             .pathConstraints(pathConstraints)
             .build()
