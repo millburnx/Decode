@@ -21,8 +21,8 @@ class AxonCR(
         }
 
     val encoder = hardwareMap.analogInput[encoderName]
-    var rawPosition: Double = 0.0 //kedaar wuz here
-    var rotations: Int = 0 //kedaar wuz also here
+    var rawPosition: Double = 0.0
+    var rotations: Int = 0
     val position
         get() = rotations + rawPosition
 

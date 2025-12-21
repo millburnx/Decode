@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.common.hardware.gamepad
 
-import com.millburnx.cmdxpedro.util.geometry.vector.Vec2d
+import com.millburnx.util.vector.Vec2d
 
 class DPad(var left: Boolean, var up: Boolean, var right: Boolean, var down: Boolean) {
     val vector: Vec2d
