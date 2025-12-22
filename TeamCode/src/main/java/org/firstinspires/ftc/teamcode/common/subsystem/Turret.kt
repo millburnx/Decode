@@ -28,10 +28,11 @@ class Turret(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Turret"
                     targetPosition = targetAngle.toDegrees() / 360.0
                 }
                 pidf.setPIDF(kp, ki, kd, ks)
-                val power = pidf.calculate(analog.position, targetPosition)
+                motor.power = pidf.calculate(analog.position, targetPosition)
                 tel.addData("Turret | Target", targetPosition)
                 tel.addData("Turret | Current", analog.position)
                 tel.addData("Turret | Velocity", motorEncoder.velocity)
+                tel.addData("Turret | RPM", motorEncoder.velocity * 60.0 / PPR * GEAR_RATIO)
                 sync()
             }
         }
@@ -58,5 +59,9 @@ class Turret(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Turret"
 
         @JvmField
         var ks = 0.0
+
+        const val PPR = ((1 + (46.0 / 17.0)) * 28.0)
+
+        const val GEAR_RATIO = 24/110
     }
 }
