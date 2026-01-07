@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode.common.subsystem
 
+import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.util.WaitFor
 import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualServo
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
-
+@Configurable
 class Hood(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Hood") {
     val servo = ManualServo(opMode.hardwareMap, servoName, reverse = servoReversed)
 
@@ -30,7 +31,7 @@ class Hood(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Hood") {
 
     companion object {
         @JvmField
-        var servoName = "s0"
+        var servoName = "s0e"
 
         @JvmField
         var servoReversed = false
@@ -39,9 +40,9 @@ class Hood(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Hood") {
         var bumperStep = 0.1
 
         @JvmField
-        var min = 0.0
+        var min = 0.3
 
         @JvmField
-        var max = 0.5
+        var max = 0.9
     }
 }

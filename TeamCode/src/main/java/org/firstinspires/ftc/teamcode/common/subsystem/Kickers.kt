@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode.common.subsystem
 
+import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.util.WaitFor
 import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualServo
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
-
+@Configurable
 class Kickers(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Kickers") {
     val servo1 = ManualServo(opMode.hardwareMap, servo1Name, reverse = servo1Reversed)
     val servo2 = ManualServo(opMode.hardwareMap, servo2Name, reverse = servo2Reversed)
@@ -37,13 +38,13 @@ class Kickers(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Kicker
 
     companion object {
         @JvmField
-        var servo1Name = "s1"
+        var servo1Name = "s0"
 
         @JvmField
         var servo2Name = "s2"
 
         @JvmField
-        var servo3Name = "s3"
+        var servo3Name = "s4"
 
         @JvmField
         var servo1Reversed = false
@@ -55,21 +56,27 @@ class Kickers(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Kicker
         var servo3Reversed = false
 
         @JvmField
-        var idle1Position = 0.8
+        var idle1Position = 0.35
 
         @JvmField
-        var idle2Position = 0.8
+        var idle2Position = 0.68
 
         @JvmField
-        var idle3Position = 0.8
+        var idle3Position = 0.65
 
         @JvmField
-        var up1Position = 0.3
+        var up1Position = 0.8
 
         @JvmField
-        var up2Position = 0.3
+        var up2Position = 0.25
 
         @JvmField
-        var up3Position = 0.3
+        var up3Position = 0.2
+
+        @JvmField
+        var upDuration = 350L
+
+        @JvmField
+        var downDuration = 50L
     }
 }

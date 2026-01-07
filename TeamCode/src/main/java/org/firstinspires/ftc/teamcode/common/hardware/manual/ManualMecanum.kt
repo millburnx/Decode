@@ -5,11 +5,10 @@ import com.pedropathing.ftc.drivetrains.Mecanum
 import com.pedropathing.ftc.drivetrains.MecanumConstants
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
-import org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap
 import org.firstinspires.ftc.teamcode.common.hardware.cached.CachedMotor
 
 
-class ManualMecanum(hardwareMap: HardwareMap, mecanumConstants: MecanumConstants) :
+class ManualMecanum(val hardwareMap: HardwareMap, mecanumConstants: MecanumConstants) :
     Mecanum(hardwareMap, mecanumConstants) {
     private val leftFront: ManualMotor = ManualMotor(
         hardwareMap,
@@ -48,6 +47,6 @@ class ManualMecanum(hardwareMap: HardwareMap, mecanumConstants: MecanumConstants
     }
 }
 
-fun FollowerBuilder.manualMecanumDrivetrain(mecanumConstants: MecanumConstants): FollowerBuilder {
+fun FollowerBuilder.manualMecanumDrivetrain(hardwareMap: HardwareMap, mecanumConstants: MecanumConstants): FollowerBuilder {
     return setDrivetrain(ManualMecanum(hardwareMap, mecanumConstants))
 }

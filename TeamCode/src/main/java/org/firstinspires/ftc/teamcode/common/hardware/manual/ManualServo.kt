@@ -8,7 +8,7 @@ class ManualServo(
     hardwareMap: HardwareMap,
     name: String,
     reverse: Boolean = false,
-    threshold: Double = 0.05
+    threshold: Double = 0.01
 ) : CachedServo(hardwareMap, name, reverse, threshold) {
     init {
         ManualManager.servos.add(this)
