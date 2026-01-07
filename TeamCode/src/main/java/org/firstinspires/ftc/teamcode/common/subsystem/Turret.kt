@@ -1,52 +1,45 @@
 package org.firstinspires.ftc.teamcode.common.subsystem
 
 import com.arcrobotics.ftclib.controller.PIDController
+import com.arcrobotics.ftclib.kotlin.extensions.util.clamp
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.util.WaitFor
-import com.millburnx.util.toDegrees
 import org.firstinspires.ftc.teamcode.common.hardware.AnalogEncoder
 import org.firstinspires.ftc.teamcode.common.hardware.Encoder
 import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualMotor
 import org.firstinspires.ftc.teamcode.opmode.OpMode
-import kotlin.math.atan2
 import kotlin.math.sign
 
 @Configurable
 class Turret(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Turret") {
     val motor = ManualMotor(opMode.hardwareMap, motorName)
     val motorEncoder = Encoder(opMode.hardwareMap, motorEncoderName)
-    val analog = AnalogEncoder(opMode.hardwareMap, analogEncoderName) { motorEncoder.velocity }
+    val analog = AnalogEncoder(opMode.hardwareMap, analogEncoderName)
+
+    val encoderOffset = analog.rawPosition / GEAR_RATIO * PPR - motorEncoder.position
+    val correctedPosition
+        get() = motorEncoder.position + encoderOffset
 
     val pid = PIDController(kp, ki, kd)
 
-    var targetPosition = 0.0
+    var targetAngle = 0.0
+    val targetPosition
+        get() = targetAngle / 360.0 / GEAR_RATIO * PPR
 
     override val run: suspend Command.() -> Unit = {
         with(opMode) {
             WaitFor { isStarted || isStopRequested }
             while (!isStopRequested) {
-                analog.update()
-                if (isTeleop && !override) {
-                    val targetAngle = atan2(-gp2.current.rightJoyStick.y, gp2.current.rightJoyStick.x)
-                    targetPosition = targetAngle.toDegrees() / 360.0 + 0.5
-                } else {
-                    targetPosition = overridePosition
-                }
                 pid.setPID(kp, ki, kd)
-                val pidPower= pid.calculate(analog.position, targetPosition)
-                val power = pidPower + (ks * sign(pidPower))
-                val clampedPower =  power.coerceIn(-maxPower, maxPower)
-                val finalPower = if (clampedPower < 0.0) clampedPower * negMulti else clampedPower
-                motor.power = finalPower
-                tel.addData("Turret | power", power)
-                tel.addData("Turret | clamped power", power.coerceIn(-maxPower, maxPower))
-                tel.addData("Turret | final power", finalPower)
+                val pidOutput = pid.calculate(correctedPosition, targetPosition)
+                val ff = ks * sign(pidOutput)
+                val power = (pidOutput + ff).clamp(-maxPower, maxPower)
+                motor.power = power
+
+                tel.addData("Turret | Power", power)
                 tel.addData("Turret | Target", targetPosition)
-                tel.addData("Turret | Current", analog.position)
-                tel.addData("Turret | Current Motor", motor.position)
-                tel.addData("Turret | Velocity", motorEncoder.velocity)
-                tel.addData("Turret | RPM", motorEncoder.velocity * 60.0 / PPR * GEAR_RATIO)
+                tel.addData("Turret | Current", correctedPosition)
                 sync()
             }
         }
@@ -63,7 +56,7 @@ class Turret(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Turret"
         var analogEncoderName = "a2"
 
         @JvmField
-        var kp = 5.0
+        var kp = 0.0
 
         @JvmField
         var ki = 0.0
@@ -79,12 +72,7 @@ class Turret(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Turret"
 
         const val PPR = ((1 + (46.0 / 17.0)) * 28.0)
 
-        const val GEAR_RATIO = 24/110
-
-        @JvmStatic
-        var override = true
-        @JvmStatic
-        var overridePosition = 0.5
+        const val GEAR_RATIO = 24.0/110.0
 
         @JvmStatic
         var negMulti = 1.5
