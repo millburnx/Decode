@@ -71,7 +71,7 @@ class Turret(opMode: OpMode, var isTeleop: Boolean = false, val getPose: (() -> 
         var analogEncoderName = "a2"
 
         @JvmField
-        var kp = 0.05
+        var kp = 0.037
 
         @JvmField
         var ki = 0.0

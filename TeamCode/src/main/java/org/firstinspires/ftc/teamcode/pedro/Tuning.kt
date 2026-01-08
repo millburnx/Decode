@@ -77,6 +77,7 @@ class Tuning : SelectableOpMode("Select a Tuning OpMode", Consumer { s: SelectSc
         telemetryM = PanelsTelemetry.telemetry
 
         Drawing.init()
+        ManualManager.init()
     }
 
     public override fun onLog(lines: MutableList<String?>?) {}
@@ -206,6 +207,7 @@ internal class ForwardTuner : OpMode() {
         Tuning.telemetryM!!.update(telemetry)
 
         Tuning.draw()
+        ManualManager.update()
     }
 
     companion object {
@@ -254,6 +256,7 @@ internal class LateralTuner : OpMode() {
         Tuning.telemetryM!!.update(telemetry)
 
         Tuning.draw()
+        ManualManager.update()
     }
 
     companion object {
@@ -303,6 +306,7 @@ internal class TurnTuner : OpMode() {
         Tuning.telemetryM!!.update(telemetry)
 
         Tuning.draw()
+        ManualManager.update()
     }
 
     companion object {
@@ -368,6 +372,7 @@ internal class ForwardVelocityTuner : OpMode() {
             requestOpModeStop()
         }
 
+        ManualManager.update()
         Tuning.follower!!.update()
         Tuning.draw()
 
@@ -475,6 +480,7 @@ internal class LateralVelocityTuner : OpMode() {
             requestOpModeStop()
         }
 
+        ManualManager.update()
         Tuning.follower!!.update()
         Tuning.draw()
 
@@ -571,6 +577,7 @@ internal class ForwardZeroPowerAccelerationTuner : OpMode() {
             requestOpModeStop()
         }
 
+        ManualManager.update()
         Tuning.follower!!.update()
         Tuning.draw()
 
@@ -676,6 +683,7 @@ internal class LateralZeroPowerAccelerationTuner : OpMode() {
             requestOpModeStop()
         }
 
+        ManualManager.update()
         Tuning.follower!!.update()
         Tuning.draw()
 
@@ -766,6 +774,7 @@ internal class TranslationalTuner : OpMode() {
 
     /** This runs the OpMode, updating the Follower as well as printing out the debug statements to the Telemetry  */
     override fun loop() {
+        ManualManager.update()
         Tuning.follower!!.update()
         Tuning.draw()
 
@@ -835,6 +844,7 @@ internal class HeadingTuner : OpMode() {
      * the Telemetry, as well as the Panels.
      */
     override fun loop() {
+        ManualManager.update()
         Tuning.follower!!.update()
         Tuning.draw()
 
@@ -905,6 +915,7 @@ internal class DriveTuner : OpMode() {
      * the Telemetry, as well as the Panels.
      */
     override fun loop() {
+        ManualManager.update()
         Tuning.follower!!.update()
         Tuning.draw()
 
@@ -966,6 +977,7 @@ internal class Line : OpMode() {
 
     /** This runs the OpMode, updating the Follower as well as printing out the debug statements to the Telemetry  */
     override fun loop() {
+        ManualManager.update()
         Tuning.follower!!.update()
         Tuning.draw()
 
@@ -1038,6 +1050,7 @@ internal class CentripetalTuner : OpMode() {
      * the Telemetry, as well as the Panels.
      */
     override fun loop() {
+        ManualManager.update()
         Tuning.follower!!.update()
         Tuning.draw()
         if (!Tuning.follower!!.isBusy) {
@@ -1079,6 +1092,7 @@ internal class Triangle : OpMode() {
      * the Telemetry, as well as the Panels.
      */
     override fun loop() {
+        ManualManager.update()
         Tuning.follower!!.update()
         Tuning.draw()
 
@@ -1153,6 +1167,7 @@ internal class Circle : OpMode() {
      * the Telemetry, as well as the FTC Dashboard.
      */
     override fun loop() {
+        ManualManager.update()
         Tuning.follower!!.update()
         Tuning.draw()
 
