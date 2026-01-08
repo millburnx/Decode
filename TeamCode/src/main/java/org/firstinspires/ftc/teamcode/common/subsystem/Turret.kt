@@ -15,7 +15,9 @@ import kotlin.math.sign
 class Turret(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Turret") {
     val motor = ManualMotor(opMode.hardwareMap, motorName)
     val motorEncoder = Encoder(opMode.hardwareMap, motorEncoderName)
-    val analog = AnalogEncoder(opMode.hardwareMap, analogEncoderName)
+    val analog = AnalogEncoder(opMode.hardwareMap, analogEncoderName).apply {
+        update()
+    }
 
     val encoderOffset = analog.rawPosition / GEAR_RATIO * PPR - motorEncoder.position
     val correctedPosition
@@ -37,9 +39,15 @@ class Turret(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Turret"
                 val power = (pidOutput + ff).clamp(-maxPower, maxPower)
                 motor.power = power
 
+                analog.update()
+
                 tel.addData("Turret | Power", power)
                 tel.addData("Turret | Target", targetPosition)
                 tel.addData("Turret | Current", correctedPosition)
+                tel.addData("Turret | Current Normalized", correctedPosition * GEAR_RATIO / PPR)
+                tel.addData("Turret | Raw", motor.position)
+                tel.addData("Turret | Raw analog", analog.rawPosition)
+                tel.addData("Turret | Offset", encoderOffset)
                 sync()
             }
         }
@@ -56,7 +64,7 @@ class Turret(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Turret"
         var analogEncoderName = "a2"
 
         @JvmField
-        var kp = 0.0
+        var kp = 0.05
 
         @JvmField
         var ki = 0.0

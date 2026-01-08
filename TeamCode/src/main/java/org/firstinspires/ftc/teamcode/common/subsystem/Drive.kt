@@ -40,6 +40,7 @@ class Drive(val opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Driv
                 tel.addData("m1 current", m1.getCurrent(CurrentUnit.AMPS))
                 tel.addData("m2 current", m2.getCurrent(CurrentUnit.AMPS))
                 tel.addData("m3 current", m3.getCurrent(CurrentUnit.AMPS))
+                tel.addData("pose", follower.pose)
                 sync()
             }
         }

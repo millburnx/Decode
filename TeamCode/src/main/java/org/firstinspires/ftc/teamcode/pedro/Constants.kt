@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.pedro
 
+import com.bylazar.configurables.annotations.Configurable
 import com.pedropathing.control.FilteredPIDFCoefficients
 import com.pedropathing.control.PIDFCoefficients
 import com.pedropathing.follower.Follower
@@ -8,12 +9,12 @@ import com.pedropathing.ftc.FollowerBuilder
 import com.pedropathing.ftc.drivetrains.MecanumConstants
 import com.pedropathing.ftc.localization.constants.PinpointConstants
 import com.pedropathing.paths.PathConstraints
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.EncoderDirection
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.common.hardware.manual.manualMecanumDrivetrain
-import kotlin.math.PI
 
 object Constants {
     val followerConstants: FollowerConstants = FollowerConstants()
@@ -55,10 +56,10 @@ object Constants {
     val localizerConstants: PinpointConstants = PinpointConstants()
         .hardwareMapName("pinpoint")
         .distanceUnit(DistanceUnit.INCH)
-        .customEncoderResolution(OpenOdo.ENCODER_RESOLUTION)
-        .forwardPodY(-6.375)
-        .strafePodX(1.44)
-        .forwardEncoderDirection(EncoderDirection.REVERSED)
+        .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_SWINGARM_POD)
+        .forwardPodY(5.5)
+        .strafePodX(-0.5)
+        .forwardEncoderDirection(EncoderDirection.FORWARD)
         .strafeEncoderDirection(EncoderDirection.REVERSED)
 
     val pathConstraints: PathConstraints = PathConstraints(0.99, 100.0, .25, 2.0)
@@ -72,10 +73,7 @@ object Constants {
     }
 }
 
+@Configurable
+object Odom {
 
-object OpenOdo {
-    const val TICKS_PER_REVOLUTION = 8192.0
-    const val DIAMETER_MM = 35.0
-    const val ENCODER_RESOLUTION_MM = TICKS_PER_REVOLUTION / (DIAMETER_MM * PI)
-    const val ENCODER_RESOLUTION = ENCODER_RESOLUTION_MM / 25.4
 };

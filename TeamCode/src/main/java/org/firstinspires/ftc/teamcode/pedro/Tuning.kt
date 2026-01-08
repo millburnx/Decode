@@ -21,6 +21,7 @@ import com.pedropathing.telemetry.SelectableOpMode
 import com.pedropathing.util.PoseHistory
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualManager
 import org.firstinspires.ftc.teamcode.pedro.Constants.createFollower
 import org.firstinspires.ftc.teamcode.pedro.Drawing.drawRobot
 import java.util.function.Consumer
@@ -160,6 +161,7 @@ internal class LocalizationTest : OpMode() {
         Tuning.telemetryM!!.update(telemetry)
 
         Tuning.draw()
+        ManualManager.update()
     }
 }
 
