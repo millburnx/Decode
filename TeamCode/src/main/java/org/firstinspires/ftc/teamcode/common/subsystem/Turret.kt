@@ -5,6 +5,7 @@ import com.arcrobotics.ftclib.kotlin.extensions.util.clamp
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.util.WaitFor
+import com.millburnx.util.Pose2d
 import org.firstinspires.ftc.teamcode.common.hardware.AnalogEncoder
 import org.firstinspires.ftc.teamcode.common.hardware.Encoder
 import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualMotor
@@ -12,7 +13,7 @@ import org.firstinspires.ftc.teamcode.opmode.OpMode
 import kotlin.math.sign
 
 @Configurable
-class Turret(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Turret") {
+class Turret(opMode: OpMode, var isTeleop: Boolean = false, val getPose: (() -> Pose2d)? = null) : Subsystem("Turret") {
     val motor = ManualMotor(opMode.hardwareMap, motorName)
     val motorEncoder = Encoder(opMode.hardwareMap, motorEncoderName)
     val analog = AnalogEncoder(opMode.hardwareMap, analogEncoderName).apply {
@@ -23,18 +24,24 @@ class Turret(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Turret"
     val correctedPosition
         get() = motorEncoder.position + encoderOffset
 
+    val correctedAngle
+        get() = correctedPosition * GEAR_RATIO / PPR * 360.0
+
     val pid = PIDController(kp, ki, kd)
 
     var targetAngle = 0.0
     val targetPosition
         get() = targetAngle / 360.0 / GEAR_RATIO * PPR
 
+    val totalHeading
+        get() = (getPose?.invoke()?.heading ?: 0.0) + correctedAngle
+
     override val run: suspend Command.() -> Unit = {
         with(opMode) {
             WaitFor { isStarted || isStopRequested }
             while (!isStopRequested) {
                 pid.setPID(kp, ki, kd)
-                val pidOutput = pid.calculate(correctedPosition, targetPosition)
+                val pidOutput = pid.calculate(totalHeading, targetAngle)
                 val ff = ks * sign(pidOutput)
                 val power = (pidOutput + ff).clamp(-maxPower, maxPower)
                 motor.power = power
@@ -80,7 +87,7 @@ class Turret(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Turret"
 
         const val PPR = ((1 + (46.0 / 17.0)) * 28.0)
 
-        const val GEAR_RATIO = 24.0/110.0
+        const val GEAR_RATIO = 24.0 / 110.0
 
         @JvmStatic
         var negMulti = 1.5

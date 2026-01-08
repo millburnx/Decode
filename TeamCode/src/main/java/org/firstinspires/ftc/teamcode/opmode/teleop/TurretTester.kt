@@ -4,6 +4,7 @@ import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.util.WaitFor
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.teamcode.common.subsystem.Drive
 import org.firstinspires.ftc.teamcode.common.subsystem.Limelight
 import org.firstinspires.ftc.teamcode.common.subsystem.Turret
 import org.firstinspires.ftc.teamcode.opmode.OpMode
@@ -13,7 +14,8 @@ import org.firstinspires.ftc.teamcode.opmode.OpMode
 
 class TurretTester : OpMode() {
     override fun run() {
-        val turret = Turret(this, isTeleop = true)
+        val drive = Drive(this, isTeleop = true)
+        val turret = Turret(this, isTeleop = true) { drive.pose }
         val limelight = Limelight(this, turret)
         scheduler.schedule(Command() {
             WaitFor { isStarted || isStopRequested }

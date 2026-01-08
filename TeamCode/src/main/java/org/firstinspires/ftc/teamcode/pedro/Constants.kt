@@ -57,8 +57,8 @@ object Constants {
         .hardwareMapName("pinpoint")
         .distanceUnit(DistanceUnit.INCH)
         .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_SWINGARM_POD)
-        .forwardPodY(5.5)
-        .strafePodX(-0.5)
+        .forwardPodY(5.28401)
+        .strafePodX(-0.15106)
         .forwardEncoderDirection(EncoderDirection.FORWARD)
         .strafeEncoderDirection(EncoderDirection.REVERSED)
 
