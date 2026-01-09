@@ -38,15 +38,15 @@ class Teleop : OpMode() {
                 SleepFor { Kickers.downDuration }
             }
             Command("kick second") {
-                kickers.isUp2 = true
-                SleepFor { Kickers.upDuration }
-                kickers.isUp2 = false
-                SleepFor { Kickers.downDuration }
-            }
-            Command("kick third") {
                 kickers.isUp1 = true
                 SleepFor { Kickers.upDuration }
                 kickers.isUp1 = false
+                SleepFor { Kickers.downDuration }
+            }
+            Command("kick third") {
+                kickers.isUp2 = true
+                SleepFor { Kickers.upDuration }
+                kickers.isUp2 = false
                 SleepFor { Kickers.downDuration }
             }
             Command("stop flywheel") {

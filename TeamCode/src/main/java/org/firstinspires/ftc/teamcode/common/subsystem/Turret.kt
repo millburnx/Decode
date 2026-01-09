@@ -30,31 +30,43 @@ class Turret(opMode: OpMode, var isTeleop: Boolean = false, val getPose: (() -> 
     val pid = PIDController(kp, ki, kd)
 
     var targetAngle = 0.0
+        set(value) {
+            field = (value + 360.0) % 360.0 // normalize to 0-360
+        }
+
+    var enabled = false
     val targetPosition
         get() = targetAngle / 360.0 / GEAR_RATIO * PPR
 
     val totalHeading
-        get() = (getPose?.invoke()?.heading ?: 0.0) + correctedAngle
+        get() = (((getPose?.invoke()?.heading ?: 0.0) + correctedAngle) - 270.0 + 360.0)%360.0
 
     override val run: suspend Command.() -> Unit = {
         with(opMode) {
             WaitFor { isStarted || isStopRequested }
             while (!isStopRequested) {
-                pid.setPID(kp, ki, kd)
-                val pidOutput = pid.calculate(totalHeading, targetAngle)
-                val ff = ks * sign(pidOutput)
-                val power = (pidOutput + ff).clamp(-maxPower, maxPower)
-                motor.power = power
+                if (enabled) {
+                    pid.setPID(kp, ki, kd)
+                    val pidOutput = pid.calculate(totalHeading, targetAngle)
+                    val ff = ks * sign(pidOutput)
+                    val power = (pidOutput + ff).clamp(-maxPower, maxPower)
+                    val boostedPower = if (power < 0.0) power * negMulti else power
+                    motor.power = boostedPower
 
-                analog.update()
+                    analog.update()
+                    tel.addData("Turret | Power", boostedPower)
+                } else {
+                    motor.power = 0.0
+                }
 
-                tel.addData("Turret | Power", power)
                 tel.addData("Turret | Target", targetPosition)
                 tel.addData("Turret | Current", correctedPosition)
+                tel.addData("Turret | Current Angle", correctedAngle)
                 tel.addData("Turret | Current Normalized", correctedPosition * GEAR_RATIO / PPR)
                 tel.addData("Turret | Raw", motor.position)
                 tel.addData("Turret | Raw analog", analog.rawPosition)
                 tel.addData("Turret | Offset", encoderOffset)
+                tel.addData("turret | totalHeading", totalHeading)
                 sync()
             }
         }
@@ -71,7 +83,7 @@ class Turret(opMode: OpMode, var isTeleop: Boolean = false, val getPose: (() -> 
         var analogEncoderName = "a2"
 
         @JvmField
-        var kp = 0.037
+        var kp = -0.037
 
         @JvmField
         var ki = 0.0

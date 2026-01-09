@@ -5,16 +5,15 @@ import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.util.WaitFor
 import com.millburnx.util.Pose2d
 import com.millburnx.util.toDegrees
-import com.pedropathing.geometry.Pose
 import com.qualcomm.robotcore.hardware.DcMotorEx
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit
+import org.firstinspires.ftc.teamcode.common.hardware.toPedro
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 import org.firstinspires.ftc.teamcode.pedro.Constants
 
 @Configurable
-class Drive(val opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Drive") {
+class Drive(val opMode: OpMode, var isTeleop: Boolean = false, val startingPose: Pose2d = Pose2d()) : Subsystem("Drive") {
     val follower = Constants.createFollower(opMode.hardwareMap).apply {
-        setStartingPose(Pose(0.0, 0.0))
+        setStartingPose(startingPose.toPedro())
     }
 
     val pose
@@ -41,10 +40,10 @@ class Drive(val opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Driv
                         !useFieldCentric // Robot Centric
                     );
                 }
-                tel.addData("m0 current", m0.getCurrent(CurrentUnit.AMPS))
-                tel.addData("m1 current", m1.getCurrent(CurrentUnit.AMPS))
-                tel.addData("m2 current", m2.getCurrent(CurrentUnit.AMPS))
-                tel.addData("m3 current", m3.getCurrent(CurrentUnit.AMPS))
+//                tel.addData("m0 current", m0.getCurrent(CurrentUnit.AMPS))
+//                tel.addData("m1 current", m1.getCurrent(CurrentUnit.AMPS))
+//                tel.addData("m2 current", m2.getCurrent(CurrentUnit.AMPS))
+//                tel.addData("m3 current", m3.getCurrent(CurrentUnit.AMPS))
                 tel.addData("pose", pose)
                 sync()
             }

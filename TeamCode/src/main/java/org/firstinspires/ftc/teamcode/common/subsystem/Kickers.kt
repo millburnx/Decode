@@ -56,7 +56,7 @@ class Kickers(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Kicker
         var servo3Reversed = false
 
         @JvmField
-        var idle1Position = 0.35
+        var idle1Position = 0.27
 
         @JvmField
         var idle2Position = 0.68
