@@ -1,13 +1,16 @@
 package org.firstinspires.ftc.teamcode.common.subsystem
 
 import com.bylazar.configurables.annotations.Configurable
+import com.bylazar.field.Style
 import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.util.WaitFor
 import com.millburnx.util.Pose2d
 import com.qualcomm.hardware.limelightvision.Limelight3A
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.teamcode.common.hardware.toPedro
 import org.firstinspires.ftc.teamcode.opmode.OpMode
+import org.firstinspires.ftc.teamcode.pedro.Drawing
 
 
 @Configurable
@@ -36,6 +39,11 @@ class Limelight(opMode: OpMode, val turret: Turret?) : Subsystem("Limelight") {
                             72.0 + inches.y,
                             72.0 - inches.x,
                             90.0 + pose.orientation.getYaw(AngleUnit.DEGREES)
+                        )
+                        Drawing.drawRobot(
+                            fixedPose.toPedro(), Style(
+                                "", "#42d44b", 0.75
+                            )
                         )
                         llPose = fixedPose
                         tel.addData("ll | tx", result.tx)

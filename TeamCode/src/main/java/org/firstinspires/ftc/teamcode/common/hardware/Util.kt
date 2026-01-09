@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.common.hardware
 
 import com.millburnx.util.Pose2d
+import com.millburnx.util.toDegrees
 import com.millburnx.util.toRadians
 import com.pedropathing.geometry.Pose
 import com.qualcomm.robotcore.hardware.DcMotor
@@ -18,6 +19,8 @@ fun motorSetup(motor: DcMotorEx, reverse: Boolean = false, float: Boolean = fals
 }
 
 fun Pose2d.toPedro() = Pose(x, y, heading.toRadians())
+
+fun Pose2d.Companion.fromPedro(pose: Pose) = Pose2d(pose.x, pose.y, pose.heading.toDegrees())
 
 fun normalizeRadians(radians: Double): Double {
     return atan2(sin(radians), cos(radians))

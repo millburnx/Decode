@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.common.hardware.gamepad.Gamepad
 import org.firstinspires.ftc.teamcode.common.hardware.gamepad.GamepadManager
 import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualManager
 import org.firstinspires.ftc.teamcode.common.subsystem.SubsystemManager
+import org.firstinspires.ftc.teamcode.pedro.Drawing
 import kotlin.system.measureTimeMillis
 
 abstract class OpMode : LinearOpMode() {
@@ -37,6 +38,7 @@ abstract class OpMode : LinearOpMode() {
             tel.addData("hz", loopHertz)
             tel.addData("ms", ms)
             tel.update(telemetry)
+            Drawing.sendPacket()
 
             // hardware
             val bulkReadTime = measureTimeMillis {
@@ -65,6 +67,7 @@ abstract class OpMode : LinearOpMode() {
         gamepadManager = GamepadManager(this)
 
         SubsystemManager.init()
+        Drawing.init()
         run()
         SubsystemManager.registerAll(scheduler)
 

@@ -29,6 +29,11 @@ class Drive(val opMode: OpMode, var isTeleop: Boolean = false, val startingPose:
             WaitFor { isStarted || isStopRequested }
             while (!isStopRequested) {
                 follower.update()
+//                Drawing.drawRobot(
+//                    pose.toPedro(), Style(
+//                        "", "#3F51B5", 0.75
+//                    )
+//                )
                 if (isTeleop) {
                     if (!follower.teleopDrive) {
                         follower.startTeleopDrive(!useFloat)

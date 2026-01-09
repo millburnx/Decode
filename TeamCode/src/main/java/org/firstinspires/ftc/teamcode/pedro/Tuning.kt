@@ -8,6 +8,9 @@ import com.bylazar.field.PanelsField.presets
 import com.bylazar.field.Style
 import com.bylazar.telemetry.PanelsTelemetry
 import com.bylazar.telemetry.TelemetryManager
+import com.millburnx.util.Pose2d
+import com.millburnx.util.toRadians
+import com.millburnx.util.vector.Vec2d
 import com.pedropathing.follower.Follower
 import com.pedropathing.geometry.BezierCurve
 import com.pedropathing.geometry.BezierLine
@@ -21,6 +24,7 @@ import com.pedropathing.telemetry.SelectableOpMode
 import com.pedropathing.util.PoseHistory
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.teamcode.common.hardware.fromPedro
 import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualManager
 import org.firstinspires.ftc.teamcode.pedro.Constants.createFollower
 import org.firstinspires.ftc.teamcode.pedro.Drawing.drawRobot
@@ -1242,7 +1246,11 @@ internal object Drawing {
      * @param pose the Pose to draw the robot at
      */
     @JvmOverloads
-    fun drawRobot(pose: Pose?, style: Style = robotLook) {
+    fun drawRobot(
+        pose: Pose?, style: Style = robotLook, turretAngle: Double? = null, turretStyle: Style = Style(
+            "", "#7436b5", 0.75
+        )
+    ) {
         if (pose == null || pose.x.isNaN() || pose.y.isNaN() || pose.heading.isNaN()) {
             return
         }
@@ -1261,6 +1269,14 @@ internal object Drawing {
         panelsField.setStyle(style)
         panelsField.moveCursor(x1, y1)
         panelsField.line(x2, y2)
+
+        if (turretAngle != null) {
+            panelsField.setStyle(turretStyle)
+            panelsField.moveCursor(pose.x, pose.y)
+            val turretVector = Vec2d(ROBOT_RADIUS, 0.0).rotate(turretAngle.toRadians())
+            val endPoint = Pose2d.fromPedro(pose).position + turretVector
+            panelsField.line(x2 + endPoint.x, y2 + endPoint.y)
+        }
     }
 
     /**

@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.common.hardware.manual.manualMecanumDrivet
 
 object Constants {
     val followerConstants: FollowerConstants = FollowerConstants()
-        .mass(10.0)
+        .mass(12.2)
         .forwardZeroPowerAcceleration(-154.736)
         .lateralZeroPowerAcceleration(-148.621)
         .centripetalScaling(0.0)

@@ -10,7 +10,9 @@ import org.firstinspires.ftc.teamcode.common.hardware.AnalogEncoder
 import org.firstinspires.ftc.teamcode.common.hardware.Encoder
 import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualMotor
 import org.firstinspires.ftc.teamcode.common.hardware.normalizeDegrees
+import org.firstinspires.ftc.teamcode.common.hardware.toPedro
 import org.firstinspires.ftc.teamcode.opmode.OpMode
+import org.firstinspires.ftc.teamcode.pedro.Drawing
 import kotlin.math.sign
 
 /**
@@ -55,6 +57,13 @@ class Turret(opMode: OpMode, var isTeleop: Boolean = false, val getPose: (() -> 
                     TargetingMode.GLOBAL -> normalizeDegrees(targetAngle - driveHeading)
                 }
 
+                val pose = getPose?.invoke()
+                if (pose != null) {
+                    Drawing.drawRobot(
+                        pose.toPedro(), turretAngle = globalAngle
+                    )
+                }
+
                 val pidOutput = pid.calculate(relativeAngle, targetAngle)
                 val ff = ks * sign(targetAngle - relativeAngle)
                 val power = (pidOutput + ff).clamp(-maxPower, maxPower)
@@ -72,8 +81,7 @@ class Turret(opMode: OpMode, var isTeleop: Boolean = false, val getPose: (() -> 
     }
 
     enum class TargetingMode {
-        RELATIVE,
-        GLOBAL;
+        RELATIVE, GLOBAL;
     }
 
     companion object {
