@@ -24,19 +24,18 @@ class Limelight(opMode: OpMode, val turret: Turret?) : Subsystem("Limelight") {
         with(opMode) {
             WaitFor { isStarted || isStopRequested }
             while (!isStopRequested) {
-                val heading = turret?.totalHeading ?: 0.0
+                val heading = turret?.globalAngle ?: 0.0
                 limelight.updateRobotOrientation(heading);
                 val result = limelight.latestResult
                 println("ll log $result")
                 if (result != null) {
                     if (result.isValid) {
-                        val pose = result.botpose
-                        val poseMT2 = result.botpose_MT2
-                        val inches = poseMT2.position.toUnit(DistanceUnit.INCH)
+                        val pose = if (useMT2) result.botpose_MT2 else result.botpose
+                        val inches = pose.position.toUnit(DistanceUnit.INCH)
                         val fixedPose = Pose2d(
                             72.0 + inches.y,
                             72.0 - inches.x,
-                            90.0 + poseMT2.orientation.getYaw(AngleUnit.DEGREES)
+                            90.0 + pose.orientation.getYaw(AngleUnit.DEGREES)
                         )
                         llPose = fixedPose
                         tel.addData("ll | tx", result.tx)
@@ -50,6 +49,7 @@ class Limelight(opMode: OpMode, val turret: Turret?) : Subsystem("Limelight") {
     }
 
     companion object {
-
+        @JvmField
+        var useMT2 = true
     }
 }

@@ -6,6 +6,9 @@ import com.pedropathing.geometry.Pose
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 
 fun motorSetup(motor: DcMotorEx, reverse: Boolean = false, float: Boolean = false) {
     motor.zeroPowerBehavior = if (float) DcMotor.ZeroPowerBehavior.FLOAT else DcMotor.ZeroPowerBehavior.BRAKE
@@ -15,3 +18,9 @@ fun motorSetup(motor: DcMotorEx, reverse: Boolean = false, float: Boolean = fals
 }
 
 fun Pose2d.toPedro() = Pose(x, y, heading.toRadians())
+
+fun normalizeRadians(radians: Double): Double {
+    return atan2(sin(radians), cos(radians))
+}
+
+fun normalizeDegrees(angle: Double): Double = Math.toDegrees(normalizeRadians(Math.toRadians(angle)))

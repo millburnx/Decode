@@ -55,6 +55,6 @@ class Drive(val opMode: OpMode, var isTeleop: Boolean = false, val startingPose:
         var useFloat = true
 
         @JvmField
-        var useFieldCentric = false
+        var useFieldCentric = true
     }
 }

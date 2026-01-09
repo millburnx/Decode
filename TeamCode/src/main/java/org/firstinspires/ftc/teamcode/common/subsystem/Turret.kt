@@ -9,67 +9,71 @@ import com.millburnx.util.Pose2d
 import org.firstinspires.ftc.teamcode.common.hardware.AnalogEncoder
 import org.firstinspires.ftc.teamcode.common.hardware.Encoder
 import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualMotor
+import org.firstinspires.ftc.teamcode.common.hardware.normalizeDegrees
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 import kotlin.math.sign
 
+/**
+ * Everything should be stored in normalized degrees.
+ * Unless it's something that needs to be unnormalized for wraparound reasons.
+ */
 @Configurable
 class Turret(opMode: OpMode, var isTeleop: Boolean = false, val getPose: (() -> Pose2d)? = null) : Subsystem("Turret") {
-    val motor = ManualMotor(opMode.hardwareMap, motorName)
-    val motorEncoder = Encoder(opMode.hardwareMap, motorEncoderName)
-    val analog = AnalogEncoder(opMode.hardwareMap, analogEncoderName).apply {
+    val motor = ManualMotor(opMode.hardwareMap, motorName, reverse = true)
+    val motorEncoder = Encoder(opMode.hardwareMap, motorEncoderName, reverse = true)
+    val analog = AnalogEncoder(opMode.hardwareMap, analogEncoderName, reverse = true).apply {
         update()
     }
 
-    val encoderOffset = analog.rawPosition / GEAR_RATIO * PPR - motorEncoder.position
-    val correctedPosition
-        get() = motorEncoder.position + encoderOffset
-
-    val correctedAngle
-        get() = correctedPosition * GEAR_RATIO / PPR * 360.0
-
     val pid = PIDController(kp, ki, kd)
 
-    var targetAngle = 0.0
+    private val startingOffset = normalizeDegrees(analog.rawPosition * 360.0 + 90)
+    val driveHeading
+        get() = getPose?.invoke()?.heading ?: 0.0
+    val relativeAngle
+        get() = ticksToDegrees(motorEncoder.position) + startingOffset
+    val globalAngle // hk this is annoying, we can't just use this for pid, as it screws up wraparound
+        get() = normalizeDegrees(driveHeading + relativeAngle)
+
+    var targetingMode: TargetingMode = TargetingMode.RELATIVE
+    var targetAngle: Double = 0.0
         set(value) {
-            field = (value + 360.0) % 360.0 // normalize to 0-360
+            field = normalizeDegrees(value)
         }
 
-    var enabled = false
-    val targetPosition
-        get() = targetAngle / 360.0 / GEAR_RATIO * PPR
-
-    val totalHeading
-        get() = (((getPose?.invoke()?.heading ?: 0.0) + correctedAngle) - 270.0 + 360.0)%360.0
+    private fun ticksToDegrees(ticks: Double): Double {
+        return ticks * GEAR_RATIO / PPR * 360.0
+    }
 
     override val run: suspend Command.() -> Unit = {
         with(opMode) {
             WaitFor { isStarted || isStopRequested }
             while (!isStopRequested) {
-                if (enabled) {
-                    pid.setPID(kp, ki, kd)
-                    val pidOutput = pid.calculate(totalHeading, targetAngle)
-                    val ff = ks * sign(pidOutput)
-                    val power = (pidOutput + ff).clamp(-maxPower, maxPower)
-                    val boostedPower = if (power < 0.0) power * negMulti else power
-                    motor.power = boostedPower
-
-                    analog.update()
-                    tel.addData("Turret | Power", boostedPower)
-                } else {
-                    motor.power = 0.0
+                // this is in relative space for wraparound reasons
+                val targetAngle: Double = when (targetingMode) {
+                    TargetingMode.RELATIVE -> targetAngle
+                    TargetingMode.GLOBAL -> normalizeDegrees(targetAngle - driveHeading)
                 }
 
-                tel.addData("Turret | Target", targetPosition)
-                tel.addData("Turret | Current", correctedPosition)
-                tel.addData("Turret | Current Angle", correctedAngle)
-                tel.addData("Turret | Current Normalized", correctedPosition * GEAR_RATIO / PPR)
-                tel.addData("Turret | Raw", motor.position)
-                tel.addData("Turret | Raw analog", analog.rawPosition)
-                tel.addData("Turret | Offset", encoderOffset)
-                tel.addData("turret | totalHeading", totalHeading)
+                val pidOutput = pid.calculate(relativeAngle, targetAngle)
+                val ff = ks * sign(targetAngle - relativeAngle)
+                val power = (pidOutput + ff).clamp(-maxPower, maxPower)
+                val boostedPower = if (power > 0.0) power * boostMulti else power
+                motor.power = boostedPower
+
+                tel.addData("Turret | relativeAngle", relativeAngle)
+                tel.addData("Turret | globalAngle", globalAngle)
+                tel.addData("Turret | targetAngle", this@Turret.targetAngle)
+                tel.addData("Turret | relativeTargetAngle", targetAngle)
+                tel.addData("Turret | power", boostedPower)
                 sync()
             }
         }
+    }
+
+    enum class TargetingMode {
+        RELATIVE,
+        GLOBAL;
     }
 
     companion object {
@@ -81,6 +85,10 @@ class Turret(opMode: OpMode, var isTeleop: Boolean = false, val getPose: (() -> 
 
         @JvmField
         var analogEncoderName = "a2"
+
+        const val PPR = ((1 + (46.0 / 17.0)) * 28.0)
+
+        const val GEAR_RATIO = 24.0 / 110.0
 
         @JvmField
         var kp = -0.037
@@ -97,11 +105,7 @@ class Turret(opMode: OpMode, var isTeleop: Boolean = false, val getPose: (() -> 
         @JvmField
         var maxPower = 0.6
 
-        const val PPR = ((1 + (46.0 / 17.0)) * 28.0)
-
-        const val GEAR_RATIO = 24.0 / 110.0
-
         @JvmStatic
-        var negMulti = 1.5
+        var boostMulti = 1.5
     }
 }

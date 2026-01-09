@@ -88,7 +88,7 @@ class FlyWheel(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Shoot
             var voltageWeight = 1.0
 
             @JvmField
-            var rpmThreshold = 100.0
+            var rpmThreshold = 150.0
         }
     }
 
@@ -106,6 +106,6 @@ class FlyWheel(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Shoot
         var spinUpDuration = 2000L
 
         @JvmField
-        var targetRpm = 1800.0
+        var targetRpm = 2500.0
     }
 }

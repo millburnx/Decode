@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.common.subsystem
 
+import com.arcrobotics.ftclib.kotlin.extensions.util.clamp
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.util.WaitFor
@@ -10,7 +11,13 @@ import org.firstinspires.ftc.teamcode.opmode.OpMode
 class Hood(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Hood") {
     val servo = ManualServo(opMode.hardwareMap, servoName, reverse = servoReversed)
 
-    var position = min
+    /**
+     * Hood position, range: 0-1
+     */
+    var position = 0.0
+        set(value) {
+            field = value.clamp(0.0, 1.0)
+        }
 
     override val run: suspend Command.() -> Unit = {
         with(opMode) {
@@ -20,10 +27,10 @@ class Hood(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Hood") {
                     var change = 0.0
                     if (gp2.current.rightBumper && !gp2.prev.rightBumper) change = bumperStep
                     if (gp2.current.leftBumper && !gp2.prev.leftBumper) change = -bumperStep
-                    position = (position + change).coerceIn(min, max)
+                    position += change
                     tel.addData("hood | pos", position)
                 }
-                servo.position = position
+                servo.position = min + position * (max - min)
                 sync()
             }
         }
