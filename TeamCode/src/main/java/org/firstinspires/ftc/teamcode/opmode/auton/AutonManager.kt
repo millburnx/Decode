@@ -9,6 +9,7 @@ import com.millburnx.util.Pose2d
 
 // TODO: create the pedro subsystem and pass it so we can automatically the starting pose
 //  (find a way to do it cleanly since this is created after it)
+//  i think we let auton manager create pedro, drive can have pedro passed in. if not it'll create itself
 public class AutonManager(public val isMirrored: Boolean = false, public val sequenceName: String) {
     public val builder: PedroBuilder = PedroBuilder(isMirrored)
     public val loadedSequence: Sequence = PedroLoader.load(sequenceName)
