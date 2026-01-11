@@ -2,12 +2,15 @@ package org.firstinspires.ftc.teamcode.common.subsystem
 
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
+import com.millburnx.cmdx.commandGroups.Sequential
+import com.millburnx.cmdxpedro.util.SleepFor
 import com.millburnx.cmdxpedro.util.WaitFor
 import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualServo
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
 @Configurable
-class Kickers(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Kickers") {
+class Kickers(opMode: OpMode, var isTeleop: Boolean = false, var atVelocity: () -> Boolean = { true }) :
+    Subsystem("Kickers") {
     val servo1 = ManualServo(opMode.hardwareMap, servo1Name, reverse = servo1Reversed)
     val servo2 = ManualServo(opMode.hardwareMap, servo2Name, reverse = servo2Reversed)
     val servo3 = ManualServo(opMode.hardwareMap, servo3Name, reverse = servo3Reversed)
@@ -36,6 +39,30 @@ class Kickers(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Kicker
         }
     }
 
+    val rapidFire = Sequential("rapid fire") {
+        Command("kick first") {
+            WaitFor { atVelocity() }
+            isUp3 = true
+            SleepFor { Kickers.upDuration }
+            isUp3 = false
+            SleepFor { Kickers.downDuration }
+        }
+        Command("kick second") {
+            WaitFor { atVelocity() }
+            isUp1 = true
+            SleepFor { Kickers.upDuration }
+            isUp1 = false
+            SleepFor { Kickers.downDuration }
+        }
+        Command("kick third") {
+            WaitFor { atVelocity() }
+            isUp2 = true
+            SleepFor { Kickers.upDuration * 2 } // this kicker for some reason has more jamming issues
+            isUp2 = false
+            SleepFor { Kickers.downDuration }
+        }
+    }
+
     companion object {
         @JvmField
         var servo1Name = "s0"
@@ -56,13 +83,13 @@ class Kickers(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Kicker
         var servo3Reversed = false
 
         @JvmField
-        var idle1Position = 0.27
+        var idle1Position = 0.35
 
         @JvmField
         var idle2Position = 0.68
 
         @JvmField
-        var idle3Position = 0.65
+        var idle3Position = 0.62
 
         @JvmField
         var up1Position = 0.8
@@ -77,6 +104,6 @@ class Kickers(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Kicker
         var upDuration = 350L
 
         @JvmField
-        var downDuration = 50L
+        var downDuration = 100L
     }
 }

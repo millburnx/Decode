@@ -28,9 +28,9 @@ class Hood(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Hood") {
                     if (gp2.current.rightBumper && !gp2.prev.rightBumper) change = bumperStep
                     if (gp2.current.leftBumper && !gp2.prev.leftBumper) change = -bumperStep
                     position += change
-                    tel.addData("hood | pos", position)
                 }
                 servo.position = min + position * (max - min)
+                tel.addData("hood | pos", position)
                 sync()
             }
         }
@@ -41,15 +41,15 @@ class Hood(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Hood") {
         var servoName = "s0e"
 
         @JvmField
-        var servoReversed = false
+        var servoReversed = true
 
         @JvmField
         var bumperStep = 0.1
 
         @JvmField
-        var min = 0.3
+        var min = 0.1
 
         @JvmField
-        var max = 0.9
+        var max = 0.6
     }
 }

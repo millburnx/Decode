@@ -1,20 +1,27 @@
 package org.firstinspires.ftc.teamcode.common.subsystem
 
 import com.bylazar.configurables.annotations.Configurable
+import com.bylazar.field.Style
 import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.util.WaitFor
 import com.millburnx.util.Pose2d
 import com.millburnx.util.toDegrees
+import com.pedropathing.follower.Follower
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import org.firstinspires.ftc.teamcode.common.hardware.toPedro
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 import org.firstinspires.ftc.teamcode.pedro.Constants
+import org.firstinspires.ftc.teamcode.pedro.Drawing
 
 @Configurable
-class Drive(val opMode: OpMode, var isTeleop: Boolean = false, val startingPose: Pose2d = Pose2d()) : Subsystem("Drive") {
-    val follower = Constants.createFollower(opMode.hardwareMap).apply {
+class Drive(
+    val opMode: OpMode,
+    var isTeleop: Boolean = false,
+    val startingPose: Pose2d = Pose2d(),
+    val follower: Follower = Constants.createManualFollower(opMode.hardwareMap).apply {
         setStartingPose(startingPose.toPedro())
     }
+) : Subsystem("Drive") {
 
     val pose
         get() = Pose2d(follower.pose.x, follower.pose.y, follower.pose.heading.toDegrees())
@@ -29,11 +36,11 @@ class Drive(val opMode: OpMode, var isTeleop: Boolean = false, val startingPose:
             WaitFor { isStarted || isStopRequested }
             while (!isStopRequested) {
                 follower.update()
-//                Drawing.drawRobot(
-//                    pose.toPedro(), Style(
-//                        "", "#3F51B5", 0.75
-//                    )
-//                )
+                Drawing.drawRobot(
+                    pose.toPedro(), Style(
+                        "", "#3F51B5", 0.75
+                    )
+                )
                 if (isTeleop) {
                     if (!follower.teleopDrive) {
                         follower.startTeleopDrive(!useFloat)
@@ -60,6 +67,6 @@ class Drive(val opMode: OpMode, var isTeleop: Boolean = false, val startingPose:
         var useFloat = true
 
         @JvmField
-        var useFieldCentric = true
+        var useFieldCentric = false
     }
 }

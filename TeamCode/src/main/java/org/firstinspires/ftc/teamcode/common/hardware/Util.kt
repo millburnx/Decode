@@ -27,3 +27,7 @@ fun normalizeRadians(radians: Double): Double {
 }
 
 fun normalizeDegrees(angle: Double): Double = Math.toDegrees(normalizeRadians(Math.toRadians(angle)))
+
+fun lerp(a: Double, b: Double, t: Double): Double {
+    return a + (b - a) * t
+}

@@ -9,9 +9,9 @@ import org.firstinspires.ftc.teamcode.opmode.OpMode
 
 @Configurable
 class Intake(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Intake") {
-    val frontMotor = ManualMotor(opMode.hardwareMap, frontMotorName, reverse = frontMotorReversed, float = true)
+    val motor = ManualMotor(opMode.hardwareMap, motorName, reverse = motorReversed, float = true).motor
 
-    var frontPower = 0.0
+    var power = 0.0
 
     override val run: suspend Command.() -> Unit = {
         with(opMode) {
@@ -19,9 +19,9 @@ class Intake(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Intake"
             while (!isStopRequested) {
                 if (isTeleop) {
                     val power = gp1.current.rightTrigger - gp1.current.leftTrigger
-                    frontPower = power
+                    this@Intake.power = power
                 }
-                frontMotor.power = frontPower
+                motor.power = power
                 sync()
             }
         }
@@ -29,9 +29,9 @@ class Intake(opMode: OpMode, var isTeleop: Boolean = false) : Subsystem("Intake"
 
     companion object {
         @JvmField
-        var frontMotorName = "m3e"
+        var motorName = "m3e"
 
         @JvmField
-        var frontMotorReversed = true
+        var motorReversed = true
     }
 }

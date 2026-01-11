@@ -19,13 +19,15 @@ class TurretTester : OpMode() {
     override fun run() {
         val drive = Drive(this, isTeleop = true, Pose2d(72.0, 72.0, 0.0))
         val turret = Turret(this, isTeleop = true) { drive.pose }
-        val limelight = Limelight(this, turret)
+        val limelight = Limelight(this) { turret.globalAngle }
         val hood = Hood(this, isTeleop = true)
         scheduler.schedule(Command() {
             WaitFor { isStarted || isStopRequested }
             while (!isStopRequested) {
                 val llPose = limelight.llPose
-                if (override) {
+                if (isOff) {
+                    turret.targetingMode = Turret.TargetingMode.OFF
+                } else if (override) {
                     turret.targetingMode =
                         if (overrideGlobal) Turret.TargetingMode.GLOBAL else Turret.TargetingMode.RELATIVE
                     turret.targetAngle = overrideAngle
@@ -36,7 +38,7 @@ class TurretTester : OpMode() {
                 } else {
                     val goal = Vec2d(12.0, 144.0 - 12.0)
                     val angle = llPose.position.angleTo(goal).toDegrees()
-                    hood.position = Hood.min + (llPose.position.distance(goal) / 144.0) * (Hood.max - Hood.min)
+                    hood.position = Hood.min + (llPose.distanceTo(goal) / 144.0) * (Hood.max - Hood.min)
                     tel.addData("vision | target angle", angle)
                     turret.targetingMode = Turret.TargetingMode.GLOBAL
                     turret.targetAngle = angle
@@ -49,6 +51,9 @@ class TurretTester : OpMode() {
     companion object {
         @JvmField
         var override = false
+
+        @JvmField
+        var isOff = true
 
         @JvmField
         var overrideGlobal = false

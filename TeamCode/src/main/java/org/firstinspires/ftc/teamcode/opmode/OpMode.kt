@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmode
 
 import com.bylazar.telemetry.PanelsTelemetry
+import com.millburnx.cmdx.Settings
 import com.millburnx.cmdx.runtimeGroups.CommandScheduler
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
@@ -29,6 +30,7 @@ abstract class OpMode : LinearOpMode() {
     var deltaTime = 0.0
     var hubs: List<LynxModule> = emptyList()
     val scheduler = CommandScheduler().apply {
+        Settings.verbose = false;
         onSync = {
             val ms = loopTimer.milliseconds()
             val loopHertz = 1.0 / loopTimer.seconds()

@@ -26,6 +26,8 @@ class ManualMotor(
 
     private var pending = false
 
+    // i think we might wanna check motor.power and just verify
+    // make sure nothing slips through idkkkkkk
     fun update() {
         if (pending) {
             motor.power = power

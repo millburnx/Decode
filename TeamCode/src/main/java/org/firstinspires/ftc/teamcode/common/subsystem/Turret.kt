@@ -29,7 +29,7 @@ class Turret(opMode: OpMode, var isTeleop: Boolean = false, val getPose: (() -> 
 
     val pid = PIDController(kp, ki, kd)
 
-    private val startingOffset = normalizeDegrees(analog.rawPosition * 360.0 + 90)
+    private val startingOffset = -normalizeDegrees(analog.rawPosition * 360.0 - analogOffset)
     val driveHeading
         get() = getPose?.invoke()?.heading ?: 0.0
     val relativeAngle
@@ -48,13 +48,29 @@ class Turret(opMode: OpMode, var isTeleop: Boolean = false, val getPose: (() -> 
     }
 
     override val run: suspend Command.() -> Unit = {
+        println("meow $startingOffset ${analog.rawPosition}")
+
         with(opMode) {
             WaitFor { isStarted || isStopRequested }
             while (!isStopRequested) {
+                pid.setPID(kp, ki, kd)
+
                 // this is in relative space for wraparound reasons
-                val targetAngle: Double = when (targetingMode) {
-                    TargetingMode.RELATIVE -> targetAngle
-                    TargetingMode.GLOBAL -> normalizeDegrees(targetAngle - driveHeading)
+                val immutableTargetingMode = targetingMode
+                if (immutableTargetingMode != TargetingMode.OFF) {
+                    val targetAngle: Double = convertToWraparound(when (immutableTargetingMode) {
+                        TargetingMode.RELATIVE -> targetAngle
+                        TargetingMode.GLOBAL -> normalizeDegrees(targetAngle - driveHeading)
+                        else -> throw Error("Unexpected targeting mode: $immutableTargetingMode")
+                    })
+                    val pidOutput = pid.calculate(relativeAngle, targetAngle)
+                    val ff = ks * sign(targetAngle - relativeAngle)
+                    val power = (pidOutput + ff).clamp(-maxPower, maxPower)
+                    val boostedPower = if (power > 0.0) power * boostMulti else power
+                    motor.power = boostedPower
+                    tel.addData("Turret | power", boostedPower)
+                } else {
+                    motor.power = 0.0
                 }
 
                 val pose = getPose?.invoke()
@@ -64,24 +80,23 @@ class Turret(opMode: OpMode, var isTeleop: Boolean = false, val getPose: (() -> 
                     )
                 }
 
-                val pidOutput = pid.calculate(relativeAngle, targetAngle)
-                val ff = ks * sign(targetAngle - relativeAngle)
-                val power = (pidOutput + ff).clamp(-maxPower, maxPower)
-                val boostedPower = if (power > 0.0) power * boostMulti else power
-                motor.power = boostedPower
-
                 tel.addData("Turret | relativeAngle", relativeAngle)
                 tel.addData("Turret | globalAngle", globalAngle)
                 tel.addData("Turret | targetAngle", this@Turret.targetAngle)
                 tel.addData("Turret | relativeTargetAngle", targetAngle)
-                tel.addData("Turret | power", boostedPower)
                 sync()
             }
         }
     }
 
     enum class TargetingMode {
-        RELATIVE, GLOBAL;
+        OFF, RELATIVE, GLOBAL;
+    }
+
+    // Make angle wraparound friendly, -180, 180 to -270, 90
+    private fun convertToWraparound(angle: Double): Double {
+        if (angle <= 90 || angle < 0.0) return angle
+        return angle - 360
     }
 
     companion object {
@@ -115,5 +130,8 @@ class Turret(opMode: OpMode, var isTeleop: Boolean = false, val getPose: (() -> 
 
         @JvmStatic
         var boostMulti = 1.5
+
+        @JvmStatic
+        var analogOffset = 70
     }
 }

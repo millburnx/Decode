@@ -8,13 +8,14 @@ import com.millburnx.util.Pose2d
 import com.qualcomm.hardware.limelightvision.Limelight3A
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.teamcode.common.hardware.normalizeDegrees
 import org.firstinspires.ftc.teamcode.common.hardware.toPedro
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 import org.firstinspires.ftc.teamcode.pedro.Drawing
 
 
 @Configurable
-class Limelight(opMode: OpMode, val turret: Turret?) : Subsystem("Limelight") {
+class Limelight(opMode: OpMode, val getHeading: (() -> Double)? = null) : Subsystem("Limelight") {
     @Suppress("MemberNameEqualsClassName")
     val limelight = (opMode.hardwareMap["limelight"] as Limelight3A).apply {
         pipelineSwitch(0)
@@ -27,8 +28,8 @@ class Limelight(opMode: OpMode, val turret: Turret?) : Subsystem("Limelight") {
         with(opMode) {
             WaitFor { isStarted || isStopRequested }
             while (!isStopRequested) {
-                val heading = turret?.globalAngle ?: 0.0
-                limelight.updateRobotOrientation(heading);
+                val heading = getHeading?.invoke() ?: 0.0
+                limelight.updateRobotOrientation(normalizeDegrees(heading - 90));
                 val result = limelight.latestResult
                 println("ll log $result")
                 if (result != null) {
@@ -58,6 +59,6 @@ class Limelight(opMode: OpMode, val turret: Turret?) : Subsystem("Limelight") {
 
     companion object {
         @JvmField
-        var useMT2 = true
+        var useMT2 = false
     }
 }
