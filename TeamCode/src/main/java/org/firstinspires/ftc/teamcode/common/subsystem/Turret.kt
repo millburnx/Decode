@@ -132,6 +132,6 @@ class Turret(opMode: OpMode, var isTeleop: Boolean = false, val getPose: (() -> 
         var boostMulti = 1.5
 
         @JvmStatic
-        var analogOffset = 70
+        var analogOffset = 40
     }
 }

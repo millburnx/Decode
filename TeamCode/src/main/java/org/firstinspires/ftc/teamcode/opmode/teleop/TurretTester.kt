@@ -40,7 +40,8 @@ class TurretTester : OpMode() {
                     val angle = llPose.position.angleTo(goal).toDegrees()
                     hood.position = Hood.min + (llPose.distanceTo(goal) / 144.0) * (Hood.max - Hood.min)
                     tel.addData("vision | target angle", angle)
-                    turret.targetingMode = Turret.TargetingMode.GLOBAL
+                    tel.addData("dr | dr angle", drive.pose.heading)
+                    turret.targetingMode = Turret.TargetingMode.RELATIVE
                     turret.targetAngle = angle
                 }
                 sync()

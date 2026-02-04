@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.common.subsystem.Hood
 import org.firstinspires.ftc.teamcode.common.subsystem.Intake
 import org.firstinspires.ftc.teamcode.common.subsystem.Kickers
 import org.firstinspires.ftc.teamcode.common.subsystem.Limelight
+import org.firstinspires.ftc.teamcode.common.subsystem.Turret
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
 @Configurable
@@ -24,7 +25,7 @@ class Teleop : OpMode() {
     override fun run() {
         val drive = Drive(this, isTeleop = true, Pose2d(72.0, 72.0, 0.0))
         val intake = Intake(this, isTeleop = true)
-//        val turret = Turret(this, isTeleop = true) { drive.pose }
+        val turret = Turret(this, isTeleop = true) { drive.pose }
         val flyWheel = FlyWheel(this, isTeleop = true)
         val kickers = Kickers(this, isTeleop = true) { flyWheel.atVelocity }
         val hood = Hood(this, isTeleop = true)
@@ -79,21 +80,21 @@ class Teleop : OpMode() {
                     hasRelocalized = true
                 }
                 if (flyWheel.targetRpm == FlyWheel.intakeRPM) {
-//                    if (!turretDisabled) {
-//                        turret.targetingMode = Turret.TargetingMode.RELATIVE
-//                        turret.targetAngle = 0.0
-//                    } else {
-//                        turret.targetingMode = Turret.TargetingMode.OFF
-//                    }
+                    if (!turretDisabled) {
+                        turret.targetingMode = Turret.TargetingMode.RELATIVE
+                        turret.targetAngle = 0.0
+                    } else {
+                        turret.targetingMode = Turret.TargetingMode.OFF
+                    }
                     hood.position = 0.0
                 } else if (hasRelocalized) {
                     val angle = drive.pose.position.angleTo(goal).toDegrees()
-//                    if (!turretDisabled) {
-//                        turret.targetingMode = Turret.TargetingMode.GLOBAL
-//                        turret.targetAngle = angle
-//                    } else {
-//                        turret.targetingMode = Turret.TargetingMode.OFF
-//                    }
+                    if (!turretDisabled) {
+                        turret.targetingMode = Turret.TargetingMode.GLOBAL
+                        turret.targetAngle = angle
+                    } else {
+                        turret.targetingMode = Turret.TargetingMode.OFF
+                    }
 
                     val distance = drive.pose.position.distance(goal)
                     val settings = FlyWheel.getSettings(distance)
@@ -105,12 +106,12 @@ class Teleop : OpMode() {
                 } else {
                     flyWheel.targetRpm = 1900.0
                     hood.position = .7
-//                    if (!turretDisabled) {
-//                        turret.targetingMode = Turret.TargetingMode.RELATIVE
-//                        turret.targetAngle = 0.0
-//                    } else {
-//                        turret.targetingMode = Turret.TargetingMode.OFF
-//                    }
+                    if (!turretDisabled) {
+                        turret.targetingMode = Turret.TargetingMode.RELATIVE
+                        turret.targetAngle = 0.0
+                    } else {
+                        turret.targetingMode = Turret.TargetingMode.OFF
+                    }
                 }
                 sync()
             }
