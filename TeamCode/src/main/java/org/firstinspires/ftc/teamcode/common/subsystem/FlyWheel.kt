@@ -82,7 +82,7 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
     }
 
     @Configurable
-    class Controller {c
+    class Controller {
         val PID = PIDController(kP, kI, kD)
         var FF = SimpleMotorFeedforward(kS, kV, 0.0)
 
