@@ -27,7 +27,7 @@ class ManualMotor(
     private var pending = false
 
     fun update() {
-        if (pending || motor.power != power) {
+        if (pending) {
             motor.power = power
             pending = false
         }

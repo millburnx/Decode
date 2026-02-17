@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<Robot type="FirstInspires-FTC">
+    <LynxUsbDevice name="Control Hub Portal" serialNumber="(embedded)" parentModuleAddress="173">
+        <LynxModule name="Expansion Hub 2" port="2">
+            <goBILDA5202SeriesMotor name="m0e" port="0" />
+            <goBILDA5202SeriesMotor name="m1e" port="1" />
+            <goBILDA5202SeriesMotor name="m2e" port="2" />
+            <goBILDA5202SeriesMotor name="m3e" port="3" />
+
+            <LynxColorSensor name="c0e" port="0" bus="0" />
+            <LynxColorSensor name="c1e" port="0" bus="1" />
+            <RevColorSensorV3 name="c2e" port="0" bus="2" />
+
+            <AnalogInput name="a0" port="0" />
+            <AnalogInput name="a1" port="1" />
+            <AnalogInput name="a2" port="2" />
+            <AnalogInput name="a3" port="3" />
+        </LynxModule>
+        <ServoHub name="Servo Hub 3" port="3">
+            <Servo name="s0" port="0" />
+            <Servo name="s1" port="1" />
+            <Servo name="s2" port="2" />
+            <Servo name="s3" port="3" />
+            <Servo name="s4" port="4" />
+            <Servo name="s5" port="5" />
+        </ServoHub>
+        <LynxModule name="Control Hub" port="173">
+            <goBILDA5202SeriesMotor name="m0" port="0" />
+            <goBILDA5202SeriesMotor name="m1" port="1" />
+            <goBILDA5202SeriesMotor name="m2" port="2" />
+            <goBILDA5202SeriesMotor name="m3" port="3" />
+
+            <RevColorSensorV3 name="c0" port="0" bus="0" />
+            <LynxColorSensor name="c1" port="0" bus="1" />
+            <RevColorSensorV3 name="c2" port="0" bus="2" />
+            <goBILDAPinpoint name="pinpoint" port="0" bus="3" />
+        </LynxModule>
+    </LynxUsbDevice>
+</Robot>

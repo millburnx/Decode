@@ -7,6 +7,9 @@ import com.pedropathing.geometry.Pose
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
@@ -17,6 +20,14 @@ fun motorSetup(motor: DcMotorEx, reverse: Boolean = false, float: Boolean = fals
     motor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODERS
     motor.direction = if (reverse) DcMotorSimple.Direction.REVERSE else DcMotorSimple.Direction.FORWARD
 }
+
+fun Pose2d.toFTC(unit: DistanceUnit = DistanceUnit.INCH) = Pose2D(unit, x, y, AngleUnit.DEGREES, heading)
+
+fun Pose2d.Companion.fromFTC(pose: Pose2D, unit: DistanceUnit = DistanceUnit.INCH) = Pose2d(
+    pose.getX(unit), pose.getY(unit), pose.getHeading(
+        AngleUnit.DEGREES
+    )
+)
 
 fun Pose2d.toPedro() = Pose(x, y, heading.toRadians())
 

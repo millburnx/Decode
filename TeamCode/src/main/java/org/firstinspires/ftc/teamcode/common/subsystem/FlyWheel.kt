@@ -4,18 +4,18 @@ import com.arcrobotics.ftclib.controller.PIDController
 import com.arcrobotics.ftclib.controller.wpilibcontroller.SimpleMotorFeedforward
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
+import org.firstinspires.ftc.teamcode.common.hardware.Encoder
 import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualMotor
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 import kotlin.math.abs
 
+@Configurable
 class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
     val leftMotor = ManualMotor(opMode.hardwareMap, leftMotorName, leftMotorReversed)
     val rightMotor = ManualMotor(opMode.hardwareMap, rightMotorName, rightMotorReversed)
-
-    val leftRPM get() = leftMotor.velocity * toRPM
-    val rightRPM get() = rightMotor.velocity * toRPM
-    val rpm get() = (leftRPM + rightRPM) / 2.0
+    val encoder = Encoder(opMode.hardwareMap, encoderName, encoderReversed)
+    val rpm get() = encoder.velocity * toRPM
 
     var shootingRPM = baseRPM
     val targetRpm: Double
@@ -34,13 +34,19 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
 
     override val run: suspend Command.() -> Unit = {
         OpModeLoop(opMode) {
-            if (state == FlyWheelState.IDLE) {
-                leftMotor.power = 0.0
-                rightMotor.power = 0.0
-                return@OpModeLoop
-            }
-
             with(opMode) {
+                if (override) {
+                    leftMotor.power = overridePower
+                    rightMotor.power = overridePower
+                    tel.addData("flywheel | rpm", rpm)
+                    return@OpModeLoop
+                }
+                if (state == FlyWheelState.IDLE) {
+                    leftMotor.power = 0.0
+                    rightMotor.power = 0.0
+                    return@OpModeLoop
+                }
+
                 val power = pidf.calculate(rpm, targetRpm, voltageSensor.voltage)
                 leftMotor.power = power
                 rightMotor.power = power
@@ -54,16 +60,28 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
 
     companion object {
         @JvmField
-        var leftMotorName = "m0e"
+        var override = true
 
         @JvmField
-        var rightMotorName = "m1e"
+        var overridePower = 0.0
 
         @JvmField
-        var leftMotorReversed = false
+        var leftMotorName = "m3e"
+
+        @JvmField
+        var rightMotorName = "m2e"
+
+        @JvmField
+        var encoderName = "m1e"
+
+        @JvmField
+        var leftMotorReversed = true
 
         @JvmField
         var rightMotorReversed = false
+
+        @JvmField
+        var encoderReversed = false
 
         @JvmField
         var toRPM = 60 / 28.0

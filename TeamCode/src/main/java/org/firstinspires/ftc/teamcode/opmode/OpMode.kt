@@ -30,7 +30,7 @@ abstract class OpMode : LinearOpMode() {
     var deltaTime = 0.0
     var hubs: List<LynxModule> = emptyList()
     val scheduler = CommandScheduler().apply {
-        Settings.verbose = false;
+        Settings.verbose = true;
         onSync = {
             val ms = loopTimer.milliseconds()
             val loopHertz = 1.0 / loopTimer.seconds()

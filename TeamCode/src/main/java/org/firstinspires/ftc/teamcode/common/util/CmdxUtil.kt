@@ -12,7 +12,7 @@ suspend fun Command.OpModeLoop(opMode: OpMode, runnable: suspend Command.() -> U
         while (!isStopRequested) {
             try {
                 runnable()
-            } catch (e: OpModeLoopExit) {
+            } catch (_: OpModeLoopExit) {
                 break
             }
             sync()

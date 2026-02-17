@@ -22,7 +22,7 @@ class AnalogEncoder(
     fun update() {
         val prev = rawPosition
         val raw = encoder.voltage / 3.3
-        if (reverse) rawPosition = raw else rawPosition = 1 - raw
+        if (reverse) rawPosition = (1 - raw) else rawPosition = raw
 
         val angleDifference: Double = rawPosition - prev
 
