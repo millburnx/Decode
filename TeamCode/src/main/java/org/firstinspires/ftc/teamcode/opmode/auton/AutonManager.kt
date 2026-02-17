@@ -23,7 +23,7 @@ class AutonManager(val opMode: OpMode, val sequenceName: String, val isMirrored:
     val startingPose: Pose2d
         get() = loadedSequence.startPose
 
-    val follower: Follower = Constants.createManualFollower(opMode.hardwareMap).apply {
+    val follower: Follower = Constants.createManualFusionFollower(opMode.hardwareMap, { opMode.deltaTime }).apply {
         setStartingPose(startingPose.toPedro())
     }
 

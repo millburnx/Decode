@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
@@ -23,13 +24,19 @@ fun motorSetup(motor: DcMotorEx, reverse: Boolean = false, float: Boolean = fals
 
 fun Pose2d.toFTC(unit: DistanceUnit = DistanceUnit.INCH) = Pose2D(unit, x, y, AngleUnit.DEGREES, heading)
 
+fun Pose2d.Companion.fromFTC(pose: Pose3D, unit: DistanceUnit = DistanceUnit.INCH): Pose2d {
+    val pos = pose.position.toUnit(unit)
+    val degrees = pose.orientation.getYaw(AngleUnit.DEGREES)
+    return Pose2d(pos.x, pos.y, degrees)
+}
+
 fun Pose2d.Companion.fromFTC(pose: Pose2D, unit: DistanceUnit = DistanceUnit.INCH) = Pose2d(
     pose.getX(unit), pose.getY(unit), pose.getHeading(
         AngleUnit.DEGREES
     )
 )
 
-fun Pose2d.toPedro() = Pose(x, y, heading.toRadians())
+fun Pose2d.toPedro() = Pose(x, y, radians)
 
 fun Pose2d.Companion.fromPedro(pose: Pose) = Pose2d(pose.x, pose.y, pose.heading.toDegrees())
 

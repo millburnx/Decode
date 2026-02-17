@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.common.hardware.manual.manualMecanumDrivetrain
+import org.firstinspires.ftc.teamcode.common.subsystem.Limelight
 
 object Constants {
     val followerConstants: FollowerConstants = FollowerConstants()
@@ -65,7 +66,6 @@ object Constants {
 
     fun createFollower(hardwareMap: HardwareMap): Follower {
         return FollowerBuilder(followerConstants, hardwareMap)
-//            .manualMecanumDrivetrain(hardwareMap, driveConstants)
             .mecanumDrivetrain(driveConstants)
             .pinpointLocalizer(localizerConstants)
             .pathConstraints(pathConstraints)
@@ -75,8 +75,15 @@ object Constants {
     fun createManualFollower(hardwareMap: HardwareMap): Follower {
         return FollowerBuilder(followerConstants, hardwareMap)
             .manualMecanumDrivetrain(hardwareMap, driveConstants)
-//            .mecanumDrivetrain(driveConstants)
             .pinpointLocalizer(localizerConstants)
+            .pathConstraints(pathConstraints)
+            .build()
+    }
+
+    fun createManualFusionFollower(hardwareMap: HardwareMap, deltaTime: () -> Double, limelight: Limelight? = null): Follower {
+        return FollowerBuilder(followerConstants, hardwareMap)
+            .manualMecanumDrivetrain(hardwareMap, driveConstants)
+            .fusionLocalizer(hardwareMap, deltaTime, limelight)
             .pathConstraints(pathConstraints)
             .build()
     }

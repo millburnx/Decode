@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmode.teleop
+package org.firstinspires.ftc.teamcode.opmode.test.hardware
 
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command

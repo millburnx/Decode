@@ -19,7 +19,7 @@ import kotlin.math.sign
  * Input is to be transformed into the internal range
  */
 @Configurable
-class Turret(opMode: OpMode) : Subsystem("Turret") {
+class Turret(opMode: OpMode, val heading: () -> Double) : Subsystem("Turret") {
     val analog = AnalogEncoder(opMode.hardwareMap, analogName, analogReversed)
     val quadature = Encoder(opMode.hardwareMap, quadatureName, quadratureReversed)
     val motor = ManualMotor(opMode.hardwareMap, motorName, motorReversed)
@@ -40,18 +40,31 @@ class Turret(opMode: OpMode) : Subsystem("Turret") {
             field = normalizeDegrees(value)
         }
 
+    var targetingMode = TargetingMode.RELATIVE
+
+    private val relativeTarget
+        get() = when (targetingMode) {
+            TargetingMode.RELATIVE -> target
+            TargetingMode.GLOBAL -> {
+                val heading = heading()
+                normalizeDegrees(target - heading)
+            }
+        }
+
     private val _target
-        get() = normalizeDegrees(target - 180.0).clamp(min, max)
+        get() = normalizeDegrees(relativeTarget - 180.0).clamp(min, max)
 
     val pidf = PIDController(coeff.kP, coeff.kI, coeff.kD)
 
-    override val run: suspend Command.() -> Unit = {
+    override val run
+            : suspend Command .()
+    -> Unit = {
         OpModeLoop(opMode) {
             with(opMode) {
                 analog.update()
                 pidf.setPID(coeff.kP, coeff.kI, coeff.kD)
 
-                val ff = sign( _target - _angle) * coeff.kS
+                val ff = sign(_target - _angle) * coeff.kS
 
                 val rawPower = pidf.calculate(_angle, _target) + ff
                 val power = if (abs(rawPower) < minPower) 0.0 else rawPower
@@ -59,11 +72,19 @@ class Turret(opMode: OpMode) : Subsystem("Turret") {
 
                 tel.addData("turret | ia", _angle)
                 tel.addData("turret | ea", angle)
+                tel.addData("turret | ra", heading())
+                tel.addData("turret | ta", normalizeDegrees(angle + heading()))
                 tel.addData("turret | it", _target)
+                tel.addData("turret | rt", relativeTarget)
                 tel.addData("turret | et", target)
                 tel.addData("turret | power", power)
             }
         }
+    }
+
+    enum class TargetingMode {
+        RELATIVE,
+        GLOBAL
     }
 
     companion object {
