@@ -33,14 +33,14 @@ object Constants {
         .secondaryDrivePIDFCoefficients(FilteredPIDFCoefficients(0.015, 0.0, 0.0, 0.6, 0.3))
 
     fun MecanumConstants.setMotors() = apply {
-        rightFrontMotorName("m1")
-        rightRearMotorName("m3")
-        leftFrontMotorName("m0")
-        leftRearMotorName("m2")
-        leftFrontMotorDirection(Direction.REVERSE)
-        leftRearMotorDirection(Direction.REVERSE)
-        rightFrontMotorDirection(Direction.FORWARD)
-        rightRearMotorDirection(Direction.FORWARD)
+        rightFrontMotorName("m2")
+        rightRearMotorName("m0")
+        leftFrontMotorName("m1")
+        leftRearMotorName("m3")
+        rightFrontMotorDirection(Direction.REVERSE)
+        rightRearMotorDirection(Direction.REVERSE)
+        leftFrontMotorDirection(Direction.FORWARD)
+        leftRearMotorDirection(Direction.FORWARD)
     }
 
     fun MecanumConstants.setPower() = apply {

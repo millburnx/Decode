@@ -16,23 +16,31 @@ class TurretTester : OpMode() {
     override fun run() {
         val pedro = Constants.createManualFusionFollower(hardwareMap, { deltaTime })
 
-        val turret = Turret(this) { Pose2d.fromPedro(pedro.pose).heading }
+        val turret = Turret(
+            this,
+            { Pose2d.fromPedro(pedro.pose).heading },
+            { pedro.angularVelocity },
+            { voltageSensor.voltage }
+        )
 
-        scheduler.schedule(Command("teleop loop") {
-            pedro.update()
-            pedro.startTeleopDrive(false)
-            OpModeLoop(this@TurretTester) {
+        scheduler.schedule(
+            Command("teleop loop")
+            {
                 pedro.update()
-                pedro.setTeleOpDrive(
-                    -gp1.current.leftJoyStick.y,
-                    -gp1.current.leftJoyStick.x,
-                    -gp1.current.rightJoyStick.x,
-                    true
-                )
-                turret.target = target
-                turret.targetingMode = if (fieldCentric) Turret.TargetingMode.GLOBAL else Turret.TargetingMode.RELATIVE
-            }
-        })
+                pedro.startTeleopDrive(false)
+                OpModeLoop(this@TurretTester) {
+                    pedro.update()
+                    pedro.setTeleOpDrive(
+                        gp1.current.leftJoyStick.y,
+                        gp1.current.leftJoyStick.x,
+                        gp1.current.rightJoyStick.x,
+                        true
+                    )
+                    turret.target = target
+                    turret.targetingMode =
+                        if (fieldCentric) Turret.TargetingMode.GLOBAL else Turret.TargetingMode.RELATIVE
+                }
+            })
     }
 
     companion object {

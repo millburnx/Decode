@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.common.util.PIDFCoefficients
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 import kotlin.math.abs
+import kotlin.math.pow
 import kotlin.math.sign
 
 /**
@@ -19,7 +20,7 @@ import kotlin.math.sign
  * Input is to be transformed into the internal range
  */
 @Configurable
-class Turret(opMode: OpMode, val heading: () -> Double) : Subsystem("Turret") {
+class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Double, val voltage: () -> Double) : Subsystem("Turret") {
     val analog = AnalogEncoder(opMode.hardwareMap, analogName, analogReversed)
     val quadature = Encoder(opMode.hardwareMap, quadatureName, quadratureReversed)
     val motor = ManualMotor(opMode.hardwareMap, motorName, motorReversed)
@@ -54,7 +55,7 @@ class Turret(opMode: OpMode, val heading: () -> Double) : Subsystem("Turret") {
     private val _target
         get() = normalizeDegrees(relativeTarget - 180.0).clamp(min, max)
 
-    val pidf = PIDController(coeff.kP, coeff.kI, coeff.kD)
+    val pid = PIDController(coeff.kP, coeff.kI, coeff.kD)
 
     override val run
             : suspend Command .()
@@ -62,13 +63,22 @@ class Turret(opMode: OpMode, val heading: () -> Double) : Subsystem("Turret") {
         OpModeLoop(opMode) {
             with(opMode) {
                 analog.update()
-                pidf.setPID(coeff.kP, coeff.kI, coeff.kD)
+                pid.setPID(coeff.kP, coeff.kI, coeff.kD)
 
-                val ff = sign(_target - _angle) * coeff.kS
+                val driveCompFF = if (targetingMode == TargetingMode.GLOBAL) kR * -velocity() else 0.0
+                val pidf = pid.calculate(_angle, _target) + driveCompFF
+                val ks = sign(pidf) * coeff.kS
 
-                val rawPower = pidf.calculate(_angle, _target) + ff
-                val power = if (abs(rawPower) < minPower) 0.0 else rawPower
-                motor.power = power
+                val rawPower = pidf + ks
+                val power = if (abs(rawPower) < minPower) rawPower * abs(rawPower).pow(2) / minPower.pow(2) else rawPower
+
+                val voltage = voltage()
+                val voltageComp = if (voltage != 0.0) (12.0 / voltage) else 1.0
+
+                motor.power = power * voltageComp
+
+                tel.addData("turret | kv", driveCompFF)
+                tel.addData("turret | dv", velocity())
 
                 tel.addData("turret | ia", _angle)
                 tel.addData("turret | ea", angle)
@@ -116,7 +126,10 @@ class Turret(opMode: OpMode, val heading: () -> Double) : Subsystem("Turret") {
         const val TICKS_TO_DEGREES = 0.2 / ((1.0 + (46.0 / 11.0)) * 28.0) * 360
 
         @JvmField
-        var coeff = PIDFCoefficients(0.05, 0.0, 0.0, 0.05)
+        var coeff = PIDFCoefficients(0.075, 0.0, 0.0005, 0.1)
+
+        @JvmField
+        var kR = 0.15
 
         @JvmField
         var minPower = 0.2
