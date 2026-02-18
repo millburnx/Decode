@@ -20,7 +20,8 @@ import kotlin.math.sign
  * Input is to be transformed into the internal range
  */
 @Configurable
-class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Double, val voltage: () -> Double) : Subsystem("Turret") {
+class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Double, val voltage: () -> Double) :
+    Subsystem("Turret") {
     val analog = AnalogEncoder(opMode.hardwareMap, analogName, analogReversed)
     val quadature = Encoder(opMode.hardwareMap, quadatureName, quadratureReversed)
     val motor = ManualMotor(opMode.hardwareMap, motorName, motorReversed)
@@ -45,6 +46,7 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
 
     private val relativeTarget
         get() = when (targetingMode) {
+            TargetingMode.OFF -> Double.NEGATIVE_INFINITY
             TargetingMode.RELATIVE -> target
             TargetingMode.GLOBAL -> {
                 val heading = heading()
@@ -63,36 +65,43 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
         OpModeLoop(opMode) {
             with(opMode) {
                 analog.update()
-                pid.setPID(coeff.kP, coeff.kI, coeff.kD)
 
-                val driveCompFF = if (targetingMode == TargetingMode.GLOBAL) kR * -velocity() else 0.0
-                val pidf = pid.calculate(_angle, _target) + driveCompFF
-                val ks = sign(pidf) * coeff.kS
+                if (targetingMode == TargetingMode.OFF) {
+                    motor.power = 0.0
+                } else {
+                    pid.setPID(coeff.kP, coeff.kI, coeff.kD)
 
-                val rawPower = pidf + ks
-                val power = if (abs(rawPower) < minPower) rawPower * abs(rawPower).pow(2) / minPower.pow(2) else rawPower
+                    val driveCompFF = if (targetingMode == TargetingMode.GLOBAL) kR * -velocity() else 0.0
+                    val pidf = pid.calculate(_angle, _target) + driveCompFF
+                    val ks = sign(pidf) * coeff.kS
 
-                val voltage = voltage()
-                val voltageComp = if (voltage != 0.0) (12.0 / voltage) else 1.0
+                    val rawPower = pidf + ks
+                    val power =
+                        if (abs(rawPower) < minPower) rawPower * abs(rawPower).pow(2) / minPower.pow(2) else rawPower
 
-                motor.power = power * voltageComp
+                    val voltage = voltage()
+                    val voltageComp = if (voltage != 0.0) (12.0 / voltage) else 1.0
 
-                tel.addData("turret | kv", driveCompFF)
-                tel.addData("turret | dv", velocity())
+                    motor.power = power * voltageComp
 
-                tel.addData("turret | ia", _angle)
-                tel.addData("turret | ea", angle)
-                tel.addData("turret | ra", heading())
-                tel.addData("turret | ta", normalizeDegrees(angle + heading()))
-                tel.addData("turret | it", _target)
-                tel.addData("turret | rt", relativeTarget)
-                tel.addData("turret | et", target)
-                tel.addData("turret | power", power)
+                    tel.addData("turret | kv", driveCompFF)
+                    tel.addData("turret | dv", velocity())
+
+                    tel.addData("turret | ia", _angle)
+                    tel.addData("turret | ea", angle)
+                    tel.addData("turret | ra", heading())
+                    tel.addData("turret | ta", normalizeDegrees(angle + heading()))
+                    tel.addData("turret | it", _target)
+                    tel.addData("turret | rt", relativeTarget)
+                    tel.addData("turret | et", target)
+                    tel.addData("turret | power", power)
+                }
             }
         }
     }
 
     enum class TargetingMode {
+        OFF,
         RELATIVE,
         GLOBAL
     }
