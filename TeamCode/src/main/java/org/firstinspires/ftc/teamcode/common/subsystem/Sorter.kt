@@ -2,15 +2,16 @@ package org.firstinspires.ftc.teamcode.common.subsystem
 
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
+import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualServo
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
 @Configurable
 class Sorter(val opMode: OpMode) : Subsystem("FlyWheel") {
 
-//    val back = ManualServo(opMode.hardwareMap, backServoName, backServoReversed)
-//    val front = ManualServo(opMode.hardwareMap, frontServoName, frontServoReversed)
-//    val side = ManualServo(opMode.hardwareMap, sideServoName, sideServoReversed)
+    val back = ManualServo(opMode.hardwareMap, backServoName, backServoReversed)
+    val front = ManualServo(opMode.hardwareMap, frontServoName, frontServoReversed)
+    val side = ManualServo(opMode.hardwareMap, sideServoName, sideServoReversed)
 
     var isBackUp = false
     var isFrontUp = false
@@ -29,9 +30,9 @@ class Sorter(val opMode: OpMode) : Subsystem("FlyWheel") {
                     isSideUp = !isSideUp
                 }
 
-//                back.position = if (isBackUp) backUp else backDown
-//                front.position = if (isFrontUp) frontUp else frontDown
-//                side.position = if (isSideUp) sideUp else sideDown
+                back.position = if (isBackUp) backUp else backDown
+                front.position = if (isFrontUp) frontUp else frontDown
+                side.position = if (isSideUp) sideUp else sideDown
 
                 tel.addData("isBackUp", isBackUp)
                 tel.addData("isFrontUp", isFrontUp)

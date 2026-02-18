@@ -29,6 +29,10 @@ class Teleop : OpMode() {
         )
 
         val rapidFire = Command("Rapid Fire") {
+            FlyWheel.override = true
+            FlyWheel.overridePower = rapidPower
+            SleepFor { spinUp }
+
             sorter.isFrontUp = true
             SleepFor { upDuration }
             sorter.isFrontUp = false
@@ -42,11 +46,13 @@ class Teleop : OpMode() {
             sorter.isBackUp = true
             SleepFor { upDuration }
             sorter.isBackUp = false
+
+            FlyWheel.overridePower = 0.0
         }
 
         scheduler.schedule(Command("Rapid Fire Scheduler") {
             OpModeLoop(this@Teleop) {
-                if (!gp1.prev.dPad.down && gp1.current.dPad.down) {
+                if (!gp1.prev.rightBumper && gp1.current.rightBumper) {
                     rapidFire.cancel()
                     scheduler.schedule(rapidFire)
                 }
@@ -100,5 +106,11 @@ class Teleop : OpMode() {
 
         @JvmField
         var turretGlobal = false
+
+        @JvmField
+        var rapidPower = 1.0
+
+        @JvmField
+        var spinUp = 1000L
     }
 }

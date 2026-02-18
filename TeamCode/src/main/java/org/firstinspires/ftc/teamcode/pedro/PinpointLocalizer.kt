@@ -20,7 +20,8 @@ import kotlin.math.max
 import kotlin.math.min
 
 
-class FusionLocalizer(hardwareMap: HardwareMap, val deltaTime: () -> Double, val limelight: Limelight? = null) : Localizer {
+class FusionLocalizer(hardwareMap: HardwareMap, val deltaTime: () -> Double, val limelight: Limelight? = null) :
+    Localizer {
     val pinpoint = (hardwareMap.get("pinpoint") as GoBildaPinpointDriver).apply {
         setOffsets(PinpointSettings.forwardOffset, PinpointSettings.strafeOffset, DistanceUnit.MM)
         setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_SWINGARM_POD)
@@ -94,12 +95,16 @@ class FusionLocalizer(hardwareMap: HardwareMap, val deltaTime: () -> Double, val
     override fun isNAN(): Boolean = pose.x.isNaN() || pose.y.isNaN() || pose.heading.isNaN()
 }
 
-fun FollowerBuilder.fusionLocalizer(hardwareMap: HardwareMap, deltaTime: () -> Double, limelight: Limelight? = null): FollowerBuilder {
+fun FollowerBuilder.fusionLocalizer(
+    hardwareMap: HardwareMap,
+    deltaTime: () -> Double,
+    limelight: Limelight? = null
+): FollowerBuilder {
     return setLocalizer(FusionLocalizer(hardwareMap, deltaTime, limelight))
 }
 
 @Configurable
-class DriftKalmanFilter() {
+class DriftKalmanFilter {
     var drift = 0.0
     var uncertainty = startingUncertainty
 

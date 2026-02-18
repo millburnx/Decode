@@ -141,6 +141,6 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
         var kR = 0.15
 
         @JvmField
-        var minPower = 0.2
+        var minPower = 0.3
     }
 }
