@@ -53,6 +53,7 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
 
                 tel.addData("flywheel | power", power)
                 tel.addData("flywheel | target", targetRpm)
+                tel.addData("flywheel | at rpm", atRPM)
                 tel.addData("flywheel | rpm", rpm)
             }
         }
@@ -60,7 +61,7 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
 
     companion object {
         @JvmField
-        var override = true
+        var override = false
 
         @JvmField
         var overridePower = 0.0
@@ -81,7 +82,7 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
         var rightMotorReversed = false
 
         @JvmField
-        var encoderReversed = false
+        var encoderReversed = true
 
         @JvmField
         var toRPM = 60 / 28.0
@@ -128,10 +129,10 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
             var kD = 0.0
 
             @JvmField
-            var kS = 0.1
+            var kS = 0.09
 
             @JvmField
-            var kV = 0.00025
+            var kV = 0.00018
 
             @JvmField
             var rpmThreshold = 150.0

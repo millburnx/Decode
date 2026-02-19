@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmode.test
+package org.firstinspires.ftc.teamcode.opmode.test.subsystem
 
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
@@ -18,7 +18,7 @@ class TurretTester : OpMode() {
 
         val turret = Turret(
             this,
-            { Pose2d.fromPedro(pedro.pose).heading },
+            { Pose2d.Companion.fromPedro(pedro.pose).heading },
             { pedro.angularVelocity },
             { voltageSensor.voltage }
         )

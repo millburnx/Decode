@@ -33,7 +33,8 @@ class FusionLocalizer(hardwareMap: HardwareMap, val deltaTime: () -> Double, val
             if (PinpointSettings.strafeReversed) reversedPod else forwardPod
         )
 
-        resetPosAndIMU()
+//        resetPosAndIMU()
+        recalibrateIMU()
     }
 
     var _pose: Pose2d = Pose2d()

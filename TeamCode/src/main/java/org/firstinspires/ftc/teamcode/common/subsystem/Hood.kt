@@ -4,12 +4,13 @@ import com.arcrobotics.ftclib.kotlin.extensions.util.clamp
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import org.firstinspires.ftc.teamcode.common.hardware.lerp
+import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualServo
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
 @Configurable
 class Hood(opMode: OpMode) : Subsystem("Hood") {
-//    val servo = ManualServo(opMode.hardwareMap, servoName, servoReversed)
+    val servo = ManualServo(opMode.hardwareMap, servoName, servoReversed)
 
     var target = 0.0
         set(value) {
@@ -19,7 +20,7 @@ class Hood(opMode: OpMode) : Subsystem("Hood") {
     override val run: suspend Command.() -> Unit = {
         OpModeLoop(opMode) {
             val targetPos = lerp(min, max, target)
-//            servo.position = targetPos
+            servo.position = targetPos
         }
     }
 
@@ -28,10 +29,10 @@ class Hood(opMode: OpMode) : Subsystem("Hood") {
         var servoName = "s2"
 
         @JvmField
-        var servoReversed = false
+        var servoReversed = true
 
         @JvmField
-        var min: Double = 0.0
+        var min: Double = 0.06
 
         @JvmField
         var max: Double = 1.0
