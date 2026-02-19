@@ -1,8 +1,9 @@
-package org.firstinspires.ftc.teamcode.common.subsystem
+package org.firstinspires.ftc.teamcode.common.subsystem.sorter
 
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualServo
+import org.firstinspires.ftc.teamcode.common.subsystem.Subsystem
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 

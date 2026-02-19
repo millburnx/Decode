@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.common.hardware.fromPedro
 import org.firstinspires.ftc.teamcode.common.subsystem.FlyWheel
 import org.firstinspires.ftc.teamcode.common.subsystem.Hood
 import org.firstinspires.ftc.teamcode.common.subsystem.Intake
-import org.firstinspires.ftc.teamcode.common.subsystem.Sorter
+import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 import org.firstinspires.ftc.teamcode.opmode.teleop.Teleop
