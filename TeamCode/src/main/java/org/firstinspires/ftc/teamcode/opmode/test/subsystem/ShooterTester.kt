@@ -41,9 +41,9 @@ class ShooterTester : OpMode() {
 
                     if (!gp1.prev.rightBumper && gp1.current.rightBumper) {
                         scheduler.schedule(Command {
-                            sorter.isFrontUp = true
+                            sorter.frontPod.isUp = true
                             SleepFor { Teleop.upDuration }
-                            sorter.isFrontUp = false
+                            sorter.frontPod.isUp = false
                         })
                     }
 

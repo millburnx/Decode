@@ -31,7 +31,10 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
                     config.downPosition
                 }
 
-                updateState()
+//                updateState()
+                if (config.useTelemetry) {
+                    tel.addData("state", state)
+                }
             }
         }
     }
@@ -43,7 +46,11 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
 
             val v3Color = v3.normalizedColors.toHSV()
 
-            tel.addData("hsv v3", v3Color)
+            if (config.useTelemetry) {
+                tel.addData("v3 | h", v3Color.hue)
+                tel.addData("v3 | s", v3Color.saturation)
+                tel.addData("v3 | v", v3Color.brightness)
+            }
 
             if (config.greenRangeV3.contains(v3Color)) {
                 state = State.GREEN
@@ -65,8 +72,11 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
                 State.EMPTY
             }
 
-            tel.addData("hsv v2", v2Color)
-            tel.addData("state", state)
+            if (config.useTelemetry) {
+                tel.addData("v2 | h", v2Color.hue)
+                tel.addData("v2 | s", v2Color.saturation)
+                tel.addData("v2 | v", v2Color.brightness)
+            }
         }
     }
 
@@ -80,20 +90,36 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
             return SorterPod(opMode) { config }
         }
 
-        @JvmField
+        @JvmField // done
         var frontConfig = Config(
             "s5",
             false,
             .4,
             .8,
-            "c1e",
+            "c0e",
             "c2e",
-            1.0,
-            ColorRange(240.0..300.0, 35.0..100.0),
-            ColorRange(240.0..300.0, 35.0..100.0),
-            ColorRange(70.0..160.0, 35.0..100.0),
-            ColorRange(70.0..160.0, 35.0..100.0),
-            true
+            10.0,
+            ColorRange(
+                150.0..155.0,
+                27.0..30.5,
+                19.0..25.0
+            ),
+            ColorRange(
+                164.5..171.0,
+                0.0..100.0,
+                79.0..100.0
+            ),
+            ColorRange(
+                155.5..160.0,
+                34.5..37.0,
+                19.0..25.0
+            ),
+            ColorRange(
+                161.0..164.4,
+                0.0..100.0,
+                79.0..100.0
+            ),
+            false
         )
 
         @JvmField
@@ -102,13 +128,29 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
             true,
             .41,
             .8,
-            "c0e",
-            "c2",
-            1.0,
-            ColorRange(240.0..300.0, 35.0..100.0),
-            ColorRange(240.0..300.0, 35.0..100.0),
-            ColorRange(70.0..160.0, 35.0..100.0),
-            ColorRange(70.0..160.0, 35.0..100.0),
+            "c1e",
+            "c0",
+            10.0,
+            ColorRange(
+                154.0..159.0,
+                30.0..33.0,
+                15.0..19.0
+            ),
+            ColorRange(
+                133.5..137.0,
+                40.0..42.0,
+                32.0..35.0
+            ),
+            ColorRange(
+                153.0..157.0,
+                35.0..38.0,
+                15.0..19.0
+            ),
+            ColorRange(
+                130.0..133.5,
+                43.0..45.0,
+                27.0..32.0
+            ),
             false
         )
 
@@ -118,13 +160,29 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
             true,
             .4,
             .8,
-            "c0",
             "c1",
-            1.0,
-            ColorRange(240.0..300.0, 35.0..100.0),
-            ColorRange(240.0..300.0, 35.0..100.0),
-            ColorRange(70.0..160.0, 35.0..100.0),
-            ColorRange(70.0..160.0, 35.0..100.0),
+            "c2",
+            10.0,
+            ColorRange(
+                160.0..164.0,
+                10.0..20.0,
+                26.0..29.0,
+            ), 
+            ColorRange(
+                166.0..172.0,
+                39.0..43.0,
+                83.5..84.5,
+            ),
+            ColorRange(
+                143.0..159.0,
+                10.0..20.0,
+                32.0..36.0,
+            ),
+            ColorRange(
+                159.0..164.0,
+                43.5..47.0,
+                84.5..100.0,
+            ),
             false
         )
     }
@@ -164,15 +222,27 @@ class ColorRange(
     var maxHue: Double,
     var minSaturation: Double,
     var maxSaturation: Double,
+    var minValue: Double,
+    var maxValue: Double
 ) {
     fun contains(color: HSV): Boolean {
-        return color.hue in minHue..maxHue && color.saturation in minSaturation..maxSaturation
+        return color.hue in minHue..maxHue &&
+                color.saturation in minSaturation..maxSaturation &&
+                color.brightness in minValue..maxValue
     }
 
     constructor(
         hueRange: ClosedFloatingPointRange<Double>,
         saturationRange: ClosedFloatingPointRange<Double>,
-    ) : this(hueRange.start, hueRange.endInclusive, saturationRange.start, saturationRange.endInclusive)
+        valueRange: ClosedFloatingPointRange<Double>
+    ) : this(
+        hueRange.start,
+        hueRange.endInclusive,
+        saturationRange.start,
+        saturationRange.endInclusive,
+        valueRange.start,
+        valueRange.endInclusive
+    )
 }
 
 data class HSV(
@@ -184,11 +254,11 @@ data class HSV(
 fun NormalizedRGBA.toHSV(): HSV {
     val hsv = FloatArray(3)
     Color.colorToHSV(this.toColor(), hsv)
-    return HSV(hsv[0] * 360.0, hsv[1] * 100.0, hsv[2] * 100.0)
+    return HSV(hsv[0] * 1.0, hsv[1] * 100.0, hsv[2] * 100.0)
 }
 
 fun Int.hsv(): HSV {
     val hsv = FloatArray(3)
     Color.colorToHSV(this, hsv)
-    return HSV(hsv[0] * 360.0, hsv[1] * 100.0, hsv[2] * 100.0)
+    return HSV(hsv[0] * 1.0, hsv[1] * 100.0, hsv[2] * 100.0)
 }
