@@ -13,7 +13,6 @@ import org.firstinspires.ftc.teamcode.common.hardware.normalizeDegrees
 import org.firstinspires.ftc.teamcode.common.hardware.toPedro
 import org.firstinspires.ftc.teamcode.common.subsystem.*
 import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
-import org.firstinspires.ftc.teamcode.common.subsystem.sorter.SorterPod
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 import org.firstinspires.ftc.teamcode.pedro.Constants
@@ -52,103 +51,20 @@ class Teleop : OpMode() {
                 flyWheel.rpm > flyWheel.targetRpm - maxLowerRPM
             }
 
-            val getOrder: () -> FireOrder = GetOrder@{
-                if (sorter.frontPod.state == SorterPod.State.GREEN) {
-                    val sideIsEmpty = sorter.sidePod.state == SorterPod.State.EMPTY
-                    val backIsEmpty = sorter.backPod.state == SorterPod.State.EMPTY
-                    if (sideIsEmpty) {
-                        if (backIsEmpty) return@GetOrder FireOrder(1, 0, 0)
-                        return@GetOrder FireOrder(1, 3, 0)
-                    }
-                    if (backIsEmpty) return@GetOrder FireOrder(1, 2, 0)
-                    return@GetOrder FireOrder(1, 2, 3)
-                } else if (sorter.sidePod.state == SorterPod.State.GREEN) {
-                    val frontIsEmpty = sorter.frontPod.state == SorterPod.State.EMPTY
-                    val backIsEmpty = sorter.backPod.state == SorterPod.State.EMPTY
-                    if (frontIsEmpty) {
-                        if (backIsEmpty) return@GetOrder FireOrder(2, 0, 0)
-                        return@GetOrder FireOrder(2, 3, 0)
-                    }
-                    if (backIsEmpty) return@GetOrder FireOrder(2, 1, 0)
-                    return@GetOrder FireOrder(2, 1, 3)
-                } else if (sorter.backPod.state == SorterPod.State.GREEN) {
-                    val frontIsEmpty = sorter.frontPod.state == SorterPod.State.EMPTY
-                    val sideIsEmpty = sorter.sidePod.state == SorterPod.State.EMPTY
-                    if (frontIsEmpty) {
-                        if (sideIsEmpty) return@GetOrder FireOrder(3, 0, 0)
-                        return@GetOrder FireOrder(3, 2, 0)
-                    }
-                    if (sideIsEmpty) return@GetOrder FireOrder(3, 1, 0)
-                    return@GetOrder FireOrder(3, 1, 2)
-                } else {
-                    val frontIsEmpty = sorter.frontPod.state == SorterPod.State.EMPTY
-                    val sideIsEmpty = sorter.sidePod.state == SorterPod.State.EMPTY
-                    val backIsEmpty = sorter.backPod.state == SorterPod.State.EMPTY
-
-                    if (frontIsEmpty && sideIsEmpty && backIsEmpty) {
-                        return@GetOrder FireOrder(0, 0, 0)
-                    }
-                    if (frontIsEmpty) {
-                        if (sideIsEmpty) return@GetOrder FireOrder(3, 0, 0)
-                        if (backIsEmpty) return@GetOrder FireOrder(2, 0, 0)
-                        return@GetOrder FireOrder(2, 3, 0)
-                    }
-                    if (sideIsEmpty) {
-                        if (backIsEmpty) return@GetOrder FireOrder(1, 0, 0)
-                        return@GetOrder FireOrder(1, 3, 0)
-                    }
-                    if (backIsEmpty) {
-                        return@GetOrder FireOrder(1, 2, 0)
-                    }
-                    return@GetOrder FireOrder(1, 2, 3)
-                }
-            }
-
-            val order = getOrder()
-            val pod1 = when (order.first) {
-                1 -> sorter.frontPod
-                2 -> sorter.sidePod
-                3 -> sorter.backPod
-                else -> {
-                    flyWheel.state = FlyWheel.FlyWheelState.IDLE
-                    return@Command
-                }
-            }
-//            WaitFor { enoughRPM() }
-            pod1.isUp = true
+            sorter.frontPod.isUp = true
             SleepFor { upDuration }
-            pod1.isUp = false
+            sorter.frontPod.isUp = false
             SleepFor { downDuration }
 
-            val pod2 = when (order.second) {
-                1 -> sorter.frontPod
-                2 -> sorter.sidePod
-                3 -> sorter.backPod
-                else -> {
-                    flyWheel.state = FlyWheel.FlyWheelState.IDLE
-                    return@Command
-                }
-            }
-//            WaitFor { enoughRPM() }
-            pod2.isUp = true
+            sorter.sidePod.isUp = true
             SleepFor { upDuration }
-            pod2.isUp = false
+            sorter.sidePod.isUp = false
             SleepFor { downDuration }
 
-
-            val pod3 = when (order.third) {
-                1 -> sorter.frontPod
-                2 -> sorter.sidePod
-                3 -> sorter.backPod
-                else -> {
-                    flyWheel.state = FlyWheel.FlyWheelState.IDLE
-                    return@Command
-                }
-            }
-//            WaitFor { enoughRPM() }
-            pod3.isUp = true
+            sorter.backPod.isUp = true
             SleepFor { upDuration }
-            pod3.isUp = false
+            sorter.backPod.isUp = false
+            SleepFor { downDuration }
 
             flyWheel.state = FlyWheel.FlyWheelState.IDLE
         }

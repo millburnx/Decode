@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.common.subsystem.sorter
 
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
-import com.millburnx.cmdxpedro.util.SleepFor
 import org.firstinspires.ftc.teamcode.common.subsystem.Subsystem
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
@@ -14,19 +13,19 @@ class Sorter(val opMode: OpMode) : Subsystem("FlyWheel") {
     val sidePod = SorterPod.fromSlot(opMode, SorterPod.Slot.SIDE)
 
     override val run: suspend Command.() -> Unit = {
-        opMode.scheduler.schedule(Command {
-            OpModeLoop(opMode) {
-                SleepFor { colorPolling }
-                frontPod.updateState()
-                sidePod.updateState()
-                backPod.updateState()
-            }
-        })
+//        opMode.scheduler.schedule(Command {
+//            OpModeLoop(opMode) {
+//                SleepFor { colorPolling }
+//                frontPod.updateState()
+//                sidePod.updateState()
+//                backPod.updateState()
+//            }
+//        })
         OpModeLoop(opMode) {
             with(opMode) {
-                tel.addData("front state", frontPod.state)
-                tel.addData("back state", backPod.state)
-                tel.addData("side state", sidePod.state)
+//                tel.addData("front state", frontPod.state)
+//                tel.addData("back state", backPod.state)
+//                tel.addData("side state", sidePod.state)
             }
         }
     }
