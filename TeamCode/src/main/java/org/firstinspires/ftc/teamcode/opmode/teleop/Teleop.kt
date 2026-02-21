@@ -45,6 +45,7 @@ class Teleop : OpMode() {
 //            FlyWheel.overridePower = rapidPower
 //            SleepFor { spinUp }
             flyWheel.state = FlyWheel.FlyWheelState.SHOOTING
+            autoAim = true
 
             val enoughRPM = { flyWheel.rpm > autoAdjust.minRapidRPM - FlyWheel.Controller.rpmThreshold }
             SleepFor(spinUp) {
@@ -67,6 +68,8 @@ class Teleop : OpMode() {
             SleepFor { downDuration }
 
             flyWheel.state = FlyWheel.FlyWheelState.IDLE
+            autoAim = false
+            turretTarget = turret.angle
         }
 
         scheduler.schedule(Command("Rapid Fire Scheduler") {
@@ -155,7 +158,7 @@ class Teleop : OpMode() {
         var spinUp = 2000L
 
         @JvmField
-        var autoAim = true
+        var autoAim = false
 
         @JvmField
         var maxLowerRPM = 200

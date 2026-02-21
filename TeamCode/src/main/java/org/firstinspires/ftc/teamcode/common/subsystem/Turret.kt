@@ -4,6 +4,7 @@ import com.arcrobotics.ftclib.controller.PIDController
 import com.arcrobotics.ftclib.kotlin.extensions.util.clamp
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
+import com.millburnx.cmdxpedro.util.SleepFor
 import org.firstinspires.ftc.teamcode.common.hardware.AnalogEncoder
 import org.firstinspires.ftc.teamcode.common.hardware.Encoder
 import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualMotor
@@ -32,8 +33,10 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
     }
         get() = field + startingOffset
 
+    var drift = 0.0
+
     private val _angle
-        get() = quadature.position * TICKS_TO_DEGREES + startingAnalog
+        get() = quadature.position * TICKS_TO_DEGREES + startingAnalog + drift
 
     val angle
         get() = normalizeDegrees(_angle + 180.0)
@@ -63,9 +66,14 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
     override val run
             : suspend Command .()
     -> Unit = {
+        opMode.scheduler.schedule(Command {
+            OpModeLoop(opMode) {
+                SleepFor { refreshRate }
+                updateDrift()
+            }
+        })
         OpModeLoop(opMode) {
             with(opMode) {
-                analog.update()
 
                 if (targetingMode == TargetingMode.OFF) {
                     motor.power = 0.0
@@ -89,6 +97,7 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
                     tel.addData("turret | dv", velocity())
 
                     tel.addData("turret | ia", _angle)
+                    tel.addData("turret | ia (w/o)", _angle - drift)
                     tel.addData("turret | ea", angle)
                     tel.addData("turret | ra", heading())
                     tel.addData("turret | ta", normalizeDegrees(angle + heading()))
@@ -96,9 +105,19 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
                     tel.addData("turret | rt", relativeTarget)
                     tel.addData("turret | et", target)
                     tel.addData("turret | power", power)
+                    tel.addData("turret | drift", drift)
                 }
             }
         }
+    }
+
+    fun updateDrift() {
+        analog.update()
+        val analogAngle = normalizeDegrees((analog.rawPosition - 0.5) * 360.0 + startingOffset)
+        // since analog doesn't count analog, lowkey just see if base, base - 360.0, or base + 360.0 is closest to the current angle
+        val candidates = listOf(analogAngle, analogAngle - 360.0, analogAngle + 360.0)
+        val closest = candidates.minBy { abs(it - _angle) }
+        drift += closest - _angle
     }
 
     enum class TargetingMode {
@@ -145,6 +164,9 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
         var minPower = 0.3
 
         @JvmField
-        var startingOffset = -7.5
+        var startingOffset = -5.0
+
+        @JvmField
+        var refreshRate = 500L
     }
 }
