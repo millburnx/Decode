@@ -3,10 +3,9 @@ package org.firstinspires.ftc.teamcode.opmode.test.subsystem
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.util.SleepFor
-import com.millburnx.util.Pose2d
 import com.millburnx.util.vector.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.common.hardware.fromPedro
+import org.firstinspires.ftc.teamcode.common.subsystem.Drive
 import org.firstinspires.ftc.teamcode.common.subsystem.FlyWheel
 import org.firstinspires.ftc.teamcode.common.subsystem.Hood
 import org.firstinspires.ftc.teamcode.common.subsystem.Intake
@@ -14,13 +13,12 @@ import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 import org.firstinspires.ftc.teamcode.opmode.teleop.Teleop
-import org.firstinspires.ftc.teamcode.pedro.Constants
 
 @Configurable
 @TeleOp
 class ShooterTester : OpMode() {
     override fun run() {
-        val pedro = Constants.createManualFusionFollower(hardwareMap, { deltaTime })
+        val drive = Drive(this)
         val flyWheel = FlyWheel(this)
         val hood = Hood(this)
         val sorter = Sorter(this)
@@ -30,8 +28,6 @@ class ShooterTester : OpMode() {
             Command("teleop loop")
             {
                 OpModeLoop(this@ShooterTester) {
-                    pedro.update()
-
                     flyWheel.state = FlyWheel.FlyWheelState.SHOOTING
                     flyWheel.shootingRPM = targetRPM
 
@@ -48,7 +44,7 @@ class ShooterTester : OpMode() {
                     }
 
                     val goal = Vec2d(72.0-6.0, 72.0-6.0)
-                    val pose = Pose2d.fromPedro(pedro.pose)
+                    val pose = drive.pose
                     val dist = pose.distanceTo(goal)
                     tel.addData("dist", dist)
                 }

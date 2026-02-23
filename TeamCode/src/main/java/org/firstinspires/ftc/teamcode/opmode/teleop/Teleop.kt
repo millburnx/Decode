@@ -8,14 +8,11 @@ import com.millburnx.util.Pose2d
 import com.millburnx.util.toDegrees
 import com.millburnx.util.vector.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.common.hardware.fromPedro
 import org.firstinspires.ftc.teamcode.common.hardware.normalizeDegrees
-import org.firstinspires.ftc.teamcode.common.hardware.toPedro
 import org.firstinspires.ftc.teamcode.common.subsystem.*
 import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
-import org.firstinspires.ftc.teamcode.pedro.Constants
 
 @Configurable
 @TeleOp
@@ -25,19 +22,19 @@ class Teleop : OpMode() {
         val hood = Hood(this)
         val flyWheel = FlyWheel(this)
         val intake = Intake(this)
-        val pedro = Constants.createManualFusionFollower(hardwareMap, { deltaTime })
+        val drive = TeleOpDrive(this)
         val turret = Turret(
             this,
-            { Pose2d.fromPedro(pedro.pose).heading },
-            { pedro.angularVelocity },
+            { drive.pose.heading },
+            { drive.velocity.heading },
             { voltageSensor.voltage }
         )
 
-        val autoAdjust = AutoAdjust(this, flyWheel, hood, { Pose2d.fromPedro(pedro.pose) })
+        val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose })
 
         scheduler.schedule(Command {
             SleepFor { 1000 }
-            pedro.pose = Pose2d(72.0, 72.0, 0.0).toPedro()
+            drive.pose = Pose2d(72.0, 72.0, 0.0)
         })
 
         val rapidFire = Command("Rapid Fire") {
@@ -82,21 +79,10 @@ class Teleop : OpMode() {
         })
 
         scheduler.schedule(Command("Power adjusts") {
-            pedro.update()
-            pedro.startTeleopDrive(false)
-
             val canvas = PanelsField.field
             canvas.setOffsets(PanelsField.presets.PEDRO_PATHING)
 
             OpModeLoop(this@Teleop) {
-                pedro.update()
-                pedro.setTeleOpDrive(
-                    gp1.current.leftJoyStick.y,
-                    gp1.current.leftJoyStick.x,
-                    gp1.current.rightJoyStick.x,
-                    !fieldCentric
-                )
-
 //                hood.target = hoodOverride
                 if (intakeOverride == Double.NEGATIVE_INFINITY) {
                     intake.power = gp1.current.rightTrigger - gp1.current.leftTrigger
@@ -104,7 +90,7 @@ class Teleop : OpMode() {
                     intake.power = intakeOverride
                 }
 
-                val pose = Pose2d.fromPedro(pedro.pose)
+                val pose = drive.pose
                 canvas.moveCursor(pose.x, pose.y)
                 canvas.setStyle(fill = "none", outline = "white", width = 1.5)
                 canvas.circle(8.0)
@@ -136,14 +122,8 @@ class Teleop : OpMode() {
         @JvmField
         var downDuration = 50L
 
-//        @JvmField
-//        var hoodOverride = 0.5
-
         @JvmField
         var intakeOverride = Double.NEGATIVE_INFINITY
-
-        @JvmField
-        var fieldCentric = false
 
         @JvmField
         var turretTarget = 180.0
@@ -151,9 +131,6 @@ class Teleop : OpMode() {
         @JvmField
         var turretGlobal = false
 
-        //        @JvmField
-//        var rapidPower = 1.0
-//
         @JvmField
         var spinUp = 2000L
 
@@ -164,9 +141,3 @@ class Teleop : OpMode() {
         var maxLowerRPM = 200
     }
 }
-
-data class FireOrder(
-    val first: Int,
-    val second: Int,
-    val third: Int,
-)

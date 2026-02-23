@@ -69,7 +69,7 @@ class TeleOpDrive(opMode: OpMode, limelight: Limelight? = null) : Drive(opMode, 
                         gp1.current.leftJoyStick.y,
                         gp1.current.leftJoyStick.x,
                         gp1.current.rightJoyStick.x,
-                        true
+                        !useFieldCentric
                     )
                 } else {
                     follower.setTeleOpDrive(
@@ -89,5 +89,8 @@ class TeleOpDrive(opMode: OpMode, limelight: Limelight? = null) : Drive(opMode, 
 
         @JvmField
         var gateAssistPower = 0.025
+
+        @JvmField
+        var useFieldCentric = false
     }
 }
