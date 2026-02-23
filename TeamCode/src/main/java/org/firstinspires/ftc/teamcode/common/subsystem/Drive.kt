@@ -3,10 +3,12 @@ package org.firstinspires.ftc.teamcode.common.subsystem
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import com.millburnx.util.Pose2d
+import com.millburnx.util.vector.Vec2d
 import org.firstinspires.ftc.teamcode.common.hardware.fromPedro
 import org.firstinspires.ftc.teamcode.common.hardware.normalizeDegrees
 import org.firstinspires.ftc.teamcode.common.hardware.toPedro
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
+import org.firstinspires.ftc.teamcode.common.util.ZoneAssist
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 import org.firstinspires.ftc.teamcode.pedro.Constants
 
@@ -57,6 +59,11 @@ class TeleOpDrive(opMode: OpMode, limelight: Limelight? = null) : Drive(opMode, 
         return diff * gateAssistPower
     }
 
+    val inZone: Boolean
+        get() {
+            return ZoneAssist.farZone.contains(pose.position) || ZoneAssist.closeZone.contains(pose.position)
+        }
+
     override val loop: suspend Command.() -> Unit = {
         with(opMode) {
             follower.update()
@@ -65,9 +72,21 @@ class TeleOpDrive(opMode: OpMode, limelight: Limelight? = null) : Drive(opMode, 
             }
             if (follower.isTeleopDrive) {
                 if (!useGateAssist) {
+                    val zoneAssist = if (useZoneAssist) {
+                        if (useFieldCentric) {
+                            ZoneAssist.calculateAssist(pose.position)
+                        } else {
+                            ZoneAssist.calculateRelativeAssist(
+                                pose
+                            )
+                        }
+                    } else {
+                        Vec2d()
+                    }
+
                     follower.setTeleOpDrive(
-                        gp1.current.leftJoyStick.y,
-                        gp1.current.leftJoyStick.x,
+                        gp1.current.leftJoyStick.y + zoneAssist.x,
+                        gp1.current.leftJoyStick.x + zoneAssist.y,
                         gp1.current.rightJoyStick.x,
                         !useFieldCentric
                     )
@@ -92,5 +111,8 @@ class TeleOpDrive(opMode: OpMode, limelight: Limelight? = null) : Drive(opMode, 
 
         @JvmField
         var useFieldCentric = false
+
+        @JvmField
+        var useZoneAssist = false
     }
 }

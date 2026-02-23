@@ -24,12 +24,7 @@ class Teleop : OpMode() {
         val flyWheel = FlyWheel(this)
         val intake = Intake(this)
         val drive = TeleOpDrive(this)
-        val turret = Turret(
-            this,
-            { drive.pose.heading },
-            { drive.velocity.heading },
-            { voltageSensor.voltage }
-        )
+        val turret = Turret(this, { drive.pose.heading }, { drive.velocity.heading }, { voltageSensor.voltage })
 
         val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose })
 
@@ -47,15 +42,16 @@ class Teleop : OpMode() {
             autoAim = false
             turretTarget = turret.angle
         }) {
-            WaitFor { turret.atTarget && !turret.inDeadzone }
-
             flyWheel.state = FlyWheel.FlyWheelState.SHOOTING
             autoAim = true
 
-            val enoughRPM = { flyWheel.rpm > autoAdjust.minRapidRPM - FlyWheel.Controller.rpmThreshold }
-            SleepFor(spinUp) {
-                flyWheel.rpm > flyWheel.targetRpm - maxLowerRPM
-            }
+            WaitFor { turret.atTarget && !turret.inDeadzone && drive.inZone }
+
+            val minRPM = { autoAdjust.minRapidRPM - FlyWheel.Controller.rpmThreshold }
+            val maxRPM = { flyWheel.shootingRPM + FlyWheel.Controller.rpmThreshold }
+
+            val atRPM = { flyWheel.rpm in minRPM()..maxRPM() }
+            WaitFor { atRPM() }
 
             sorter.frontPod.isUp = true
             SleepFor { upDuration }
