@@ -61,6 +61,12 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
     private val _target
         get() = normalizeDegrees(relativeTarget - 180.0).clamp(min, max)
 
+    val atTarget
+        get() = abs(normalizeDegrees(angle - target)) < threshold
+
+    val inDeadzone
+        get() = normalizeDegrees(relativeTarget - 180.0) in min..max
+
     val pid = PIDController(coeff.kP, coeff.kI, coeff.kD)
 
     override val run
@@ -168,5 +174,8 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
 
         @JvmField
         var refreshRate = 500L
+
+        @JvmField
+        var threshold = 3.0
     }
 }

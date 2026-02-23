@@ -20,7 +20,7 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
     var shootingRPM = baseRPM
     val targetRpm: Double
         get() = when (state) {
-            FlyWheelState.IDLE -> 0.0
+            FlyWheelState.IDLE -> idleRPM
             FlyWheelState.SHOOTING -> shootingRPM
             FlyWheelState.INTAKING -> intakingRPM
         }
@@ -41,12 +41,6 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
                     tel.addData("flywheel | rpm", rpm)
                     return@OpModeLoop
                 }
-                if (state == FlyWheelState.IDLE) {
-                    leftMotor.power = 0.0
-                    rightMotor.power = 0.0
-                    return@OpModeLoop
-                }
-
                 val power = pidf.calculate(rpm, targetRpm, voltageSensor.voltage)
                 leftMotor.power = power
                 rightMotor.power = power
@@ -88,7 +82,10 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
         var toRPM = 60 / 28.0
 
         @JvmField
-        var baseRPM = 2500.0
+        var idleRPM = 2400.0
+
+        @JvmField
+        var baseRPM = 2900.0
 
         @JvmField
         var intakingRPM = -1000.0

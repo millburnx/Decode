@@ -4,6 +4,7 @@ import com.bylazar.configurables.annotations.Configurable
 import com.bylazar.field.PanelsField
 import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.util.SleepFor
+import com.millburnx.cmdxpedro.util.WaitFor
 import com.millburnx.util.Pose2d
 import com.millburnx.util.toDegrees
 import com.millburnx.util.vector.Vec2d
@@ -37,10 +38,17 @@ class Teleop : OpMode() {
             drive.pose = Pose2d(72.0, 72.0, 0.0)
         })
 
-        val rapidFire = Command("Rapid Fire") {
-//            FlyWheel.override = true
-//            FlyWheel.overridePower = rapidPower
-//            SleepFor { spinUp }
+        val rapidFire = Command("Rapid Fire", {
+            sorter.frontPod.isUp = false
+            sorter.sidePod.isUp = false
+            sorter.backPod.isUp = false
+
+            flyWheel.state = FlyWheel.FlyWheelState.IDLE
+            autoAim = false
+            turretTarget = turret.angle
+        }) {
+            WaitFor { turret.atTarget && !turret.inDeadzone }
+
             flyWheel.state = FlyWheel.FlyWheelState.SHOOTING
             autoAim = true
 
