@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualManager
 import org.firstinspires.ftc.teamcode.common.subsystem.SubsystemManager
 import org.firstinspires.ftc.teamcode.common.util.TimeAverage
 import org.firstinspires.ftc.teamcode.pedro.Drawing
-import kotlin.system.measureTimeMillis
+import kotlin.time.measureTime
 
 abstract class OpMode : LinearOpMode() {
     val tel = PanelsTelemetry.telemetry
@@ -40,31 +40,36 @@ abstract class OpMode : LinearOpMode() {
             deltaTime = loopHertz
             loopTimer.reset()
 
+            val syncTimer = ElapsedTime()
+
             tel.addData("hz", loopHertz)
             tel.addData("ms", ms)
 
-            averageHz.update(ms)
+            averageHz.update(loopHertz)
             tel.addData("smoothed hz", averageHz.average)
 
-            val telUpdateTime = measureTimeMillis {
+            val telUpdateTime = measureTime {
                 tel.update(telemetry)
             }
-            tel.addData("tel ms", telUpdateTime)
+            tel.addData("tel ms", telUpdateTime.inWholeMilliseconds)
             Drawing.sendPacket()
 
             // hardware
-            val bulkReadTime = measureTimeMillis {
+            val bulkReadTime = measureTime {
                 hubs.forEach { it.clearBulkCache() }
             }
-            val manualUpdateTime = measureTimeMillis {
+            val manualUpdateTime = measureTime {
                 ManualManager.update()
             }
-            tel.addData("br ms", bulkReadTime)
-            tel.addData("mu ms", manualUpdateTime)
+            tel.addData("br ms", bulkReadTime.inWholeMilliseconds)
+            tel.addData("mu ms", manualUpdateTime.inWholeMilliseconds)
 
             if (::gamepadManager.isInitialized) {
                 gamepadManager.update()
             }
+
+            tel.addData("onsync ms", syncTimer.milliseconds())
+            syncTimer.reset()
         }
     }
 

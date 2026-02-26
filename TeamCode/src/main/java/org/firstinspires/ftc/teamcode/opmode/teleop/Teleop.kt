@@ -6,10 +6,8 @@ import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.util.SleepFor
 import com.millburnx.cmdxpedro.util.WaitFor
 import com.millburnx.util.Pose2d
-import com.millburnx.util.toDegrees
 import com.millburnx.util.vector.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.common.hardware.normalizeDegrees
 import org.firstinspires.ftc.teamcode.common.subsystem.*
 import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
@@ -26,6 +24,9 @@ class Teleop : OpMode() {
         val drive = TeleOpDrive(this)
         val turret = Turret(this, { drive.pose.heading }, { drive.velocity.heading }, { voltageSensor.voltage })
 
+        turret.targetingMode = Turret.TargetingMode.RELATIVE
+        turret.target = 180.0
+
         val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose })
 
         scheduler.schedule(Command {
@@ -39,13 +40,13 @@ class Teleop : OpMode() {
             sorter.backPod.isUp = false
 
             flyWheel.state = FlyWheel.FlyWheelState.IDLE
-            turret.targetingMode = Turret.TargetingMode.RELATIVE
-            turretTarget = turret.angle
+//            turret.targetingMode = Turret.TargetingMode.RELATIVE
+//            turretTarget = turret.angle
         }) {
             flyWheel.state = FlyWheel.FlyWheelState.SHOOTING
-            turret.targetingMode = Turret.TargetingMode.GLOBAL
+//            turret.targetingMode = Turret.TargetingMode.GLOBAL
 
-            WaitFor { turret.atTarget && !turret.inDeadzone && turret.isSteady }
+//            WaitFor { turret.atTarget && !turret.inDeadzone && turret.isSteady }
 
             val minRPM = { autoAdjust.minRapidRPM - FlyWheel.Controller.rpmThreshold }
             val maxRPM = { flyWheel.shootingRPM + FlyWheel.Controller.rpmThreshold }
@@ -69,8 +70,8 @@ class Teleop : OpMode() {
             SleepFor { downDuration }
 
             flyWheel.state = FlyWheel.FlyWheelState.IDLE
-            turret.targetingMode = Turret.TargetingMode.RELATIVE
-            turretTarget = turret.angle
+//            turret.targetingMode = Turret.TargetingMode.RELATIVE
+//            turretTarget = turret.angle
         }
 
         scheduler.schedule(Command("Rapid Fire Scheduler") {
@@ -103,15 +104,15 @@ class Teleop : OpMode() {
 
                 tel.addData("pose", pose)
 
-                if (turret.targetingMode == Turret.TargetingMode.GLOBAL) {
-                    turret.target = normalizeDegrees(
-                        pose.angleTo(
-                            Vec2d(144.0 - 4.0, 144.0 - 4.0)
-                        ).toDegrees()
-                    )
-                } else {
-                    turret.target = 180.0
-                }
+//                if (turret.targetingMode == Turret.TargetingMode.GLOBAL) {
+//                    turret.target = normalizeDegrees(
+//                        pose.angleTo(
+//                            Vec2d(144.0 - 4.0, 144.0 - 4.0)
+//                        ).toDegrees()
+//                    )
+//                } else {
+//                    turret.target = 180.0
+//                }
             }
         })
     }

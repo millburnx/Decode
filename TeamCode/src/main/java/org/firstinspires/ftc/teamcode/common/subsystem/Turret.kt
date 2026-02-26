@@ -198,6 +198,6 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
         var steadyThreshold = 50.0
 
         @JvmField
-        var velocityAverageDuration = 500.0
+        var velocityAverageDuration = 250.0
     }
 }

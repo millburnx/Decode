@@ -7,7 +7,7 @@ class TimeAverage(val duration: () -> Double) {
         get() = queue.map { it.second }.average()
 
     fun update(value: Double) {
-        val current = System.nanoTime()
+        val current = System.currentTimeMillis()
         queue.add(current to value)
 
         val threshold = current - duration()
