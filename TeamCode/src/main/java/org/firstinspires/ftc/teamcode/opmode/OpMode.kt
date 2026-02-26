@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.common.hardware.gamepad.Gamepad
 import org.firstinspires.ftc.teamcode.common.hardware.gamepad.GamepadManager
 import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualManager
 import org.firstinspires.ftc.teamcode.common.subsystem.SubsystemManager
+import org.firstinspires.ftc.teamcode.common.util.TimeAverage
 import org.firstinspires.ftc.teamcode.pedro.Drawing
 import kotlin.system.measureTimeMillis
 
@@ -28,6 +29,8 @@ abstract class OpMode : LinearOpMode() {
 
     val loopTimer = ElapsedTime()
     var deltaTime = 0.0
+
+    val averageHz = TimeAverage { 1000.0 }
     var hubs: List<LynxModule> = emptyList()
     val scheduler = CommandScheduler().apply {
         Settings.verbose = true;
@@ -39,7 +42,14 @@ abstract class OpMode : LinearOpMode() {
 
             tel.addData("hz", loopHertz)
             tel.addData("ms", ms)
-            tel.update(telemetry)
+
+            averageHz.update(ms)
+            tel.addData("smoothed hz", averageHz.average)
+
+            val telUpdateTime = measureTimeMillis {
+                tel.update(telemetry)
+            }
+            tel.addData("tel ms", telUpdateTime)
             Drawing.sendPacket()
 
             // hardware

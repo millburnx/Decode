@@ -67,8 +67,11 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
     private val _target
         get() = normalizeDegrees(relativeTarget - 180.0).clamp(min, max)
 
-    val atTarget
-        get() = abs(normalizeDegrees(_angle - _target)) < threshold
+    val atTarget: Boolean
+        get() {
+            if (relativeTarget == Double.NEGATIVE_INFINITY) return false
+            return abs(normalizeDegrees(_angle - _target)) < threshold
+        }
 
     val inDeadzone
         get() = normalizeDegrees(relativeTarget - 180.0) !in min..max

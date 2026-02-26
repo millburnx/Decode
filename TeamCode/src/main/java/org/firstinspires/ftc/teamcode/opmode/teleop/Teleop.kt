@@ -39,11 +39,11 @@ class Teleop : OpMode() {
             sorter.backPod.isUp = false
 
             flyWheel.state = FlyWheel.FlyWheelState.IDLE
-            autoAim = false
+            turret.targetingMode = Turret.TargetingMode.RELATIVE
             turretTarget = turret.angle
         }) {
             flyWheel.state = FlyWheel.FlyWheelState.SHOOTING
-            autoAim = true
+            turret.targetingMode = Turret.TargetingMode.GLOBAL
 
             WaitFor { turret.atTarget && !turret.inDeadzone && turret.isSteady }
 
@@ -69,7 +69,7 @@ class Teleop : OpMode() {
             SleepFor { downDuration }
 
             flyWheel.state = FlyWheel.FlyWheelState.IDLE
-            autoAim = false
+            turret.targetingMode = Turret.TargetingMode.RELATIVE
             turretTarget = turret.angle
         }
 
@@ -103,17 +103,14 @@ class Teleop : OpMode() {
 
                 tel.addData("pose", pose)
 
-                if (autoAim) {
-                    turret.targetingMode = Turret.TargetingMode.GLOBAL
+                if (turret.targetingMode == Turret.TargetingMode.GLOBAL) {
                     turret.target = normalizeDegrees(
                         pose.angleTo(
                             Vec2d(144.0 - 4.0, 144.0 - 4.0)
                         ).toDegrees()
                     )
                 } else {
-                    turret.target = turretTarget
-                    turret.targetingMode =
-                        if (turretGlobal) Turret.TargetingMode.GLOBAL else Turret.TargetingMode.RELATIVE
+                    turret.target = 180.0
                 }
             }
         })
@@ -131,17 +128,5 @@ class Teleop : OpMode() {
 
         @JvmField
         var turretTarget = 180.0
-
-        @JvmField
-        var turretGlobal = false
-
-        @JvmField
-        var spinUp = 2000L
-
-        @JvmField
-        var autoAim = false
-
-        @JvmField
-        var maxLowerRPM = 200
     }
 }

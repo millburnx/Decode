@@ -42,12 +42,14 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
                     tel.addData("flywheel | rpm", rpm)
                     return@OpModeLoop
                 }
+
                 val power =
                     if (state == FlyWheelState.IDLE) {
                         idlePidf.calculate(rpm, targetRpm, voltageSensor.voltage)
                     } else {
                         pidf.calculate(rpm, targetRpm, voltageSensor.voltage)
                     }
+
                 leftMotor.power = power
                 rightMotor.power = power
 
