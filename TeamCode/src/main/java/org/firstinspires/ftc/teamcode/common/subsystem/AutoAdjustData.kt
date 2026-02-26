@@ -21,6 +21,12 @@ val NO_RECOIL_DATA: TreeMap<Distance, Pair<RPM, Angle>> = treeMapOf(
     76.0 to (3000.0 to 0.0),
     80.0 to (3100.0 to 0.1),
     84.0 to (3200.0 to 0.1),
+    88.0 to (3200.0 to 0.2),
+    92.0 to (3200.0 to 0.3),
+    96.0 to (3400.0 to 0.3),
+    100.0 to (3400.0 to 0.3),
+    104.0 to (3600.0 to 0.4),
+    108.0 to (3400.0 to 0.3),
 )
 
 val FAR_ZONE: Pair<RPM, Angle> = (4000.0 to .4)
@@ -77,4 +83,4 @@ val FAR_DATA: TreeMap<RPM, Angle> = treeMapOf(
     5000.0 to 1.0,
 )
 
-val FAR_DISTANCE: Distance = 120.0
+val FAR_DISTANCE: Distance = 130.0

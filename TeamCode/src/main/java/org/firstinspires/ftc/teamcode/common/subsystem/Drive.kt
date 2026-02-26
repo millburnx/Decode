@@ -45,6 +45,7 @@ open class Drive(val opMode: OpMode, limelight: Limelight? = null) : Subsystem("
     }
 }
 
+@Configurable
 class TeleOpDrive(opMode: OpMode, limelight: Limelight? = null) : Drive(opMode, limelight) {
     var useGateAssist = false
 
@@ -54,8 +55,9 @@ class TeleOpDrive(opMode: OpMode, limelight: Limelight? = null) : Drive(opMode, 
     }
 
     fun gateAssist(): Double {
-        val heading = follower.pose.heading
+        val heading = pose.heading
         val diff = normalizeDegrees(heading - gateAssistHeading)
+        opMode.tel.addData("gateassist", diff)
         return diff * gateAssistPower
     }
 
@@ -71,6 +73,7 @@ class TeleOpDrive(opMode: OpMode, limelight: Limelight? = null) : Drive(opMode, 
                 follower.startTeleopDrive(false)
             }
             if (follower.isTeleopDrive) {
+                if (!gp1.prev.b && gp1.current.b) useGateAssist = !useGateAssist
                 if (!useGateAssist) {
                     val zoneAssist = if (useZoneAssist) {
                         if (useFieldCentric) {
@@ -95,7 +98,7 @@ class TeleOpDrive(opMode: OpMode, limelight: Limelight? = null) : Drive(opMode, 
                         gp1.current.leftJoyStick.y,
                         gp1.current.leftJoyStick.x,
                         gp1.current.rightJoyStick.x + gateAssist(),
-                        false
+                        !useFieldCentric
                     )
                 }
             }
@@ -104,10 +107,10 @@ class TeleOpDrive(opMode: OpMode, limelight: Limelight? = null) : Drive(opMode, 
 
     companion object {
         @JvmField
-        var gateAssistHeading = 45.0
+        var gateAssistHeading = 30.0
 
         @JvmField
-        var gateAssistPower = 0.025
+        var gateAssistPower = 0.015
 
         @JvmField
         var useFieldCentric = false

@@ -45,7 +45,7 @@ class Teleop : OpMode() {
             flyWheel.state = FlyWheel.FlyWheelState.SHOOTING
             autoAim = true
 
-            WaitFor { turret.atTarget && !turret.inDeadzone && drive.inZone }
+            WaitFor { turret.atTarget && !turret.inDeadzone && turret.isSteady }
 
             val minRPM = { autoAdjust.minRapidRPM - FlyWheel.Controller.rpmThreshold }
             val maxRPM = { flyWheel.shootingRPM + FlyWheel.Controller.rpmThreshold }

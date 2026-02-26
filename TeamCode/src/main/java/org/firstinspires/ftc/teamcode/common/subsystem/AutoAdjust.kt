@@ -80,7 +80,7 @@ class AutoAdjust(
         }
 
         @JvmField
-        var rpmCompensation = 100
+        var rpmCompensation = 130
 
         @JvmField
         var useRecoil = false

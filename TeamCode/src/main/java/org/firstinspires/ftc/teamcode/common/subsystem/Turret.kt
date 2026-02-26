@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualMotor
 import org.firstinspires.ftc.teamcode.common.hardware.normalizeDegrees
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.common.util.PIDFCoefficients
+import org.firstinspires.ftc.teamcode.common.util.TimeAverage
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 import kotlin.math.abs
 import kotlin.math.pow
@@ -38,6 +39,11 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
     private val _angle
         get() = quadature.position * TICKS_TO_DEGREES + startingAnalog + drift
 
+    val quadatureVelocity
+        get() = quadature.velocity
+
+    val averagedQuadatureVelocity = TimeAverage { velocityAverageDuration }
+
     val angle
         get() = normalizeDegrees(_angle + 180.0)
 
@@ -62,10 +68,13 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
         get() = normalizeDegrees(relativeTarget - 180.0).clamp(min, max)
 
     val atTarget
-        get() = abs(normalizeDegrees(angle - target)) < threshold
+        get() = abs(normalizeDegrees(_angle - _target)) < threshold
 
     val inDeadzone
-        get() = normalizeDegrees(relativeTarget - 180.0) in min..max
+        get() = normalizeDegrees(relativeTarget - 180.0) !in min..max
+
+    val isSteady
+        get() = abs(averagedQuadatureVelocity.average) < steadyThreshold
 
     val pid = PIDController(coeff.kP, coeff.kI, coeff.kD)
 
@@ -80,7 +89,7 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
         })
         OpModeLoop(opMode) {
             with(opMode) {
-
+                averagedQuadatureVelocity.update(quadatureVelocity)
                 if (targetingMode == TargetingMode.OFF) {
                     motor.power = 0.0
                 } else {
@@ -101,6 +110,8 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
 
                     tel.addData("turret | kv", driveCompFF)
                     tel.addData("turret | dv", velocity())
+                    tel.addData("turret | qv", quadatureVelocity)
+                    tel.addData("turret | aqv", averagedQuadatureVelocity.average)
 
                     tel.addData("turret | ia", _angle)
                     tel.addData("turret | ia (w/o)", _angle - drift)
@@ -112,6 +123,8 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
                     tel.addData("turret | et", target)
                     tel.addData("turret | power", power)
                     tel.addData("turret | drift", drift)
+                    tel.addData("turret | at target", atTarget)
+                    tel.addData("turret | in deadzone", inDeadzone)
                 }
             }
         }
@@ -161,7 +174,7 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
         const val TICKS_TO_DEGREES = 0.2 / ((1.0 + (46.0 / 11.0)) * 28.0) * 360
 
         @JvmField
-        var coeff = PIDFCoefficients(0.05, 0.0, 0.0005, 0.1)
+        var coeff = PIDFCoefficients(0.03, 0.0, 0.0005, 0.1)
 
         @JvmField
         var kR = 0.15
@@ -176,6 +189,12 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
         var refreshRate = 500L
 
         @JvmField
-        var threshold = 3.0
+        var threshold = 10.0
+
+        @JvmField
+        var steadyThreshold = 50.0
+
+        @JvmField
+        var velocityAverageDuration = 500.0
     }
 }

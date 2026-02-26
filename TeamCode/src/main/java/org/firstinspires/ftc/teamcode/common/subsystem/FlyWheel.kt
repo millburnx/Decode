@@ -29,6 +29,7 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
         get() = state == FlyWheelState.IDLE || abs(rpm - targetRpm) < Controller.rpmThreshold
 
     val pidf = Controller()
+    val idlePidf = Controller(false, false)
 
     var state = FlyWheelState.IDLE
 
@@ -41,7 +42,12 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
                     tel.addData("flywheel | rpm", rpm)
                     return@OpModeLoop
                 }
-                val power = pidf.calculate(rpm, targetRpm, voltageSensor.voltage)
+                val power =
+                    if (state == FlyWheelState.IDLE) {
+                        idlePidf.calculate(rpm, targetRpm, voltageSensor.voltage)
+                    } else {
+                        pidf.calculate(rpm, targetRpm, voltageSensor.voltage)
+                    }
                 leftMotor.power = power
                 rightMotor.power = power
 
@@ -98,7 +104,7 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
     }
 
     @Configurable
-    class Controller {
+    class Controller(val pid: Boolean = true, val voltageCompensation: Boolean = true) {
         val PID = PIDController(kP, kI, kD)
         var FF = SimpleMotorFeedforward(kS, kV, 0.0)
 
@@ -108,10 +114,10 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
                 FF = SimpleMotorFeedforward(kS, kV, 0.0)
             }
 
-            val pid = PID.calculate(currentVelocity, targetVelocity)
+            val pid = if (pid) PID.calculate(currentVelocity, targetVelocity) else 0.0
             val ff = FF.calculate(targetVelocity)
 
-            val voltageComp = if (voltage != 0.0) (12.0 / voltage) else 1.0
+            val voltageComp = if (voltage != 0.0 && voltageCompensation) (12.0 / voltage) else 1.0
             return (pid + ff) * voltageComp
         }
 
@@ -132,7 +138,7 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
             var kV = 0.00018
 
             @JvmField
-            var rpmThreshold = 150.0
+            var rpmThreshold = 200.0
         }
     }
 }
