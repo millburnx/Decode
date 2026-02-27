@@ -171,22 +171,22 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
         var min = -170.0
 
         @JvmField
-        var max = 160.0
+        var max = 175.0
 
         // gear ratio / ppr * 360.0
         const val TICKS_TO_DEGREES = 0.2 / ((1.0 + (46.0 / 11.0)) * 28.0) * 360
 
         @JvmField
-        var coeff = PIDFCoefficients(0.03, 0.0, 0.0005, 0.1)
+        var coeff = PIDFCoefficients(0.1, 0.0, 0.001, 0.1)
 
         @JvmField
         var kR = 0.15
 
         @JvmField
-        var minPower = 0.3
+        var minPower = 0.2
 
         @JvmField
-        var startingOffset = -5.0
+        var startingOffset = -8.0
 
         @JvmField
         var refreshRate = 500L

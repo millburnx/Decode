@@ -28,7 +28,7 @@ object Constants {
         .useSecondaryTranslationalPIDF(true)
         .useSecondaryHeadingPIDF(true)
         .useSecondaryDrivePIDF(false)
-        .secondaryTranslationalPIDFCoefficients(PIDFCoefficients(0.5, 0.0, 0.03, 0.03))
+        .secondaryTranslationalPIDFCoefficients(PIDFCoefficients(0.25, 0.0, 0.03, 0.03))
         .secondaryHeadingPIDFCoefficients(PIDFCoefficients(4.0, 0.0, 0.2, 0.04))
         .secondaryDrivePIDFCoefficients(FilteredPIDFCoefficients(0.015, 0.0, 0.0, 0.6, 0.3))
 

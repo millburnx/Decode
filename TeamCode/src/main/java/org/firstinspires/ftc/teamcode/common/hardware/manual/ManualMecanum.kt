@@ -42,7 +42,7 @@ class ManualMecanum(val hardwareMap: HardwareMap, mecanumConstants: MecanumConst
 
     override fun runDrive(drivePowers: DoubleArray) {
         for (i in motors.indices) {
-            motors[i].power = -drivePowers[i]
+            motors[i].power = drivePowers[i]
         }
     }
 }

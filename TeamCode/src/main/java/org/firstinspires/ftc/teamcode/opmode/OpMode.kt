@@ -33,7 +33,7 @@ abstract class OpMode : LinearOpMode() {
     val averageHz = TimeAverage { 1000.0 }
     var hubs: List<LynxModule> = emptyList()
     val scheduler = CommandScheduler().apply {
-        Settings.verbose = true;
+        Settings.verbose = false;
         onSync = {
             val ms = loopTimer.milliseconds()
             val loopHertz = 1.0 / loopTimer.seconds()
@@ -78,6 +78,9 @@ abstract class OpMode : LinearOpMode() {
     abstract fun run()
 
     override fun runOpMode() {
+        hubs = hardwareMap.getAll(LynxModule::class.java)
+        hubs.forEach { it.bulkCachingMode = LynxModule.BulkCachingMode.MANUAL }
+
         telemetry.isAutoClear = true
 
         voltageSensor = hardwareMap.voltageSensor.get("Control Hub")

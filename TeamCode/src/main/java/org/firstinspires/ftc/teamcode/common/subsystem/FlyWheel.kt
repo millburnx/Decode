@@ -75,7 +75,7 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
         var rightMotorName = "m2e"
 
         @JvmField
-        var encoderName = "m1e"
+        var encoderName = "m2e"
 
         @JvmField
         var leftMotorReversed = true
@@ -84,7 +84,7 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
         var rightMotorReversed = false
 
         @JvmField
-        var encoderReversed = true
+        var encoderReversed = false
 
         @JvmField
         var toRPM = 60 / 28.0

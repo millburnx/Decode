@@ -88,16 +88,16 @@ class TeleOpDrive(opMode: OpMode, limelight: Limelight? = null) : Drive(opMode, 
                     }
 
                     follower.setTeleOpDrive(
-                        gp1.current.leftJoyStick.y + zoneAssist.x,
-                        gp1.current.leftJoyStick.x + zoneAssist.y,
-                        gp1.current.rightJoyStick.x,
+                        -gp1.current.leftJoyStick.y + zoneAssist.x,
+                        -gp1.current.leftJoyStick.x + zoneAssist.y,
+                        -gp1.current.rightJoyStick.x,
                         !useFieldCentric
                     )
                 } else {
                     follower.setTeleOpDrive(
-                        gp1.current.leftJoyStick.y,
-                        gp1.current.leftJoyStick.x,
-                        gp1.current.rightJoyStick.x + gateAssist(),
+                        -gp1.current.leftJoyStick.y,
+                        -gp1.current.leftJoyStick.x,
+                        -(gp1.current.rightJoyStick.x + gateAssist()),
                         !useFieldCentric
                     )
                 }
@@ -107,10 +107,10 @@ class TeleOpDrive(opMode: OpMode, limelight: Limelight? = null) : Drive(opMode, 
 
     companion object {
         @JvmField
-        var gateAssistHeading = 30.0
+        var gateAssistHeading = 35.0
 
         @JvmField
-        var gateAssistPower = 0.015
+        var gateAssistPower = 0.02
 
         @JvmField
         var useFieldCentric = false
