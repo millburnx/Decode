@@ -16,9 +16,14 @@ import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
 
-@Configurable
 @Autonomous
-class CloseAuton : OpMode() {
+class Close15AutonRed : Close15Auton(true)
+
+@Autonomous
+class Close15AutonBlue : Close15Auton(false)
+
+@Configurable
+open class Close15Auton(var isRed: Boolean) : OpMode() {
     override fun run() {
         val sorter = Sorter(this)
         val hood = Hood(this)
@@ -28,7 +33,7 @@ class CloseAuton : OpMode() {
         val turret = Turret(this, { drive.pose.heading }, { drive.velocity.heading }, { voltageSensor.voltage })
         val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose })
 
-        val autonManager = AutonManager(this, drive, "closeauton", isMirrored = true)
+        val autonManager = AutonManager(this, drive, "closeauton", isMirrored = !isRed)
 
         val fire = Command {
             intake.power = -1.0
