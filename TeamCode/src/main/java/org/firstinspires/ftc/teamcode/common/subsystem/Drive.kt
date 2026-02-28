@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.common.subsystem
 
 import com.bylazar.configurables.annotations.Configurable
+import com.bylazar.field.PanelsField
 import com.millburnx.cmdx.Command
 import com.millburnx.util.Pose2d
 import com.millburnx.util.vector.Vec2d
@@ -14,7 +15,7 @@ import org.firstinspires.ftc.teamcode.pedro.Constants
 
 @Configurable
 open class Drive(val opMode: OpMode, limelight: Limelight? = null) : Subsystem("Drive") {
-    val follower = Constants.createManualFusionFollower(opMode.hardwareMap, { opMode.deltaTime }, limelight)
+    val follower = Constants.createManualFollower(opMode.hardwareMap)
 
     var pose
         get() = Pose2d.fromPedro(follower.pose)
@@ -25,7 +26,10 @@ open class Drive(val opMode: OpMode, limelight: Limelight? = null) : Subsystem("
     val velocity
         get() = Pose2d(follower.velocity.xComponent, follower.velocity.yComponent, follower.angularVelocity)
 
+    val canvas = PanelsField.field
+
     override val run: suspend Command.() -> Unit = {
+        canvas.setOffsets(PanelsField.presets.PEDRO_PATHING)
         this@Drive.init(this)
         OpModeLoop(opMode) {
             this@Drive.loop(this)
@@ -34,10 +38,28 @@ open class Drive(val opMode: OpMode, limelight: Limelight? = null) : Subsystem("
 
     open val init: suspend Command.() -> Unit = {
         follower.update()
+        while (!opMode.isStopRequested && !opMode.isStarted) {
+            drawRobot()
+            sync()
+        }
     }
 
     open val loop: suspend Command.() -> Unit = {
         follower.update()
+        drawRobot()
+        println("end pose ${follower.currentPath?.endPose()}")
+    }
+
+    fun drawRobot() {
+        canvas.moveCursor(pose.x, pose.y)
+        canvas.setStyle(fill = "none", outline = "white", width = 1.5)
+        canvas.circle(8.0)
+        val lookPos = pose + Vec2d(1.0, 0.0).rotate(pose.radians) * 8.0
+        canvas.line(lookPos.x, lookPos.y)
+
+        opMode.tel.addData("pose.x", pose.x)
+        opMode.tel.addData("pose.y", pose.y)
+        opMode.tel.addData("pose.h", pose.heading)
     }
 
     companion object {
@@ -52,6 +74,11 @@ class TeleOpDrive(opMode: OpMode, limelight: Limelight? = null) : Drive(opMode, 
     override val init: suspend Command.() -> Unit = {
         follower.update()
         follower.startTeleopDrive(false)
+
+        while (!opMode.isStopRequested && !opMode.isStarted) {
+            drawRobot()
+            sync()
+        }
     }
 
     fun gateAssist(): Double {
@@ -69,6 +96,8 @@ class TeleOpDrive(opMode: OpMode, limelight: Limelight? = null) : Drive(opMode, 
     override val loop: suspend Command.() -> Unit = {
         with(opMode) {
             follower.update()
+            drawRobot()
+
             if (!follower.isTeleopDrive && !follower.isBusy && !follower.isTurning) {
                 follower.startTeleopDrive(false)
             }

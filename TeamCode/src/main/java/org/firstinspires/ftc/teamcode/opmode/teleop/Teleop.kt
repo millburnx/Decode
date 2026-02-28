@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode.opmode.teleop
 
 import com.bylazar.configurables.annotations.Configurable
-import com.bylazar.field.PanelsField
 import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.util.SleepFor
 import com.millburnx.cmdxpedro.util.WaitFor
+import com.millburnx.cmdxpedro.util.mirror
 import com.millburnx.util.Pose2d
 import com.millburnx.util.toDegrees
 import com.millburnx.util.vector.Vec2d
@@ -31,10 +31,7 @@ class Teleop : OpMode() {
 
         val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose })
 
-        scheduler.schedule(Command {
-            SleepFor { 1000 }
-            drive.pose = Pose2d(72.0, 72.0, 0.0)
-        })
+        drive.pose = Pose2d(112.0, 137.0, -90.0)
 
         val rapidFire = Command("Rapid Fire", {
             sorter.frontPod.isUp = false
@@ -86,9 +83,6 @@ class Teleop : OpMode() {
         })
 
         scheduler.schedule(Command("Power adjusts") {
-            val canvas = PanelsField.field
-            canvas.setOffsets(PanelsField.presets.PEDRO_PATHING)
-
             OpModeLoop(this@Teleop) {
 //                hood.target = hoodOverride
                 if (intakeOverride == Double.NEGATIVE_INFINITY) {
@@ -101,18 +95,12 @@ class Teleop : OpMode() {
                 }
 
                 val pose = drive.pose
-                canvas.moveCursor(pose.x, pose.y)
-                canvas.setStyle(fill = "none", outline = "white", width = 1.5)
-                canvas.circle(8.0)
-                val lookPos = pose + Vec2d(1.0, 0.0).rotate(pose.radians) * 8.0
-                canvas.line(lookPos.x, lookPos.y)
-
                 tel.addData("pose", pose)
 
                 if (turret.targetingMode == Turret.TargetingMode.GLOBAL) {
                     turret.target = normalizeDegrees(
                         pose.angleTo(
-                            Vec2d(144.0 - 4.0, 144.0 - 4.0)
+                            Vec2d(144.0 - 4.0, 144.0 - 4.0).mirror(true)
                         ).toDegrees()
                     )
                 } else {

@@ -13,6 +13,7 @@ import com.pedropathing.telemetry.SelectScope;
 import com.pedropathing.telemetry.Selector;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -27,7 +28,7 @@ public abstract class SelectableOpModePanels extends OpMode {
         this.selector = Selector.create(name, opModes, MESSAGE);
         this.selector.onSelect((opModeSupplier) -> {
             this.onSelect();
-            this.selectedOpMode = (OpMode)opModeSupplier.get();
+            this.selectedOpMode = (OpMode) opModeSupplier.get();
             this.selectedOpMode.gamepad1 = this.gamepad1;
             this.selectedOpMode.gamepad2 = this.gamepad2;
             this.selectedOpMode.telemetry = this.telemetry;
@@ -73,7 +74,7 @@ public abstract class SelectableOpModePanels extends OpMode {
 
             List<String> lines = this.selector.getLines();
 
-            for(String line : lines) {
+            for (String line : lines) {
                 this.tel.addLine(line);
             }
 
@@ -92,8 +93,14 @@ public abstract class SelectableOpModePanels extends OpMode {
         }
     }
 
+    ElapsedTime elapsedTime = new ElapsedTime();
+
     public final void loop() {
+        while (elapsedTime.milliseconds() < (1000.0 / 60.0)) {
+            // artificially lower loop times
+        }
         this.selectedOpMode.loop();
+        elapsedTime.reset();
     }
 
     public final void stop() {

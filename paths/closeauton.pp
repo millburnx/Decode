@@ -3,7 +3,7 @@
     "x": 112,
     "y": 137,
     "heading": "linear",
-    "startDeg": 90,
+    "startDeg": -90,
     "endDeg": 180,
     "locked": false
   },
@@ -120,8 +120,8 @@
       "id": "mm5iwxie-g32gp6",
       "name": "Path 6",
       "endPoint": {
-        "x": 132,
-        "y": 62,
+        "x": 131.5,
+        "y": 61,
         "heading": "linear",
         "reverse": false,
         "startDeg": 0,
@@ -174,7 +174,7 @@
       "id": "mm5oe575-omovu3",
       "name": "Path 8",
       "endPoint": {
-        "x": 127,
+        "x": 128,
         "y": 36,
         "heading": "linear",
         "reverse": false,
@@ -202,7 +202,7 @@
       "name": "Path 9",
       "endPoint": {
         "x": 102,
-        "y": 12,
+        "y": 12.5,
         "heading": "linear",
         "reverse": true,
         "startDeg": 0,
@@ -342,5 +342,5 @@
     "onionNextPointOnly": false
   },
   "version": "1.2.1",
-  "timestamp": "2026-02-28T03:02:30.326Z"
+  "timestamp": "2026-02-28T10:59:08.646Z"
 }

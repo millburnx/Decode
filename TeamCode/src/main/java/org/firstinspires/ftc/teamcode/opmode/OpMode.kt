@@ -28,6 +28,8 @@ abstract class OpMode : LinearOpMode() {
     lateinit var voltageSensor: VoltageSensor
 
     val loopTimer = ElapsedTime()
+
+    val matchTimer = ElapsedTime()
     var deltaTime = 0.0
 
     val averageHz = TimeAverage { 1000.0 }
@@ -69,6 +71,7 @@ abstract class OpMode : LinearOpMode() {
             }
 
             tel.addData("onsync ms", syncTimer.milliseconds())
+            tel.addData("match timer", matchTimer.seconds())
             syncTimer.reset()
         }
     }
@@ -92,6 +95,7 @@ abstract class OpMode : LinearOpMode() {
         SubsystemManager.registerAll(scheduler)
 
         waitForStart()
+        matchTimer.reset()
 
         @Suppress("ControlFlowWithEmptyBody") // Loop is to keep the active mode running
         while (opModeIsActive()) {

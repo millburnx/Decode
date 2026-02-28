@@ -5,6 +5,7 @@ import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.paths.PedroBuilder
 import com.millburnx.cmdxpedro.paths.PedroLoader
 import com.millburnx.cmdxpedro.paths.heading.HeadingInterpolation
+import com.millburnx.cmdxpedro.util.mirror
 import com.millburnx.pedroparser.types.Sequence
 import com.millburnx.util.Pose2d
 import org.firstinspires.ftc.teamcode.common.subsystem.Drive
@@ -19,9 +20,10 @@ class AutonManager(val opMode: OpMode, val drive: Drive, val sequenceName: Strin
     val loadedPath: List<Pair<com.millburnx.cmdxpedro.paths.path.Path, HeadingInterpolation>>
         get() = PedroLoader.sequenceToPath(loadedSequence)
     val startingPose: Pose2d
-        get() = loadedSequence.startPose
+        get() = loadedSequence.startPose.mirror(isMirrored)
 
     init {
+        println("starting pose: $startingPose, ${loadedSequence.startPose}")
         drive.pose = startingPose
     }
 

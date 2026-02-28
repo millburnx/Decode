@@ -62,7 +62,7 @@ object Constants {
         .forwardEncoderDirection(EncoderDirection.FORWARD)
         .strafeEncoderDirection(EncoderDirection.FORWARD)
 
-    val pathConstraints: PathConstraints = PathConstraints(0.97, 100.0, 2.0, 1.0)
+    val pathConstraints: PathConstraints = PathConstraints(0.97, 100.0, 1.0, 1.0)
 
     fun createFollower(hardwareMap: HardwareMap): Follower {
         return FollowerBuilder(followerConstants, hardwareMap)

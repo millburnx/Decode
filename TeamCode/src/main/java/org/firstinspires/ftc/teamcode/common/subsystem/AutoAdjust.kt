@@ -18,6 +18,8 @@ class AutoAdjust(
 ) :
     Subsystem("AutoAdjust") {
 
+    var forceFar: Boolean = false
+
     var minRapidRPM: Double = 0.0
 
     override val run: suspend Command.() -> Unit = {
@@ -38,7 +40,7 @@ class AutoAdjust(
                     tel.addData("aa | target rpm", target.maxRPM)
                     tel.addData("aa | target angle", target.targetHood)
                 } else {
-                    val target = getTarget(distance)
+                    val target = getTarget(distance, forceFar)
                     minRapidRPM = target.first
 
                     flyWheel.shootingRPM = target.first
@@ -70,8 +72,8 @@ class AutoAdjust(
             return TargetData(minRPM, maxRPM, angle)
         }
 
-        fun getTarget(distance: Distance): Pair<RPM, Angle> {
-            return if (distance < FAR_DISTANCE) {
+        fun getTarget(distance: Distance, forceFar: Boolean = false): Pair<RPM, Angle> {
+            return if (distance < FAR_DISTANCE && !forceFar) {
                 // always round up
                 (NO_RECOIL_DATA.ceilingEntry(distance) ?: NO_RECOIL_DATA.lastEntry()).value
             } else {
