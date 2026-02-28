@@ -1,26 +1,25 @@
 {
   "startPoint": {
-    "x": 15,
-    "y": 110,
+    "x": 112,
+    "y": 137,
     "heading": "linear",
-    "startDeg": 180,
+    "startDeg": 90,
     "endDeg": 180,
     "locked": false
   },
   "lines": [
     {
-      "id": "line-cct1zcwas24",
+      "id": "line-3f3eu3wu70t",
       "name": "Path 1",
       "endPoint": {
-        "x": 48,
-        "y": 96,
-        "heading": "constant",
-        "startDeg": 90,
-        "endDeg": 180,
-        "degrees": 180
+        "x": 88,
+        "y": 88,
+        "heading": "linear",
+        "startDeg": -90,
+        "endDeg": 0
       },
       "controlPoints": [],
-      "color": "#7C7969",
+      "color": "#A65BAA",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -28,51 +27,198 @@
       "waitAfterName": ""
     },
     {
-      "id": "mk7ffrjg-k2x3qr",
+      "id": "mm5iwhc5-v8mao8",
       "name": "Path 2",
       "endPoint": {
-        "x": 48,
+        "x": 126,
         "y": 84,
-        "heading": "constant",
+        "heading": "linear",
         "reverse": false,
-        "degrees": 180
+        "startDeg": 0,
+        "endDeg": 0
       },
       "controlPoints": [],
-      "color": "#C8BB77",
+      "color": "#BDD898",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": ""
     },
     {
-      "id": "mk7fg4hg-hcxyzo",
+      "id": "mm5iwltm-266xbv",
       "name": "Path 3",
       "endPoint": {
-        "x": 17,
-        "y": 84,
-        "heading": "constant",
+        "x": 88,
+        "y": 88,
+        "heading": "linear",
         "reverse": false,
-        "degrees": 180
+        "startDeg": 0,
+        "endDeg": 0
       },
       "controlPoints": [],
-      "color": "#DAD75D",
+      "color": "#8A7779",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": ""
     },
     {
-      "id": "mk7fgcx7-v07h13",
+      "id": "mm5iws0z-oqtlxa",
       "name": "Path 4",
       "endPoint": {
-        "x": 60,
-        "y": 84,
-        "heading": "constant",
+        "x": 127,
+        "y": 60,
+        "heading": "linear",
         "reverse": false,
-        "degrees": 180
+        "startDeg": 0,
+        "endDeg": 0
       },
-      "controlPoints": [],
-      "color": "#9DB96C",
+      "controlPoints": [
+        {
+          "x": 88,
+          "y": 60
+        },
+        {
+          "x": 96,
+          "y": 60
+        }
+      ],
+      "color": "#AD7797",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "id": "mm5iwus9-y138s7",
+      "name": "Path 5",
+      "endPoint": {
+        "x": 88,
+        "y": 88,
+        "heading": "linear",
+        "reverse": true,
+        "startDeg": 0,
+        "endDeg": 0
+      },
+      "controlPoints": [
+        {
+          "x": 96,
+          "y": 60
+        },
+        {
+          "x": 88,
+          "y": 60
+        }
+      ],
+      "color": "#ABB8DC",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "id": "mm5iwxie-g32gp6",
+      "name": "Path 6",
+      "endPoint": {
+        "x": 132,
+        "y": 62,
+        "heading": "linear",
+        "reverse": false,
+        "startDeg": 0,
+        "endDeg": 30
+      },
+      "controlPoints": [
+        {
+          "x": 88,
+          "y": 62
+        },
+        {
+          "x": 96,
+          "y": 62
+        }
+      ],
+      "color": "#BDD8BD",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "id": "mm5ix1xi-apvenu",
+      "name": "Path 7",
+      "endPoint": {
+        "x": 88,
+        "y": 88,
+        "heading": "linear",
+        "reverse": false,
+        "startDeg": 30,
+        "endDeg": 0
+      },
+      "controlPoints": [
+        {
+          "x": 96,
+          "y": 62
+        },
+        {
+          "x": 88,
+          "y": 62
+        }
+      ],
+      "color": "#87CC7C",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "id": "mm5oe575-omovu3",
+      "name": "Path 8",
+      "endPoint": {
+        "x": 127,
+        "y": 36,
+        "heading": "linear",
+        "reverse": false,
+        "startDeg": 0,
+        "endDeg": 0
+      },
+      "controlPoints": [
+        {
+          "x": 96,
+          "y": 36
+        },
+        {
+          "x": 96,
+          "y": 36
+        }
+      ],
+      "color": "#BCD558",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "id": "mm5oub14-qgkdsf",
+      "name": "Path 9",
+      "endPoint": {
+        "x": 102,
+        "y": 12,
+        "heading": "linear",
+        "reverse": true,
+        "startDeg": 0,
+        "endDeg": 0
+      },
+      "controlPoints": [
+        {
+          "x": 102,
+          "y": 36
+        },
+        {
+          "x": 102,
+          "y": 26
+        }
+      ],
+      "color": "#ABD7DC",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -140,28 +286,48 @@
   "sequence": [
     {
       "kind": "path",
-      "lineId": "line-cct1zcwas24"
+      "lineId": "line-3f3eu3wu70t"
     },
     {
       "kind": "path",
-      "lineId": "mk7ffrjg-k2x3qr"
+      "lineId": "mm5iwhc5-v8mao8"
     },
     {
       "kind": "path",
-      "lineId": "mk7fg4hg-hcxyzo"
+      "lineId": "mm5iwltm-266xbv"
     },
     {
       "kind": "path",
-      "lineId": "mk7fgcx7-v07h13"
+      "lineId": "mm5iws0z-oqtlxa"
+    },
+    {
+      "kind": "path",
+      "lineId": "mm5iwus9-y138s7"
+    },
+    {
+      "kind": "path",
+      "lineId": "mm5iwxie-g32gp6"
+    },
+    {
+      "kind": "path",
+      "lineId": "mm5ix1xi-apvenu"
+    },
+    {
+      "kind": "path",
+      "lineId": "mm5oe575-omovu3"
+    },
+    {
+      "kind": "path",
+      "lineId": "mm5oub14-qgkdsf"
     }
   ],
   "settings": {
-    "xVelocity": 60,
-    "yVelocity": 48,
+    "xVelocity": 75,
+    "yVelocity": 58,
     "aVelocity": 3.141592653589793,
     "kFriction": 0.1,
-    "rWidth": 18,
-    "rHeight": 18,
+    "rWidth": 14,
+    "rHeight": 16.8,
     "safetyMargin": 1,
     "maxVelocity": 40,
     "maxAcceleration": 30,
@@ -176,5 +342,5 @@
     "onionNextPointOnly": false
   },
   "version": "1.2.1",
-  "timestamp": "2026-01-09T22:09:21.124Z"
+  "timestamp": "2026-02-28T03:02:30.326Z"
 }

@@ -140,7 +140,7 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
             var kV = 0.00018
 
             @JvmField
-            var rpmThreshold = 200.0
+            var rpmThreshold = 300.0
         }
     }
 }

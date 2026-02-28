@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.opmode.OpMode
 //  i think we let auton manager create pedro, drive can have pedro passed in. if not it'll create itself
 class AutonManager(val opMode: OpMode, val drive: Drive, val sequenceName: String, val isMirrored: Boolean = false) {
     val builder: PedroBuilder = PedroBuilder(isMirrored)
-    val loadedSequence: Sequence = PedroLoader.load("paths/$sequenceName.pp")
+    val loadedSequence: Sequence = PedroLoader.load("Paths/$sequenceName.pp")
     val loadedPath: List<Pair<com.millburnx.cmdxpedro.paths.path.Path, HeadingInterpolation>>
         get() = PedroLoader.sequenceToPath(loadedSequence)
     val startingPose: Pose2d

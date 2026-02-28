@@ -24,13 +24,13 @@ object Constants {
         .centripetalScaling(0.0)
         .translationalPIDFCoefficients(PIDFCoefficients(0.2, 0.0, 0.02, 0.04))
         .headingPIDFCoefficients(PIDFCoefficients(3.0, 0.0, 0.1, 0.04))
-        .drivePIDFCoefficients(FilteredPIDFCoefficients(0.03, 0.0, 0.0, 0.6, 0.05))
+        .drivePIDFCoefficients(FilteredPIDFCoefficients(0.04, 0.0, 0.0, 0.6, 0.05))
         .useSecondaryTranslationalPIDF(true)
         .useSecondaryHeadingPIDF(true)
         .useSecondaryDrivePIDF(false)
-        .secondaryTranslationalPIDFCoefficients(PIDFCoefficients(0.25, 0.0, 0.03, 0.03))
+        .secondaryTranslationalPIDFCoefficients(PIDFCoefficients(0.35, 0.0, 0.03, 0.03))
         .secondaryHeadingPIDFCoefficients(PIDFCoefficients(4.0, 0.0, 0.2, 0.04))
-        .secondaryDrivePIDFCoefficients(FilteredPIDFCoefficients(0.015, 0.0, 0.0, 0.6, 0.3))
+        .secondaryDrivePIDFCoefficients(FilteredPIDFCoefficients(0.05, 0.0, 0.0, 0.6, 0.3))
 
     fun MecanumConstants.setMotors() = apply {
         rightFrontMotorName("m2")
@@ -62,11 +62,21 @@ object Constants {
         .forwardEncoderDirection(EncoderDirection.FORWARD)
         .strafeEncoderDirection(EncoderDirection.FORWARD)
 
-    val pathConstraints: PathConstraints = PathConstraints(0.99, 100.0, 1.0, 1.0)
+    val pathConstraints: PathConstraints = PathConstraints(0.97, 100.0, 2.0, 1.0)
 
     fun createFollower(hardwareMap: HardwareMap): Follower {
         return FollowerBuilder(followerConstants, hardwareMap)
             .mecanumDrivetrain(driveConstants)
+            .pinpointLocalizer(localizerConstants)
+            .pathConstraints(pathConstraints)
+            .build()
+    }
+
+    fun createManualFollower(
+        hardwareMap: HardwareMap,
+    ): Follower {
+        return FollowerBuilder(followerConstants, hardwareMap)
+            .manualMecanumDrivetrain(hardwareMap, driveConstants)
             .pinpointLocalizer(localizerConstants)
             .pathConstraints(pathConstraints)
             .build()
