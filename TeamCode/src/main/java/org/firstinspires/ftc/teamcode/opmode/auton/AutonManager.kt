@@ -8,6 +8,7 @@ import com.millburnx.cmdxpedro.paths.heading.HeadingInterpolation
 import com.millburnx.cmdxpedro.util.mirror
 import com.millburnx.pedroparser.types.Sequence
 import com.millburnx.util.Pose2d
+import com.pedropathing.paths.PathBuilder
 import org.firstinspires.ftc.teamcode.common.subsystem.Drive
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
@@ -27,12 +28,13 @@ class AutonManager(val opMode: OpMode, val drive: Drive, val sequenceName: Strin
         drive.pose = startingPose
     }
 
-    fun runPath(index: Int, maxPower: Double = 1.0): Command =
+    fun runPath(index: Int, maxPower: Double = 1.0, callbacks: (PathBuilder) -> Unit = {}): Command =
         builder.PathCommand(
             drive.follower,
             loadedPath[index].first,
             loadedPath[index].second,
             { !opMode.isStopRequested },
-            maxPower = maxPower
+            maxPower = maxPower,
+            pathCallback = callbacks
         )
 }

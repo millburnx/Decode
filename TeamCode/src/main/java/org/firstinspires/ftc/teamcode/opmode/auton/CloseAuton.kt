@@ -9,6 +9,7 @@ import com.millburnx.cmdxpedro.util.mirror
 import com.millburnx.util.toDegrees
 import com.millburnx.util.vector.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import org.firstinspires.ftc.teamcode.common.GlobalStore
 import org.firstinspires.ftc.teamcode.common.hardware.normalizeDegrees
 import org.firstinspires.ftc.teamcode.common.subsystem.*
 import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
@@ -64,12 +65,16 @@ class CloseAuton : OpMode() {
             Command {
                 intake.power = 1.0
             }
-            +autonManager.runPath(5,)
+            +autonManager.runPath(5) { builder ->
+                builder.addParametricCallback(.5, { drive.follower.setMaxPower(intakePower) })
+            }
             Command {
                 SleepFor { intakeTime }
-                intake.power = -1.0
+                drive.follower.setMaxPower(1.0)
             }
-            +autonManager.runPath(6)
+            +autonManager.runPath(6) { builder ->
+                builder.addParametricCallback(.5, { intake.power = -1.0 })
+            }
             Command {
                 SleepFor { stablizationTime }
             }
@@ -89,6 +94,8 @@ class CloseAuton : OpMode() {
                     val atParametricEnd =
                         if (drive.follower.currentPath != null) drive.follower.atParametricEnd() else -1.0
                     println("isBusy $isBusy | isTurning $isTurning | isRobotStuck $isRobotStuck | currentTValue $currentTValue | atParametricEnd $atParametricEnd")
+
+                    GlobalStore.autonPose = drive.pose
                 }
                 sync()
             }
@@ -108,17 +115,29 @@ class CloseAuton : OpMode() {
             +fire
             Command { intake.power = 1.0 }
             +autonManager.runPath(3)
-            +autonManager.runPath(4)
+            +autonManager.runPath(4) { builder ->
+                builder.addParametricCallback(.5, { intake.power = -1.0 })
+            }
             Command { SleepFor { stablizationTime } }
             +fire
             +gateCycle
             Command { intake.power = 1.0 }
-            +autonManager.runPath(1)
-            +autonManager.runPath(2)
+            +autonManager.runPath(1) { builder ->
+                builder.`addParametricCallback`(.5, { drive.follower.setMaxPower(intakePower) })
+            }
+            Command {
+                drive.follower.setMaxPower(1.0)
+            }
+            +autonManager.runPath(2) { builder ->
+                builder.addParametricCallback(.5, { intake.power = -1.0 })
+            }
             Command { SleepFor { stablizationTime } }
             +fire
-            +autonManager.runPath(7)
+            +autonManager.runPath(7) { builder ->
+                builder.addParametricCallback(.5, { drive.follower.setMaxPower(intakePower) })
+            }
             Command {
+                drive.follower.setMaxPower(1.0)
                 turret.target =
                     normalizeDegrees(
                         Vec2d(102, 13).mirror(autonManager.isMirrored)
@@ -127,7 +146,9 @@ class CloseAuton : OpMode() {
                     )
                 autoAdjust.forceFar = true
             }
-            +autonManager.runPath(8)
+            +autonManager.runPath(8) { builder ->
+                builder.addParametricCallback(.5, { intake.power = -1.0 })
+            }
             Command { SleepFor { stablizationTime } }
             Command {
                 turret.target =
@@ -154,5 +175,8 @@ class CloseAuton : OpMode() {
 
         @JvmField
         var stablizationTime = 300L
+
+        @JvmField
+        var intakePower = .8
     }
 }

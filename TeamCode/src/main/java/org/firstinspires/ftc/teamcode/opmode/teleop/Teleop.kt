@@ -9,6 +9,7 @@ import com.millburnx.util.Pose2d
 import com.millburnx.util.toDegrees
 import com.millburnx.util.vector.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.teamcode.common.GlobalStore
 import org.firstinspires.ftc.teamcode.common.hardware.normalizeDegrees
 import org.firstinspires.ftc.teamcode.common.subsystem.*
 import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
@@ -31,7 +32,8 @@ class Teleop : OpMode() {
 
         val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose })
 
-        drive.pose = Pose2d(112.0, 137.0, -90.0)
+        drive.pose = GlobalStore.autonPose ?: Pose2d(112.0, 137.0, -90.0)
+        GlobalStore.autonPose = null
 
         val rapidFire = Command("Rapid Fire", {
             sorter.frontPod.isUp = false
