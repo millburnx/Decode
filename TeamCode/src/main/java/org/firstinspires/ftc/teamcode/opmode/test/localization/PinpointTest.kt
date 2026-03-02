@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.opmode.OpMode
 @TeleOp
 class PinpointTest : OpMode() {
     override fun run() {
-        val drive = TeleOpDrive(this)
+        val drive = TeleOpDrive(this, true)
 
         scheduler.schedule(Command() {
             val canvas = PanelsField.field

@@ -3,8 +3,10 @@ package org.firstinspires.ftc.teamcode.common.subsystem
 import com.bylazar.configurables.annotations.Configurable
 import com.bylazar.field.PanelsField
 import com.millburnx.cmdx.Command
+import com.millburnx.cmdxpedro.util.mirror
 import com.millburnx.util.Pose2d
 import com.millburnx.util.vector.Vec2d
+import com.pedropathing.geometry.Pose
 import org.firstinspires.ftc.teamcode.common.hardware.fromPedro
 import org.firstinspires.ftc.teamcode.common.hardware.normalizeDegrees
 import org.firstinspires.ftc.teamcode.common.hardware.toPedro
@@ -18,7 +20,7 @@ open class Drive(val opMode: OpMode, limelight: Limelight? = null) : Subsystem("
     val follower = Constants.createManualFollower(opMode.hardwareMap)
 
     var pose
-        get() = Pose2d.fromPedro(follower.pose)
+        get() = Pose2d.fromPedro(follower.pose ?: Pose(0.0, 0.0, 0.0))
         set(value) {
             follower.pose = value.toPedro()
         }
@@ -68,7 +70,7 @@ open class Drive(val opMode: OpMode, limelight: Limelight? = null) : Subsystem("
 }
 
 @Configurable
-class TeleOpDrive(opMode: OpMode, limelight: Limelight? = null) : Drive(opMode, limelight) {
+class TeleOpDrive(opMode: OpMode, val isRed: Boolean, limelight: Limelight? = null) : Drive(opMode, limelight) {
     var useGateAssist = false
 
     override val init: suspend Command.() -> Unit = {
@@ -83,7 +85,7 @@ class TeleOpDrive(opMode: OpMode, limelight: Limelight? = null) : Drive(opMode, 
 
     fun gateAssist(): Double {
         val heading = pose.heading
-        val diff = normalizeDegrees(heading - gateAssistHeading)
+        val diff = normalizeDegrees(heading - gateAssistHeading.mirror(!isRed))
         opMode.tel.addData("gateassist", diff)
         return diff * gateAssistPower
     }

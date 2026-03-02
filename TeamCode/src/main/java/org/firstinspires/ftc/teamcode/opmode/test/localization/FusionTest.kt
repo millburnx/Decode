@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.opmode.OpMode
 class FusionTest : OpMode() {
     override fun run() {
         val limelight = Limelight(this)
-        val drive = TeleOpDrive(this, limelight)
+        val drive = TeleOpDrive(this, true, limelight)
 
         scheduler.schedule(Command() {
             val canvas = PanelsField.field

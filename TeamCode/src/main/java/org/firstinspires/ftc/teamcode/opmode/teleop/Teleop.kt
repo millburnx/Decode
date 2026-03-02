@@ -16,23 +16,30 @@ import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
-@Configurable
 @TeleOp
-class Teleop : OpMode() {
+class TeleopRed : Teleop(true)
+
+@TeleOp
+class TeleopBlue : Teleop(false)
+
+@Configurable
+open class Teleop(val isRed: Boolean) : OpMode() {
     override fun run() {
         val sorter = Sorter(this)
         val hood = Hood(this)
         val flyWheel = FlyWheel(this)
         val intake = Intake(this)
-        val drive = TeleOpDrive(this)
+        val drive = TeleOpDrive(this, isRed)
         val turret = Turret(this, { drive.pose.heading }, { drive.velocity.heading }, { voltageSensor.voltage })
 
         turret.targetingMode = Turret.TargetingMode.RELATIVE
         turret.target = 180.0
 
-        val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose })
+        var turretOff = false
 
-        drive.pose = GlobalStore.autonPose ?: Pose2d(112.0, 137.0, -90.0)
+        val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose }, isRed)
+
+        drive.pose = GlobalStore.autonPose ?: Pose2d(112.0, 137.0, -90.0).mirror(!isRed)
         GlobalStore.autonPose = null
 
         val rapidFire = Command("Rapid Fire", {
@@ -45,7 +52,11 @@ class Teleop : OpMode() {
             turretTarget = turret.angle
         }) {
             flyWheel.state = FlyWheel.FlyWheelState.SHOOTING
-            turret.targetingMode = Turret.TargetingMode.GLOBAL
+            turret.targetingMode = if (turretOff) {
+                Turret.TargetingMode.RELATIVE
+            } else {
+                Turret.TargetingMode.GLOBAL
+            }
 
             WaitFor { turret.atTarget && !turret.inDeadzone && turret.isSteady }
 
@@ -86,6 +97,16 @@ class Teleop : OpMode() {
 
         scheduler.schedule(Command("Power adjusts") {
             OpModeLoop(this@Teleop) {
+                if (gp1.current.dPad.down && !gp1.prev.dPad.down) {
+                    drive.pose = Pose2d(112.0, 137.0, -90.0).mirror(!isRed)
+                } else if (gp1.current.dPad.left && !gp1.prev.dPad.left) {
+                    drive.pose = Pose2d(137.0, 8.5, 180.0).mirror(!isRed)
+                }
+
+                if (gp1.current.leftBumper && !gp1.prev.leftBumper) {
+                    turretOff = !turretOff
+                }
+
 //                hood.target = hoodOverride
                 if (intakeOverride == Double.NEGATIVE_INFINITY) {
                     val intakePower = gp1.current.rightTrigger - gp1.current.leftTrigger
@@ -102,7 +123,7 @@ class Teleop : OpMode() {
                 if (turret.targetingMode == Turret.TargetingMode.GLOBAL) {
                     turret.target = normalizeDegrees(
                         pose.angleTo(
-                            Vec2d(144.0 - 4.0, 144.0 - 4.0).mirror(true)
+                            Vec2d(144.0 - 4.0, 144.0 - 4.0).mirror(!isRed)
                         ).toDegrees()
                     )
                 } else {

@@ -5,25 +5,24 @@ import com.millburnx.cmdx.Command
 import com.millburnx.cmdx.commandGroups.Sequential
 import com.millburnx.cmdxpedro.util.SleepFor
 import com.millburnx.cmdxpedro.util.WaitFor
-import com.millburnx.cmdxpedro.util.mirror
+import com.millburnx.util.normalize
 import com.millburnx.util.toDegrees
 import com.millburnx.util.vector.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import org.firstinspires.ftc.teamcode.common.GlobalStore
-import org.firstinspires.ftc.teamcode.common.hardware.normalizeDegrees
 import org.firstinspires.ftc.teamcode.common.subsystem.*
 import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
 
 @Autonomous
-class Close15AutonRed : Close15Auton(true)
+class Far9AutonRed : Far9Auton(true)
 
 @Autonomous
-class Close15AutonBlue : Close15Auton(false)
+class Far9AutonBlue : Far9Auton(false)
 
 @Configurable
-open class Close15Auton(var isRed: Boolean) : OpMode() {
+open class Far9Auton(var isRed: Boolean) : OpMode() {
     override fun run() {
         val sorter = Sorter(this)
         val hood = Hood(this)
@@ -33,12 +32,16 @@ open class Close15Auton(var isRed: Boolean) : OpMode() {
         val turret = Turret(this, { drive.pose.heading }, { drive.velocity.heading }, { voltageSensor.voltage })
         val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose }, isRed)
 
-        val autonManager = AutonManager(this, drive, "closeauton", isMirrored = !isRed)
+        val autonManager = AutonManager(this, drive, "farauton", isMirrored = !isRed)
+
+        val goal = if (autonManager.isMirrored) Vec2d(0.0, 144.0) else Vec2d(144.0, 144.0)
 
         val fire = Command {
             intake.power = -1.0
 
             WaitFor { turret.atTarget && turret.isSteady }
+
+            turret.target = drive.pose.angleTo(goal).toDegrees().normalize() - angleOffset
 
             val minRPM = { autoAdjust.minRapidRPM - FlyWheel.Controller.rpmThreshold }
             val maxRPM = { flyWheel.shootingRPM + FlyWheel.Controller.rpmThreshold }
@@ -51,13 +54,13 @@ open class Close15Auton(var isRed: Boolean) : OpMode() {
             sorter.frontPod.isUp = false
             SleepFor { downDuration }
 
-            WaitFor { atRPM() }
+//            WaitFor { atRPM() }
             sorter.sidePod.isUp = true
             SleepFor { upDuration }
             sorter.sidePod.isUp = false
             SleepFor { downDuration }
 
-            WaitFor { atRPM() }
+//            WaitFor { atRPM() }
             sorter.backPod.isUp = true
             SleepFor { upDuration }
             sorter.backPod.isUp = false
@@ -65,28 +68,6 @@ open class Close15Auton(var isRed: Boolean) : OpMode() {
 
             intake.power = 1.0
         }
-
-        val gateCycle = Sequential("gate cycle") {
-            Command {
-                intake.power = 1.0
-            }
-            +autonManager.runPath(5) { builder ->
-                builder.addParametricCallback(.5, { drive.follower.setMaxPower(intakePower) })
-            }
-            Command {
-                SleepFor { intakeTime }
-                drive.follower.setMaxPower(1.0)
-            }
-            +autonManager.runPath(6) { builder ->
-                builder.addParametricCallback(.5, { intake.power = -1.0 })
-            }
-            Command {
-                SleepFor { stablizationTime }
-            }
-            +fire
-        }
-
-        val goal = if (autonManager.isMirrored) Vec2d(0.0, 144.0) else Vec2d(144.0, 144.0)
 
         scheduler.schedule(Command("general") {
             while (!isStopRequested) {
@@ -106,82 +87,57 @@ open class Close15Auton(var isRed: Boolean) : OpMode() {
             }
         })
 
-        scheduler.schedule(Sequential("Close Auton") {
+        scheduler.schedule(Sequential("Close Auton Safe") {
             Command("Start") {
                 WaitFor { isStarted }
             }
             Command {
                 flyWheel.state = FlyWheel.FlyWheelState.SHOOTING
+                autoAdjust.forceFar = true
                 turret.targetingMode = Turret.TargetingMode.GLOBAL
-                turret.target = 45.0.mirror(autonManager.isMirrored)
+                turret.target = drive.pose.angleTo(goal).toDegrees().normalize() - angleOffset
             }
             +autonManager.runPath(0)
-            Command { SleepFor { stablizationTime } }
             +fire
-            Command { intake.power = 1.0 }
-            +autonManager.runPath(3)
-            +autonManager.runPath(4) { builder ->
-                builder.addParametricCallback(.5, { intake.power = -1.0 })
-            }
-            Command { SleepFor { stablizationTime } }
-            +fire
-            +gateCycle
-            Command { intake.power = 1.0 }
-            +autonManager.runPath(1) { builder ->
-                builder.`addParametricCallback`(.5, { drive.follower.setMaxPower(intakePower) })
-            }
             Command {
-                drive.follower.setMaxPower(1.0)
+                intake.power = 1.0
             }
-            +autonManager.runPath(2) { builder ->
-                builder.addParametricCallback(.5, { intake.power = -1.0 })
-            }
-            Command { SleepFor { stablizationTime } }
-            +fire
-            +autonManager.runPath(7) { builder ->
+            +autonManager.runPath(1) { builder ->
                 builder.addParametricCallback(.5, { drive.follower.setMaxPower(intakePower) })
             }
             Command {
                 drive.follower.setMaxPower(1.0)
-                turret.target =
-                    normalizeDegrees(
-                        Vec2d(102, 13).mirror(autonManager.isMirrored)
-                            .angleTo(goal)
-                            .toDegrees()
-                    )
-                autoAdjust.forceFar = true
+                SleepFor { intakeDuration }
             }
-            +autonManager.runPath(8) { builder ->
-                builder.addParametricCallback(.5, { intake.power = -1.0 })
-            }
+            +autonManager.runPath(2)
             Command { SleepFor { stablizationTime } }
-            Command {
-                turret.target =
-                    normalizeDegrees(
-                        drive.pose
-                            .angleTo(goal)
-                            .toDegrees()
-                    )
-            }
             +fire
+            +autonManager.runPath(3)
+            +autonManager.runPath(4)
+            Command { SleepFor { stablizationTime } }
+            +fire
+            +autonManager.runPath(5)
             Command { println("auton end ${matchTimer.seconds()}") }
         })
     }
 
     companion object {
         @JvmField
-        var upDuration = 200L
+        var upDuration = 150L
 
         @JvmField
         var downDuration = 50L
 
         @JvmField
-        var intakeTime = 2500L
-
-        @JvmField
-        var stablizationTime = 300L
+        var stablizationTime = 2000L
 
         @JvmField
         var intakePower = .8
+
+        @JvmField
+        var intakeDuration = 5000L
+
+        @JvmField
+        var angleOffset = -2.0
     }
 }

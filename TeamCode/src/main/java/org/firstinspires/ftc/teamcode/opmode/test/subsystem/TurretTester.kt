@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.opmode.OpMode
 @TeleOp
 class TurretTester : OpMode() {
     override fun run() {
-        val drive = TeleOpDrive(this)
+        val drive = TeleOpDrive(this, true)
 
         val turret = Turret(
             this,

@@ -158,8 +158,8 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
         var sideConfig = Config(
             "s4",
             true,
-            .4,
-            .8,
+            .35,
+            .75,
             "c1",
             "c2",
             10.0,
