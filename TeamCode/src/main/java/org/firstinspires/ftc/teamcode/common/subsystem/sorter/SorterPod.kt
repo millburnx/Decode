@@ -125,8 +125,8 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
         @JvmField
         var backConfig = Config(
             "s3",
-            true,
-            .41,
+            false,
+            .39,
             .8,
             "c1e",
             "c0",

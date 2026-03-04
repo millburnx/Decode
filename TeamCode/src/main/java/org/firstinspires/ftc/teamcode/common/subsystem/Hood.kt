@@ -32,7 +32,7 @@ class Hood(opMode: OpMode) : Subsystem("Hood") {
         var servoReversed = true
 
         @JvmField
-        var min: Double = 0.02
+        var min: Double = 0.1
 
         @JvmField
         var max: Double = 0.96
