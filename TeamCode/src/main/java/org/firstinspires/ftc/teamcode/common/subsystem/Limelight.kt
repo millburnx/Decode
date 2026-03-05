@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.common.subsystem
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import com.millburnx.util.Pose2d
+import com.millburnx.util.toRadians
 import com.millburnx.util.vector.Vec2d
 import com.qualcomm.hardware.limelightvision.Limelight3A
 import org.firstinspires.ftc.teamcode.common.GlobalStore
@@ -30,7 +31,7 @@ class Limelight(
     var turretHeading: () -> Double = { 0.0 }
 
     var localizationState: LocalizationState =
-        if (GlobalStore.autonPose == null) LocalizationState.NONE else LocalizationState.READY
+        if (GlobalStore.autonPose == null) LocalizationState.READY else LocalizationState.READY
 
     @Suppress("MemberNameEqualsClassName")
     val limelight = (opMode.hardwareMap["limelight"] as Limelight3A).apply {
@@ -54,7 +55,8 @@ class Limelight(
                 limelight.updateRobotOrientation(normalizeDegrees(getPose().heading +  turretHeading() + mtOffset))
                 val result = limelight.getLatestResult()
                 if (result != null && result.isValid) {
-                    val pose = convertLL(Pose2d.fromFTC(result.botpose_MT2))
+                    val mtResult = if (useMT2) result.botpose_MT2 else result.botpose
+                    val pose = convertLL(Pose2d.fromFTC(mtResult))
                     this@Limelight.pose = pose to System.nanoTime()
                     drawPose(pose)
                 }
@@ -72,7 +74,7 @@ class Limelight(
 
         val newHeading = normalizeDegrees(pose.heading - turretHeading() - mtOffset)
 
-        val offset = Vec2d(16.0, -42.0) / 25.4
+        val offset = Vec2d(-42.0, -16.0) / 25.4
 
         val driveHeading = if (useDriveHeading) {
             getPose().heading
@@ -80,9 +82,13 @@ class Limelight(
             newHeading
         }
 
-        val newPos = pose.position - offset.rotate(driveHeading)
+        val correctPose = pose.position.rotate((-90.0).toRadians())
 
-        return Pose2d(newPos, newHeading)
+        println("correct pose $correctPose")
+
+        val newPos = correctPose - offset.rotate(driveHeading)
+
+        return Pose2d(newPos, newHeading) + Vec2d(72.0, 72.0)
     }
 
     enum class LocalizationState {
@@ -92,6 +98,9 @@ class Limelight(
 
     companion object {
         @JvmField
-        var mtOffset = 90.0
+        var mtOffset = -90.0
+
+        @JvmField
+        var useMT2 = true
     }
 }

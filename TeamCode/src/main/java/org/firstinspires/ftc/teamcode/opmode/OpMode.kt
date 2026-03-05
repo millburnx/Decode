@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmode
 
+import com.bylazar.field.PanelsField
 import com.bylazar.telemetry.PanelsTelemetry
 import com.millburnx.cmdx.Settings
 import com.millburnx.cmdx.runtimeGroups.CommandScheduler
@@ -54,7 +55,9 @@ abstract class OpMode : LinearOpMode() {
                 tel.update(telemetry)
             }
             tel.addData("tel ms", telUpdateTime.inWholeMilliseconds)
-            Drawing.sendPacket()
+//            Drawing.sendPacket()
+
+            PanelsField.field.update()
 
             // hardware
             val bulkReadTime = measureTime {

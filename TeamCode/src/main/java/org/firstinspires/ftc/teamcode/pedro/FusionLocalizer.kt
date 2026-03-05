@@ -145,13 +145,13 @@ class DriftKalmanFilter {
         var startingUncertainty = 1.0
 
         @JvmField
-        var processNoise = 0.01 // q
+        var processNoise = 0.0001 // q
 
         @JvmField
-        var measurementNoise = 1.0 // r
+        var measurementNoise = 12.0 // r
 
         @JvmField
-        var maxGain = 0.3
+        var maxGain = 0.05
 
         @JvmField
         var maxDist = 12.0

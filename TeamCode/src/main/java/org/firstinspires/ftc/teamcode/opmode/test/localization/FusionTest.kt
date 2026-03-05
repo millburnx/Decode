@@ -22,6 +22,8 @@ class FusionTest : OpMode() {
             drive.drawRobot(pose, "llPose", "yellow")
         }
 
+        turret.targetingMode = Turret.TargetingMode.OFF
+
         scheduler.schedule(Command {
             OpModeLoop(this@FusionTest) {
                 if (gp1.prev.leftBumper && gp1.current.leftBumper) {
