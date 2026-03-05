@@ -98,6 +98,7 @@ public abstract class SelectableOpModePanels extends OpMode {
     public final void loop() {
         while (elapsedTime.milliseconds() < (1000.0 / 60.0)) {
             // artificially lower loop times
+            Thread.yield();
         }
         this.selectedOpMode.loop();
         elapsedTime.reset();
