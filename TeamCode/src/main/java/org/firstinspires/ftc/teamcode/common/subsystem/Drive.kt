@@ -52,16 +52,16 @@ open class Drive(val opMode: OpMode, limelight: Limelight? = null) : Subsystem("
         println("end pose ${follower.currentPath?.endPose()}")
     }
 
-    fun drawRobot() {
+    fun drawRobot(pose: Pose2d = this.pose, name: String = "pose", color: String = "white") {
         canvas.moveCursor(pose.x, pose.y)
-        canvas.setStyle(fill = "none", outline = "white", width = 1.5)
+        canvas.setStyle(fill = "none", outline = color, width = 1.5)
         canvas.circle(8.0)
         val lookPos = pose + Vec2d(1.0, 0.0).rotate(pose.radians) * 8.0
         canvas.line(lookPos.x, lookPos.y)
 
-        opMode.tel.addData("pose.x", pose.x)
-        opMode.tel.addData("pose.y", pose.y)
-        opMode.tel.addData("pose.h", pose.heading)
+        opMode.tel.addData("$name.x", pose.x)
+        opMode.tel.addData("$name.y", pose.y)
+        opMode.tel.addData("$name.h", pose.heading)
     }
 
     companion object {

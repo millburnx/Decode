@@ -37,6 +37,8 @@ class FusionLocalizer(hardwareMap: HardwareMap, val deltaTime: () -> Double, val
     }
 
     init {
+        limelight?.getPose = { _pose }
+        limelight?.setPose = { setPose(it) }
         while (pinpoint.deviceStatus != GoBildaPinpointDriver.DeviceStatus.READY) {
             Thread.yield()
         }
@@ -57,11 +59,13 @@ class FusionLocalizer(hardwareMap: HardwareMap, val deltaTime: () -> Double, val
 
     override fun setStartPose(p0: Pose) = setPose(p0) // low-key cannot be bothered to compensate, just don't update?
 
-    override fun setPose(p0: Pose) {
-        pinpoint.position = Pose2d.fromPedro(p0).toFTC()
+    fun setPose(p0: Pose2d) {
+        pinpoint.position = p0.toFTC()
         kfX.reset()
         kfY.reset()
     }
+
+    override fun setPose(p0: Pose) = setPose(Pose2d.fromPedro(p0))
 
     override fun update() {
         pinpoint.update()
