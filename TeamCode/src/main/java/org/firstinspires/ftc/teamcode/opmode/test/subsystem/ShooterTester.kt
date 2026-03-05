@@ -14,7 +14,9 @@ import org.firstinspires.ftc.teamcode.common.subsystem.TeleOpDrive
 import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
+import org.firstinspires.ftc.teamcode.opmode.teleop.Teleop.Companion.downAxonDuration
 import org.firstinspires.ftc.teamcode.opmode.teleop.Teleop.Companion.downDuration
+import org.firstinspires.ftc.teamcode.opmode.teleop.Teleop.Companion.upAxonDuration
 import org.firstinspires.ftc.teamcode.opmode.teleop.Teleop.Companion.upDuration
 
 @Configurable
@@ -33,12 +35,18 @@ class ShooterTester : OpMode() {
             Command("teleop loop")
             {
                 OpModeLoop(this@ShooterTester) {
+                    if (intakePower == -1.0) {
+                        val intakePower = gp1.current.rightTrigger - gp1.current.leftTrigger
+                        intake.power = intakePower
+                    } else {
+                        intake.power = intakePower
+                    }
+
                     flyWheel.state = FlyWheel.FlyWheelState.SHOOTING
                     flyWheel.shootingRPM = targetRPM
 
                     hood.target = hoodTarget
 
-                    intake.power = intakePower
 
                     if (!gp1.prev.rightBumper && gp1.current.rightBumper) {
                         scheduler.schedule(Command {
@@ -53,9 +61,9 @@ class ShooterTester : OpMode() {
                             SleepFor { downDuration }
 
                             sorter.backPod.isUp = true
-                            SleepFor { upDuration }
+                            SleepFor { upAxonDuration }
                             sorter.backPod.isUp = false
-                            SleepFor { downDuration }
+                            SleepFor { downAxonDuration }
                         })
                     }
 

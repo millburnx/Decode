@@ -40,7 +40,7 @@ class AutoAdjust(
                     tel.addData("aa | target rpm", target.maxRPM)
                     tel.addData("aa | target angle", target.targetHood)
                 } else {
-                    val target = getTarget(distance, forceFar)
+                    val target = getTarget(distance)
                     minRapidRPM = target.first
 
                     flyWheel.shootingRPM = target.first
@@ -73,12 +73,8 @@ class AutoAdjust(
         }
 
         fun getTarget(distance: Distance, forceFar: Boolean = false): Pair<RPM, Angle> {
-            return if (distance < FAR_DISTANCE && !forceFar) {
-                // always round up
-                (NO_RECOIL_DATA.ceilingEntry(distance) ?: NO_RECOIL_DATA.lastEntry()).value
-            } else {
-                FAR_ZONE
-            }
+            return (NO_RECOIL_DATA.ceilingEntry(distance) ?: NO_RECOIL_DATA.lastEntry()).value
+
         }
 
         @JvmField

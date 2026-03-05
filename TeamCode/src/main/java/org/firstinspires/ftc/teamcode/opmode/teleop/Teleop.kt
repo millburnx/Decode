@@ -141,6 +141,12 @@ open class Teleop(val isRed: Boolean) : OpMode() {
         var downDuration = 50L
 
         @JvmField
+        var upAxonDuration = 400L
+
+        @JvmField
+        var downAxonDuration = 50L
+
+        @JvmField
         var intakeOverride = Double.NEGATIVE_INFINITY
 
         @JvmField
