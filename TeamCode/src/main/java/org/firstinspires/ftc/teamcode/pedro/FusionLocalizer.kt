@@ -39,9 +39,10 @@ class FusionLocalizer(hardwareMap: HardwareMap, val deltaTime: () -> Double, val
     init {
         limelight?.getPose = { _pose }
         limelight?.setPose = { setPose(it) }
-        while (pinpoint.deviceStatus != GoBildaPinpointDriver.DeviceStatus.READY) {
-            Thread.yield()
-        }
+//        while (pinpoint.deviceStatus != GoBildaPinpointDriver.DeviceStatus.READY) {
+//            Thread.yield()
+//        }
+        Thread.sleep(300)
     }
 
     var _pose: Pose2d = Pose2d()

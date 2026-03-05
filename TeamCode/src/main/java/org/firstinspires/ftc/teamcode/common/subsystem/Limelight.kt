@@ -51,7 +51,7 @@ class Limelight(
                 }
             }
             if (localizationState == LocalizationState.READY) {
-                limelight.updateRobotOrientation(normalizeDegrees(getPose().heading + turretHeading()))
+                limelight.updateRobotOrientation(normalizeDegrees(getPose().heading +  turretHeading() + mtOffset))
                 val result = limelight.getLatestResult()
                 if (result != null && result.isValid) {
                     val pose = convertLL(Pose2d.fromFTC(result.botpose_MT2))
@@ -59,6 +59,9 @@ class Limelight(
                     drawPose(pose)
                 }
             }
+
+            opMode.tel.addData("ll state", localizationState)
+            opMode.tel.addData("ll heading", normalizeDegrees(getPose().heading + turretHeading() + mtOffset))
         }
     }
 
@@ -67,7 +70,7 @@ class Limelight(
         // is conversion from the turret frame to the robot frame
         // so account for the offset of the centers and the heading of the turret
 
-        val newHeading = normalizeDegrees(pose.heading - turretHeading())
+        val newHeading = normalizeDegrees(pose.heading - turretHeading() - mtOffset)
 
         val offset = Vec2d(16.0, -42.0) / 25.4
 
@@ -85,5 +88,10 @@ class Limelight(
     enum class LocalizationState {
         NONE,
         READY;
+    }
+
+    companion object {
+        @JvmField
+        var mtOffset = 90.0
     }
 }
