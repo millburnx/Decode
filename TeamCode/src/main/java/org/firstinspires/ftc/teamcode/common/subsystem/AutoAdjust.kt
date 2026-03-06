@@ -31,6 +31,7 @@ class AutoAdjust(
 
                 val rawDistance = getPose().distanceTo(goal)
                 val distance = if (useSOTM) SOTMResults.first else rawDistance
+                tel.addData("distance!", distance)
                 turretAngle = if (useSOTM) SOTMResults.second else getPose().position.angleTo(goal).toDegrees()
 
                 val target = getTarget(distance)

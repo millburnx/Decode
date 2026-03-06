@@ -35,14 +35,14 @@ object SOTM {
     }
 
     @JvmField
-    var forwardScale = 0.001
+    var forwardScale = 0.02
 
     @JvmField
     var lateralScale = 0.01
 
     @JvmField
-    var maxForwardScale = 1.0
+    var maxForwardScale = 10.0
 
     @JvmField
-    var maxLateralScale = 1.0
+    var maxLateralScale = 5.0
 }

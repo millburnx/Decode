@@ -177,7 +177,7 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
         const val TICKS_TO_DEGREES = 0.2 / ((1.0 + (46.0 / 11.0)) * 28.0) * 360
 
         @JvmField
-        var coeff = PIDFCoefficients(0.1, 0.0, 0.001, 0.1)
+        var coeff = PIDFCoefficients(0.05, 0.0, 0.001, 0.1)
 
         @JvmField
         var kR = 0.15
