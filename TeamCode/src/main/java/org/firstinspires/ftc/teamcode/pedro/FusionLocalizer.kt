@@ -151,7 +151,7 @@ class DriftKalmanFilter {
         var measurementNoise = 12.0 // r
 
         @JvmField
-        var maxGain = 0.05
+        var maxGain = 0.01
 
         @JvmField
         var maxDist = 12.0

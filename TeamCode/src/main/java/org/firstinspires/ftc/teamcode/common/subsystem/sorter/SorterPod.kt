@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.common.subsystem.sorter
 import android.graphics.Color
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
+import com.millburnx.cmdxpedro.util.SleepFor
 import com.qualcomm.hardware.rev.RevColorSensorV3
 import com.qualcomm.robotcore.hardware.NormalizedRGBA
 import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualServo
@@ -37,6 +38,13 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
                 }
             }
         }
+    }
+
+    val kick: suspend Command.(Long, Long) -> Unit = { upDuration, downDuration ->
+        isUp = true
+        SleepFor { upDuration }
+        isUp = false
+        SleepFor { downDuration }
     }
 
     fun updateState() {
@@ -92,98 +100,49 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
 
         @JvmField // done
         var frontConfig = Config(
-            "s5",
-            false,
-            .4,
-            .8,
-            "c0e",
-            "c2e",
-            10.0,
-            ColorRange(
-                150.0..155.0,
-                27.0..30.5,
-                19.0..25.0
-            ),
-            ColorRange(
-                164.5..171.0,
-                0.0..100.0,
-                79.0..100.0
-            ),
-            ColorRange(
-                155.5..160.0,
-                34.5..37.0,
-                19.0..25.0
-            ),
-            ColorRange(
-                161.0..164.4,
-                0.0..100.0,
-                79.0..100.0
-            ),
-            false
+            "s5", false, .4, .8, "c0e", "c2e", 10.0, ColorRange(
+                150.0..155.0, 27.0..30.5, 19.0..25.0
+            ), ColorRange(
+                164.5..171.0, 0.0..100.0, 79.0..100.0
+            ), ColorRange(
+                155.5..160.0, 34.5..37.0, 19.0..25.0
+            ), ColorRange(
+                161.0..164.4, 0.0..100.0, 79.0..100.0
+            ), false
         )
 
         @JvmField
         var backConfig = Config(
-            "s3",
-            false,
-            .39,
-            .8,
-            "c1e",
-            "c0",
-            10.0,
-            ColorRange(
-                154.0..159.0,
-                30.0..33.0,
-                15.0..19.0
-            ),
-            ColorRange(
-                133.5..137.0,
-                40.0..42.0,
-                32.0..35.0
-            ),
-            ColorRange(
-                153.0..157.0,
-                35.0..38.0,
-                15.0..19.0
-            ),
-            ColorRange(
-                130.0..133.5,
-                43.0..45.0,
-                27.0..32.0
-            ),
-            false
+            "s3", false, .39, .8, "c1e", "c0", 10.0, ColorRange(
+                154.0..159.0, 30.0..33.0, 15.0..19.0
+            ), ColorRange(
+                133.5..137.0, 40.0..42.0, 32.0..35.0
+            ), ColorRange(
+                153.0..157.0, 35.0..38.0, 15.0..19.0
+            ), ColorRange(
+                130.0..133.5, 43.0..45.0, 27.0..32.0
+            ), false
         )
 
         @JvmField
         var sideConfig = Config(
-            "s4",
-            true,
-            .35,
-            .75,
-            "c1",
-            "c2",
-            10.0,
-            ColorRange(
+            "s4", true, .35, .75, "c1", "c2", 10.0, ColorRange(
                 160.0..164.0,
                 10.0..20.0,
                 26.0..29.0,
-            ), 
-            ColorRange(
+            ), ColorRange(
                 166.0..172.0,
                 39.0..43.0,
                 83.5..84.5,
-            ),
-            ColorRange(
+            ), ColorRange(
                 143.0..159.0,
                 10.0..20.0,
                 32.0..36.0,
-            ),
-            ColorRange(
+            ), ColorRange(
                 159.0..164.0,
                 43.5..47.0,
                 84.5..100.0,
-            ),
-            false
+            ), false
         )
     }
 
@@ -226,9 +185,7 @@ class ColorRange(
     var maxValue: Double
 ) {
     fun contains(color: HSV): Boolean {
-        return color.hue in minHue..maxHue &&
-                color.saturation in minSaturation..maxSaturation &&
-                color.brightness in minValue..maxValue
+        return color.hue in minHue..maxHue && color.saturation in minSaturation..maxSaturation && color.brightness in minValue..maxValue
     }
 
     constructor(

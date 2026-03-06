@@ -29,6 +29,9 @@ class FusionTest : OpMode() {
                 if (gp1.prev.leftBumper && gp1.current.leftBumper) {
                     drive.pose = Pose2d(72.0, 72.0, 0.0)
                 }
+                if (gp1.prev.rightBumper && gp1.current.rightBumper) {
+                    limelight.localizationState = Limelight.LocalizationState.NONE
+                }
             }
         })
     }

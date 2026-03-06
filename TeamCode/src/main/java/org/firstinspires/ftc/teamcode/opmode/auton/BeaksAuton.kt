@@ -29,7 +29,7 @@ open class BeaksAuton(var isRed: Boolean) : OpMode() {
         val intake = Intake(this)
         val drive = Drive(this)
         val turret = Turret(this, { drive.pose.heading }, { drive.velocity.heading }, { voltageSensor.voltage })
-        val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose }, isRed)
+        val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose }, { Vec2d() }, isRed)
 
         val autonManager = AutonManager(this, drive, "beaks", isMirrored = !isRed)
 
@@ -98,7 +98,7 @@ open class BeaksAuton(var isRed: Boolean) : OpMode() {
             +fire
             Command { intake.power = 1.0 }
             +autonManager.runPath(1)
-            Command { intake.power = 0.0}
+            Command { intake.power = 0.0 }
             +autonManager.runPath(2)
             Command { SleepFor { gateDuration } }
             Command { intake.power = 1.0 }

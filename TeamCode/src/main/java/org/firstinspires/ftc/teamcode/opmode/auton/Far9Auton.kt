@@ -30,7 +30,7 @@ open class Far9Auton(var isRed: Boolean) : OpMode() {
         val intake = Intake(this)
         val drive = Drive(this)
         val turret = Turret(this, { drive.pose.heading }, { drive.velocity.heading }, { voltageSensor.voltage })
-        val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose }, isRed)
+        val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose }, { Vec2d() }, isRed)
 
         val autonManager = AutonManager(this, drive, "farauton", isMirrored = !isRed)
 
@@ -93,7 +93,7 @@ open class Far9Auton(var isRed: Boolean) : OpMode() {
             }
             Command {
                 flyWheel.state = FlyWheel.FlyWheelState.SHOOTING
-                autoAdjust.forceFar = true
+//                autoAdjust.forceFar = true
                 turret.targetingMode = Turret.TargetingMode.GLOBAL
                 turret.target = drive.pose.angleTo(goal).toDegrees().normalize() - angleOffset
             }

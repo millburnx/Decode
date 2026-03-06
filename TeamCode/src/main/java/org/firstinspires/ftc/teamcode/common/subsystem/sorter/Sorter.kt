@@ -30,6 +30,12 @@ class Sorter(val opMode: OpMode) : Subsystem("FlyWheel") {
         }
     }
 
+    fun resetKickers() {
+        frontPod.isUp = false
+        sidePod.isUp = false
+        backPod.isUp = false
+    }
+
     companion object {
         @JvmField
         var colorPolling = 2000L

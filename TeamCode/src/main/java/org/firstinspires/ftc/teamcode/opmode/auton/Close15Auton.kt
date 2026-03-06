@@ -31,7 +31,7 @@ open class Close15Auton(var isRed: Boolean) : OpMode() {
         val intake = Intake(this)
         val drive = Drive(this)
         val turret = Turret(this, { drive.pose.heading }, { drive.velocity.heading }, { voltageSensor.voltage })
-        val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose }, isRed)
+        val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose }, { Vec2d() }, isRed)
 
         val autonManager = AutonManager(this, drive, "closeauton", isMirrored = !isRed)
 
@@ -149,7 +149,7 @@ open class Close15Auton(var isRed: Boolean) : OpMode() {
                             .angleTo(goal)
                             .toDegrees()
                     )
-                autoAdjust.forceFar = true
+//                autoAdjust.forceFar = true
             }
             +autonManager.runPath(8) { builder ->
                 builder.addParametricCallback(.5, { intake.power = -1.0 })

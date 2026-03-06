@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.pedro.Constants
 
 @Configurable
 open class Drive(val opMode: OpMode, limelight: Limelight? = null) : Subsystem("Drive") {
-    val follower = Constants.createManualFusionFollower(opMode.hardwareMap, { opMode.deltaTime }, limelight)
+    open val follower = Constants.createManualFollower(opMode.hardwareMap)
 
     var pose
         get() = Pose2d.fromPedro(follower.pose ?: Pose(0.0, 0.0, 0.0))
@@ -71,6 +71,8 @@ open class Drive(val opMode: OpMode, limelight: Limelight? = null) : Subsystem("
 
 @Configurable
 class TeleOpDrive(opMode: OpMode, val isRed: Boolean, limelight: Limelight? = null) : Drive(opMode, limelight) {
+    override val follower = Constants.createManualFusionFollower(opMode.hardwareMap, { opMode.deltaTime }, limelight)
+
     var useGateAssist = false
 
     override val init: suspend Command.() -> Unit = {
