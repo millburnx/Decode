@@ -40,13 +40,15 @@ object ZoneAssist {
     @JvmField
     var epilsonGain = 1.0
 
-    fun calculateAssist(pos: Vec2d): Vec2d {
-        val closeZone = this.closeZone
-        val farZone = this.farZone
+    fun inZone(pos: Vec2d): Boolean = closeZone.contains(pos) || farZone.contains(pos)
 
-        if (closeZone.contains(pos) || farZone.contains(pos)) {
+    fun calculateAssist(pos: Vec2d): Vec2d {
+        if (inZone(pos)) {
             return Vec2d(0.0, 0.0)
         }
+
+        val closeZone = this.closeZone
+        val farZone = this.farZone
 
         val closeZonePoint = closeZone.closestPoint(pos)
         val farZonePoint = farZone.closestPoint(pos)

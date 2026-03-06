@@ -168,10 +168,10 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
         var motorReversed: Boolean = true
 
         @JvmField
-        var min = -170.0
+        var min = -165.0
 
         @JvmField
-        var max = 175.0
+        var max = 170.0
 
         // gear ratio / ppr * 360.0
         const val TICKS_TO_DEGREES = 0.2 / ((1.0 + (46.0 / 11.0)) * 28.0) * 360

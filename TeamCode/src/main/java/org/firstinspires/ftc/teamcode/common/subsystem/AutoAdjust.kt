@@ -22,9 +22,12 @@ class AutoAdjust(
 
     var turretAngle = 0.0
 
+    var enabled = true
+
     override val run: suspend Command.() -> Unit = {
         OpModeLoop(opMode) {
             with(opMode) {
+                if (!enabled) return@OpModeLoop
                 val goal = if (isRed) redGoal else blueGoal
 
                 val SOTMResults = SOTM.calculate(opMode.tel, getVelocity(), getPose(), goal)

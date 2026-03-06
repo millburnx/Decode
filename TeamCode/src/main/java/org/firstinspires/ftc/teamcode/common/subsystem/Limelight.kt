@@ -84,7 +84,7 @@ class Limelight(
 
         val correctPose = pose.position.rotate((-90.0).toRadians())
 
-        println("correct pose $correctPose")
+//        println("correct pose $correctPose")
 
         val newPos = correctPose - offset.rotate(driveHeading)
 

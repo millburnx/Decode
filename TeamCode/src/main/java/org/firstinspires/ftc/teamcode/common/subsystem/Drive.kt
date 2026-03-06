@@ -75,6 +75,8 @@ class TeleOpDrive(opMode: OpMode, val isRed: Boolean, limelight: Limelight? = nu
 
     var useGateAssist = false
 
+    var useZoneAssist = false
+
     override val init: suspend Command.() -> Unit = {
         follower.update()
         follower.startTeleopDrive(false)
@@ -93,8 +95,14 @@ class TeleOpDrive(opMode: OpMode, val isRed: Boolean, limelight: Limelight? = nu
     }
 
     val inZone: Boolean
-        get() {
-            return ZoneAssist.farZone.contains(pose.position) || ZoneAssist.closeZone.contains(pose.position)
+        get() = ZoneAssist.inZone(pose.position)
+
+    var isTeleopDrive = true
+        set(value) {
+            if (!field && value) {
+                follower.startTeleopDrive(false)
+            }
+            field = value
         }
 
     override val loop: suspend Command.() -> Unit = {
@@ -102,11 +110,12 @@ class TeleOpDrive(opMode: OpMode, val isRed: Boolean, limelight: Limelight? = nu
             follower.update()
             drawRobot()
 
-            if (!follower.isTeleopDrive && !follower.isBusy && !follower.isTurning) {
-                follower.startTeleopDrive(false)
-            }
-            if (follower.isTeleopDrive) {
+            tel.addData("inZone", inZone)
+            tel.addData("useZoneAssist", useZoneAssist)
+
+            if (isTeleopDrive) {
                 if (!gp1.prev.b && gp1.current.b) useGateAssist = !useGateAssist
+                if (!gp1.prev.a && gp1.current.a) useZoneAssist = !useZoneAssist
                 if (!useGateAssist) {
                     val zoneAssist = if (useZoneAssist) {
                         if (useFieldCentric) {
@@ -119,6 +128,8 @@ class TeleOpDrive(opMode: OpMode, val isRed: Boolean, limelight: Limelight? = nu
                     } else {
                         Vec2d()
                     }
+
+                    if (inZone) useZoneAssist = false // disable on enter
 
                     follower.setTeleOpDrive(
                         -gp1.current.leftJoyStick.y + zoneAssist.x,
@@ -147,8 +158,5 @@ class TeleOpDrive(opMode: OpMode, val isRed: Boolean, limelight: Limelight? = nu
 
         @JvmField
         var useFieldCentric = false
-
-        @JvmField
-        var useZoneAssist = false
     }
 }

@@ -54,7 +54,7 @@ class FusionLocalizer(hardwareMap: HardwareMap, val deltaTime: () -> Double, val
     val kfX = DriftKalmanFilter()
     val kfY = DriftKalmanFilter()
 
-    override fun getPose() = (_pose - _drift).toPedro()
+    override fun getPose() = (_pose - _drift).toPedro() ?: Pose()
     override fun getVelocity() = _velocity.toPedro()
     override fun getVelocityVector() = _velocity.toPedro().asVector!!
 
@@ -62,6 +62,9 @@ class FusionLocalizer(hardwareMap: HardwareMap, val deltaTime: () -> Double, val
 
     fun setPose(p0: Pose2d) {
         pinpoint.position = p0.toFTC()
+        _pose = p0
+        _drift = Pose2d()
+
         kfX.reset()
         kfY.reset()
     }
@@ -70,8 +73,10 @@ class FusionLocalizer(hardwareMap: HardwareMap, val deltaTime: () -> Double, val
 
     override fun update() {
         pinpoint.update()
-        val pose = Pose2d.fromFTC(pinpoint.position)
-        _pose = pose
+        val ppPose = pinpoint.position
+        if (ppPose != null) {
+            _pose = Pose2d.fromFTC(ppPose)
+        }
 
         kfX.predict(deltaTime())
         kfY.predict(deltaTime())
@@ -80,9 +85,8 @@ class FusionLocalizer(hardwareMap: HardwareMap, val deltaTime: () -> Double, val
             val llPose = limelight.pose
             if (llPose != null && llPose.second != _lastLLTimestamp) {
                 _lastLLTimestamp = llPose.second
-
-                kfX.update(pose.x, llPose.first.x)
-                kfY.update(pose.y, llPose.first.y)
+                kfX.update(_pose.x, llPose.first.x)
+                kfY.update(_pose.y, llPose.first.y)
             }
         }
 

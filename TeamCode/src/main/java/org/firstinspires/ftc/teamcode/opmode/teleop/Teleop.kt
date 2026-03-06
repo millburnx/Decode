@@ -5,7 +5,13 @@ import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.util.WaitFor
 import com.millburnx.cmdxpedro.util.mirror
 import com.millburnx.util.Pose2d
+import com.millburnx.util.toDegrees
+import com.millburnx.util.toRadians
+import com.pedropathing.geometry.BezierLine
+import com.pedropathing.paths.HeadingInterpolator
+import com.pedropathing.paths.Path
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.teamcode.common.hardware.toPedro
 import org.firstinspires.ftc.teamcode.common.subsystem.*
 import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
@@ -31,18 +37,14 @@ open class Teleop(val isRed: Boolean) : OpMode() {
         val flyWheel = FlyWheel(this)
         val intake = Intake(this)
         val sorter = Sorter(this)
+        val autoAdjust = AutoAdjust(
+            this, flyWheel, hood, { drive.pose }, { drive.velocity.position }, isRed
+        )
 
         turret.targetingMode = if (liveTracking) Turret.TargetingMode.GLOBAL else Turret.TargetingMode.RELATIVE
         turret.target = 180.0
 
-        val autoAdjust = AutoAdjust(
-            this,
-            flyWheel,
-            hood,
-            { drive.pose },
-            { drive.velocity.position },
-            isRed
-        )
+        var manualMode = false
 
         val rapidFire = Command("Rapid Fire", {
             sorter.resetKickers()
@@ -51,7 +53,7 @@ open class Teleop(val isRed: Boolean) : OpMode() {
             turret.targetingMode = Turret.TargetingMode.GLOBAL
 
             WaitFor {
-                turret.atTarget && !turret.inDeadzone && turret.isSteady
+                turret.atTarget && !turret.inDeadzone && turret.isSteady && drive.inZone
             }
 
             val minRPM = { flyWheel.shootingRPM - FlyWheel.Controller.rpmThreshold }
@@ -67,6 +69,35 @@ open class Teleop(val isRed: Boolean) : OpMode() {
 
             flyWheel.state = FlyWheel.FlyWheelState.IDLE
             if (!liveTracking) turret.targetingMode = Turret.TargetingMode.RELATIVE
+        }
+
+        val autoPark = Command("Auto Park", {
+            drive.isTeleopDrive = true
+        })
+        {
+            drive.isTeleopDrive = false
+            drive.follower.followPath(
+                drive.follower.pathBuilder()
+                    .addPath(
+                        Path(
+                            BezierLine(
+                                { drive.pose.toPedro() },
+                                Pose2d(105.0, 33.0, 0.0).mirror(!isRed).toPedro()
+                            )
+                        )
+                    )
+                    .setHeadingInterpolation(
+                        HeadingInterpolator.linearFromPoint(
+                            { drive.pose.radians },
+                            (0.0).toRadians(),
+                            0.5
+                        )
+                    )
+                    .build()
+            )
+            WaitFor { isStopRequested || drive.follower.atParametricEnd() }
+            drive.follower.breakFollowing()
+            drive.isTeleopDrive = true
         }
 
         scheduler.schedule(Command {
@@ -88,14 +119,47 @@ open class Teleop(val isRed: Boolean) : OpMode() {
                     rapidFire.cancel()
                     scheduler.schedule(rapidFire)
                 }
+                if (!gp1.prev.y && gp1.current.y) {
+                    if (!drive.follower.teleopDrive) {
+                        autoPark.cancel()
+                    } else {
+                        scheduler.schedule(autoPark)
+                    }
+                }
+
+                val manualAim = gp2.current.rightJoyStick.vector
+                if (manualAim.magnitude() > 0.5) {
+                    manualMode = true
+                    autoAdjust.enabled = false
+                }
+
+                if (!gp2.prev.dPad.down && gp2.current.dPad.down) {
+                    println("disable manual")
+                    manualMode = false
+                    autoAdjust.enabled = true
+                    turret.targetingMode = if (liveTracking) Turret.TargetingMode.GLOBAL else Turret.TargetingMode.RELATIVE
+                }
 
                 // auto
                 if (intakePower < -0.5) drive.useGateAssist = false
 
-                if (turret.targetingMode == Turret.TargetingMode.GLOBAL) {
-                    turret.target = autoAdjust.turretAngle
+                if (!manualMode) {
+                    if (turret.targetingMode == Turret.TargetingMode.GLOBAL) {
+                        turret.target = autoAdjust.turretAngle
+                    } else {
+                        turret.target = 180.0
+                    }
                 } else {
-                    turret.target = 180.0
+                    if (manualAim.magnitude() > 0.5) {
+                        turret.target = -manualAim.angle().toDegrees()
+                        turret.targetingMode = Turret.TargetingMode.GLOBAL
+                    } else {
+                        turret.target = 180.0
+                        turret.targetingMode = Turret.TargetingMode.RELATIVE
+                    }
+                    val shooterTarget = AutoAdjust.getTarget(72.0)
+                    flyWheel.shootingRPM = shooterTarget.first
+                    hood.target = shooterTarget.second
                 }
             }
         })

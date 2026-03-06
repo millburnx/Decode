@@ -26,9 +26,9 @@ object Constants {
 
         .predictiveBrakingCoefficients(
             PredictiveBrakingCoefficients(
-                1.0,
-                1.0,
-                1.0
+                .2,
+                0.08759,
+                0.001914
             )
         )
 
