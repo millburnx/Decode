@@ -33,6 +33,10 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
 
     var state = FlyWheelState.IDLE
 
+    init {
+        override = false
+    }
+
     override val run: suspend Command.() -> Unit = {
         OpModeLoop(opMode) {
             with(opMode) {
@@ -90,7 +94,7 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
         var toRPM = 60 / 28.0
 
         @JvmField
-        var idleRPM = 2400.0
+        var idleRPM = 2500.0
 
         @JvmField
         var baseRPM = 2900.0

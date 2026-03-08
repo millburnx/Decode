@@ -94,6 +94,9 @@ class TeleOpDrive(opMode: OpMode, val isRed: Boolean, limelight: Limelight? = nu
         return diff * gateAssistPower
     }
 
+    val inZonePartial: Boolean
+        get() = ZoneAssist.inZonePartial(pose.position)
+
     val inZone: Boolean
         get() = ZoneAssist.inZone(pose.position)
 

@@ -33,7 +33,7 @@ open class BeaksAuton(var isRed: Boolean) : OpMode() {
         val turret = Turret(this, { drive.pose.heading }, { drive.velocity.heading }, { voltageSensor.voltage })
         val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose }, { Vec2d() }, isRed)
 
-        val autonManager = AutonManager(this, drive, "beaks", isMirrored = !isRed)
+        val autonManager = AutonManager(this, drive, "linearAuto", isMirrored = !isRed)
 
         val fire = Command {
             intake.power = -1.0

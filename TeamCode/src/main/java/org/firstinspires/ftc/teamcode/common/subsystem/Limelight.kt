@@ -60,6 +60,9 @@ class Limelight(
                     this@Limelight.pose = pose to System.nanoTime()
                     drawPose(pose)
                 }
+
+                val tags = result.fiducialResults.map { it.fiducialId }.joinToString(", ")
+                opMode.tel.addData("tag ids", tags)
             }
 
             opMode.tel.addData("ll state", localizationState)

@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.common.subsystem.*
 import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
+import kotlin.math.absoluteValue
 
 @TeleOp
 class TeleopRed : Teleop(true)
@@ -45,6 +46,7 @@ open class Teleop(val isRed: Boolean) : OpMode() {
         turret.target = 180.0
 
         var manualMode = false
+        var lastIntake = 0L
 
         val rapidFire = Command("Rapid Fire", {
             sorter.resetKickers()
@@ -53,7 +55,7 @@ open class Teleop(val isRed: Boolean) : OpMode() {
             turret.targetingMode = Turret.TargetingMode.GLOBAL
 
             WaitFor {
-                turret.atTarget && !turret.inDeadzone && turret.isSteady && drive.inZone
+                turret.atTarget && !turret.inDeadzone && turret.isSteady && drive.inZonePartial
             }
 
             val minRPM = { flyWheel.shootingRPM - FlyWheel.Controller.rpmThreshold }
@@ -104,7 +106,17 @@ open class Teleop(val isRed: Boolean) : OpMode() {
             OpModeLoop(this@Teleop) {
                 // manual
                 val intakePower = gp1.current.rightTrigger - gp1.current.leftTrigger
+
                 intake.power = intakePower
+
+                if (intakePower > intakeThreshold) lastIntake = System.currentTimeMillis()
+
+                if (intakePower.absoluteValue < intakeThreshold &&
+                    System.currentTimeMillis() < lastIntake + outtakeBurstDuration
+                ) {
+                    intake.power = outtakeBurstPower
+                    drive.useGateAssist = false
+                }
 
                 if (!gp1.prev.dPad.left && gp1.current.dPad.left) {
                     drive.pose = Pose2d(112.0, 137.0, -90.0).mirror(!isRed)
@@ -137,7 +149,8 @@ open class Teleop(val isRed: Boolean) : OpMode() {
                     println("disable manual")
                     manualMode = false
                     autoAdjust.enabled = true
-                    turret.targetingMode = if (liveTracking) Turret.TargetingMode.GLOBAL else Turret.TargetingMode.RELATIVE
+                    turret.targetingMode =
+                        if (liveTracking) Turret.TargetingMode.GLOBAL else Turret.TargetingMode.RELATIVE
                 }
 
                 // auto
@@ -180,5 +193,14 @@ open class Teleop(val isRed: Boolean) : OpMode() {
 
         @JvmField
         var liveTracking = true
+
+        @JvmField
+        var intakeThreshold = 0.2
+
+        @JvmField
+        var outtakeBurstDuration = 500L
+
+        @JvmField
+        var outtakeBurstPower = -1.0
     }
 }

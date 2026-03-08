@@ -5,6 +5,7 @@ import com.millburnx.util.Pose2d
 import com.pedropathing.ftc.FollowerBuilder
 import com.pedropathing.geometry.Pose
 import com.pedropathing.localization.Localizer
+import com.pedropathing.math.Vector
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
@@ -14,11 +15,12 @@ import org.firstinspires.ftc.teamcode.common.hardware.fromPedro
 import org.firstinspires.ftc.teamcode.common.hardware.toFTC
 import org.firstinspires.ftc.teamcode.common.hardware.toPedro
 import org.firstinspires.ftc.teamcode.common.subsystem.Limelight
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.max
 import kotlin.math.min
-
 
 class FusionLocalizer(hardwareMap: HardwareMap, val deltaTime: () -> Double, val limelight: Limelight? = null) :
     Localizer {
@@ -54,9 +56,11 @@ class FusionLocalizer(hardwareMap: HardwareMap, val deltaTime: () -> Double, val
     val kfX = DriftKalmanFilter()
     val kfY = DriftKalmanFilter()
 
-    override fun getPose() = (_pose - _drift).toPedro() ?: Pose()
-    override fun getVelocity() = _velocity.toPedro()
-    override fun getVelocityVector() = _velocity.toPedro().asVector!!
+    private val lock = ReentrantLock()
+
+    override fun getPose() = lock.withLock { (_pose - _drift).toPedro() } ?: Pose()
+    override fun getVelocity() = lock.withLock { _velocity.toPedro() } ?: Pose()
+    override fun getVelocityVector() = lock.withLock { _velocity.toPedro().asVector ?: Vector() } ?: Vector()
 
     override fun setStartPose(p0: Pose) = setPose(p0) // low-key cannot be bothered to compensate, just don't update?
 
@@ -72,31 +76,33 @@ class FusionLocalizer(hardwareMap: HardwareMap, val deltaTime: () -> Double, val
     override fun setPose(p0: Pose) = setPose(Pose2d.fromPedro(p0))
 
     override fun update() {
-        pinpoint.update()
-        val ppPose = pinpoint.position
-        if (ppPose != null) {
-            _pose = Pose2d.fromFTC(ppPose)
-        }
-
-        kfX.predict(deltaTime())
-        kfY.predict(deltaTime())
-
-        if (limelight != null) {
-            val llPose = limelight.pose
-            if (llPose != null && llPose.second != _lastLLTimestamp) {
-                _lastLLTimestamp = llPose.second
-                kfX.update(_pose.x, llPose.first.x)
-                kfY.update(_pose.y, llPose.first.y)
+        lock.withLock {
+            pinpoint.update()
+            val ppPose = pinpoint.position
+            if (ppPose != null) {
+                _pose = Pose2d.fromFTC(ppPose)
             }
+
+            kfX.predict(deltaTime())
+            kfY.predict(deltaTime())
+
+            if (limelight != null) {
+                val llPose = limelight.pose
+                if (llPose != null && llPose.second != _lastLLTimestamp) {
+                    _lastLLTimestamp = llPose.second
+                    kfX.update(_pose.x, llPose.first.x)
+                    kfY.update(_pose.y, llPose.first.y)
+                }
+            }
+
+            _drift = Pose2d(kfX.drift, kfY.drift, 0.0)
+
+            _velocity = Pose2d(
+                pinpoint.getVelX(DistanceUnit.INCH),
+                pinpoint.getVelY(DistanceUnit.INCH),
+                pinpoint.getHeadingVelocity(UnnormalizedAngleUnit.DEGREES)
+            )
         }
-
-        _drift = Pose2d(kfX.drift, kfY.drift, 0.0)
-
-        _velocity = Pose2d(
-            pinpoint.getVelX(DistanceUnit.INCH),
-            pinpoint.getVelY(DistanceUnit.INCH),
-            pinpoint.getHeadingVelocity(UnnormalizedAngleUnit.DEGREES)
-        )
     }
 
     override fun getTotalHeading() = pinpoint.getHeading(UnnormalizedAngleUnit.RADIANS)

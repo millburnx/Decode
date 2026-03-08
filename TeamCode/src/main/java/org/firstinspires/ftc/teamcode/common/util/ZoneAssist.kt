@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.common.util
 import com.arcrobotics.ftclib.kotlin.extensions.util.clamp
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.util.Pose2d
+import com.millburnx.util.toDegrees
 import com.millburnx.util.vector.Vec2d
 import org.firstinspires.ftc.teamcode.common.util.geometry.Polygon
 import kotlin.math.abs
@@ -11,6 +12,9 @@ import kotlin.math.abs
 object ZoneAssist {
     @JvmField
     var wallClearance = 18.0 / 2.0 // how much to shrink the zones near walls to account for the size of the bot
+
+    @JvmField
+    var botRadius = 5.0
 
     val closeZone
         get() = Polygon.autoConvex(
@@ -21,11 +25,36 @@ object ZoneAssist {
             Vec2d(72, 72),
         )
 
+    val closeZoneFull
+        get() = Polygon.autoConvex(
+            Vec2d(0, 144) + Vec2d(botRadius, 0).rotate((90.0).toDegrees()),
+            Vec2d(0, 144) + Vec2d(botRadius, 0).rotate((-180.0).toDegrees()),
+            Vec2d(0, 144) + Vec2d(botRadius, 0).rotate((-135.0).toDegrees()),
+            Vec2d(72, 72) + Vec2d(botRadius, 0).rotate((-135.0).toDegrees()),
+            Vec2d(72, 72) + Vec2d(botRadius, 0).rotate((-90.0).toDegrees()),
+            Vec2d(72, 72) + Vec2d(botRadius, 0).rotate((-45.0).toDegrees()),
+            Vec2d(144, 144) + Vec2d(botRadius, 0).rotate((-45.0).toDegrees()),
+            Vec2d(144, 144) + Vec2d(botRadius, 0).rotate((0.0).toDegrees()),
+            Vec2d(144, 144) + Vec2d(botRadius, 0).rotate((90.0).toDegrees()),
+        )
+
     val farZone
         get() = Polygon.autoConvex(
             Vec2d(48, 0) + Vec2d(wallClearance, wallClearance),
             Vec2d(96, 0) + Vec2d(-wallClearance, wallClearance),
             Vec2d(72, 24),
+        )
+
+    val farZoneFull
+        get() = Polygon.autoConvex(
+            Vec2d(48, 0) + Vec2d(botRadius, 0).rotate((-90.0).toDegrees()),
+            Vec2d(96, 0) + Vec2d(botRadius, 0).rotate((-90.0).toDegrees()),
+            Vec2d(96, 0) + Vec2d(botRadius, 0).rotate((0.0).toDegrees()),
+            Vec2d(96, 0) + Vec2d(botRadius, 0).rotate((45.0).toDegrees()),
+            Vec2d(72, 24) + Vec2d(botRadius, 0).rotate((45.0).toDegrees()),
+            Vec2d(72, 24) + Vec2d(botRadius, 0).rotate((90.0).toDegrees()),
+            Vec2d(72, 24) + Vec2d(botRadius, 0).rotate((135.0).toDegrees()),
+            Vec2d(48, 0) + Vec2d(botRadius, 0).rotate((180.0).toDegrees()),
         )
 
     @JvmField
@@ -39,6 +68,8 @@ object ZoneAssist {
 
     @JvmField
     var epilsonGain = 1.0
+
+    fun inZonePartial(pos: Vec2d): Boolean = closeZoneFull.contains(pos) || farZoneFull.contains(pos)
 
     fun inZone(pos: Vec2d): Boolean = closeZone.contains(pos) || farZone.contains(pos)
 

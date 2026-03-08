@@ -25,3 +25,8 @@ dependencies {
     implementation 'com.acmerobotics.dashboard:dashboard:0.5.1'
 }
 
+configurations.configureEach {
+    resolutionStrategy {
+        cacheChangingModulesFor(365, "days")
+    }
+}

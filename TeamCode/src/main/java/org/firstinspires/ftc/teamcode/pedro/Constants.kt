@@ -26,17 +26,17 @@ object Constants {
 
         .predictiveBrakingCoefficients(
             PredictiveBrakingCoefficients(
-                .2,
+                .1,
                 0.08759,
                 0.001914
             )
         )
 
-        .holdPointHeadingScaling(1.0)
-        .holdPointTranslationalScaling(1.0)
+        .holdPointTranslationalScaling(.75)
+        .holdPointHeadingScaling(.4)
 
         .translationalPIDFCoefficients(PIDFCoefficients(0.2, 0.0, 0.02, 0.04))
-        .headingPIDFCoefficients(PIDFCoefficients(3.0, 0.0, 0.1, 0.04))
+        .headingPIDFCoefficients(PIDFCoefficients(2.0, 0.0, 0.1, 0.04))
         .drivePIDFCoefficients(FilteredPIDFCoefficients(0.04, 0.0, 0.0, 0.6, 0.05))
 
         .useSecondaryTranslationalPIDF(true)
@@ -44,7 +44,7 @@ object Constants {
         .useSecondaryDrivePIDF(false)
 
         .secondaryTranslationalPIDFCoefficients(PIDFCoefficients(0.35, 0.0, 0.03, 0.03))
-        .secondaryHeadingPIDFCoefficients(PIDFCoefficients(4.0, 0.0, 0.2, 0.04))
+        .secondaryHeadingPIDFCoefficients(PIDFCoefficients(3.0, 0.0, 0.2, 0.04))
         .secondaryDrivePIDFCoefficients(FilteredPIDFCoefficients(0.05, 0.0, 0.0, 0.6, 0.3))
 
     fun MecanumConstants.setMotors() = apply {
