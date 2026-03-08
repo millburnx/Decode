@@ -29,7 +29,7 @@
     {
       "id": "mm6bfbee-ggi4vi",
       "endPoint": {
-        "x": 130
+        "x": 130,
         "y": 9,
         "heading": "linear",
         "reverse": false,
