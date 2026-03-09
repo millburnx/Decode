@@ -54,8 +54,11 @@ open class Teleop(val isRed: Boolean) : OpMode() {
             flyWheel.state = FlyWheel.FlyWheelState.SHOOTING
             turret.targetingMode = Turret.TargetingMode.GLOBAL
 
+            val turretReady = { turret.atTarget && !turret.inDeadzone && turret.isSteady }
+            val zoneCheck = { if (useZoneCheck) drive.inZonePartial else false }
+
             WaitFor {
-                turret.atTarget && !turret.inDeadzone && turret.isSteady && drive.inZonePartial
+                turretReady() && zoneCheck()
             }
 
             val minRPM = { flyWheel.shootingRPM - FlyWheel.Controller.rpmThreshold }
@@ -67,7 +70,7 @@ open class Teleop(val isRed: Boolean) : OpMode() {
 
             sorter.frontPod.kick(this, upDuration, downDuration)
             sorter.sidePod.kick(this, upDuration, downDuration)
-            sorter.backPod.kick(this, upAxonDuration, downAxonDuration)
+            sorter.backPod.kick(this, upDuration, downDuration)
 
             flyWheel.state = FlyWheel.FlyWheelState.IDLE
             if (!liveTracking) turret.targetingMode = Turret.TargetingMode.RELATIVE
@@ -186,12 +189,6 @@ open class Teleop(val isRed: Boolean) : OpMode() {
         var downDuration = 50L
 
         @JvmField
-        var upAxonDuration = 400L
-
-        @JvmField
-        var downAxonDuration = 50L
-
-        @JvmField
         var liveTracking = true
 
         @JvmField
@@ -202,5 +199,8 @@ open class Teleop(val isRed: Boolean) : OpMode() {
 
         @JvmField
         var outtakeBurstPower = -1.0
+
+        @JvmField
+        var useZoneCheck = true
     }
 }

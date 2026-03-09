@@ -12,8 +12,6 @@ import org.firstinspires.ftc.teamcode.common.GlobalStore
 import org.firstinspires.ftc.teamcode.common.subsystem.*
 import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
 import org.firstinspires.ftc.teamcode.opmode.OpMode
-import org.firstinspires.ftc.teamcode.opmode.teleop.Teleop.Companion.downAxonDuration
-import org.firstinspires.ftc.teamcode.opmode.teleop.Teleop.Companion.upAxonDuration
 
 
 @Autonomous
@@ -59,9 +57,9 @@ open class BeaksAuton(var isRed: Boolean) : OpMode() {
 
 //            WaitFor { atRPM() }
             sorter.backPod.isUp = true
-            SleepFor { upAxonDuration }
+            SleepFor { upDuration }
             sorter.backPod.isUp = false
-            SleepFor { downAxonDuration }
+            SleepFor { downDuration }
 
             intake.power = 1.0
         }

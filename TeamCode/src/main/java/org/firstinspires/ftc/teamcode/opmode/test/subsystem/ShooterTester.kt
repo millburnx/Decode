@@ -14,9 +14,7 @@ import org.firstinspires.ftc.teamcode.common.subsystem.TeleOpDrive
 import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
-import org.firstinspires.ftc.teamcode.opmode.teleop.Teleop.Companion.downAxonDuration
 import org.firstinspires.ftc.teamcode.opmode.teleop.Teleop.Companion.downDuration
-import org.firstinspires.ftc.teamcode.opmode.teleop.Teleop.Companion.upAxonDuration
 import org.firstinspires.ftc.teamcode.opmode.teleop.Teleop.Companion.upDuration
 
 @Configurable
@@ -61,9 +59,9 @@ class ShooterTester : OpMode() {
                             SleepFor { downDuration }
 
                             sorter.backPod.isUp = true
-                            SleepFor { upAxonDuration }
+                            SleepFor { upDuration }
                             sorter.backPod.isUp = false
-                            SleepFor { downAxonDuration }
+                            SleepFor { downDuration }
                         })
                     }
 

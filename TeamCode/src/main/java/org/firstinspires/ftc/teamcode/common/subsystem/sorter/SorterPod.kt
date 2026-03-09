@@ -113,7 +113,7 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
 
         @JvmField
         var backConfig = Config(
-            "s3", false, .39, .8, "c1e", "c0", 10.0, ColorRange(
+            "s3", true, .36, .76, "c1e", "c0", 10.0, ColorRange(
                 154.0..159.0, 30.0..33.0, 15.0..19.0
             ), ColorRange(
                 133.5..137.0, 40.0..42.0, 32.0..35.0
