@@ -55,7 +55,7 @@ open class Teleop(val isRed: Boolean) : OpMode() {
             turret.targetingMode = Turret.TargetingMode.GLOBAL
 
             val turretReady = { turret.atTarget && !turret.inDeadzone && turret.isSteady }
-            val zoneCheck = { if (useZoneCheck) drive.inZonePartial else false }
+            val zoneCheck = { if (useZoneCheck) drive.inZonePartial else true }
 
             WaitFor {
                 turretReady() && zoneCheck()
@@ -110,14 +110,14 @@ open class Teleop(val isRed: Boolean) : OpMode() {
                 // manual
                 val intakePower = gp1.current.rightTrigger - gp1.current.leftTrigger
 
-                intake.power = intakePower
+                intake.targetPower = intakePower
 
                 if (intakePower > intakeThreshold) lastIntake = System.currentTimeMillis()
 
                 if (intakePower.absoluteValue < intakeThreshold &&
                     System.currentTimeMillis() < lastIntake + outtakeBurstDuration
                 ) {
-                    intake.power = outtakeBurstPower
+                    intake.targetPower = outtakeBurstPower
                     drive.useGateAssist = false
                 }
 
@@ -183,7 +183,7 @@ open class Teleop(val isRed: Boolean) : OpMode() {
 
     companion object {
         @JvmField
-        var upDuration = 150L
+        var upDuration = 125L
 
         @JvmField
         var downDuration = 50L
@@ -195,7 +195,7 @@ open class Teleop(val isRed: Boolean) : OpMode() {
         var intakeThreshold = 0.2
 
         @JvmField
-        var outtakeBurstDuration = 500L
+        var outtakeBurstDuration = 750L
 
         @JvmField
         var outtakeBurstPower = -1.0
