@@ -32,8 +32,8 @@ class CentripetalTest : OpMode() {
                 drive.follower, NthBezier(
                     listOf(
                         Vec2d(0.0, 0.0),
-                        Vec2d(distance, distance),
                         Vec2d(distance, 0.0),
+                        Vec2d(distance, distance),
                     )
                 ),
                 TangentialHeading(false),
@@ -44,8 +44,8 @@ class CentripetalTest : OpMode() {
             autonManager.builder.PathCommand(
                 drive.follower, NthBezier(
                     listOf(
-                        Vec2d(distance, 0.0),
                         Vec2d(distance, distance),
+                        Vec2d(distance, 0.0),
                         Vec2d(0.0, 0.0),
                     )
                 ),
