@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmode.test.pedro
 
+import com.bylazar.configurables.PanelsConfigurables
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import com.millburnx.cmdx.commandGroups.Sequential
@@ -10,11 +11,14 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.subsystem.TeleOpDrive
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 import org.firstinspires.ftc.teamcode.opmode.auton.BaseAutonManager
+import org.firstinspires.ftc.teamcode.pedro.Tuning
 
 @Configurable
 @TeleOp
 class LineTest : OpMode() {
     override fun run() {
+        PanelsConfigurables.refreshClass(Tuning::class.java)
+
         val drive = TeleOpDrive(this, true)
 
         val autonManager = BaseAutonManager(this, drive, false)
