@@ -12,11 +12,11 @@ import com.pedropathing.paths.PathBuilder
 import org.firstinspires.ftc.teamcode.common.subsystem.Drive
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
-// TODO: create the pedro subsystem and pass it so we can automatically the starting pose
-//  (find a way to do it cleanly since this is created after it)
-//  i think we let auton manager create pedro, drive can have pedro passed in. if not it'll create itself
-class AutonManager(val opMode: OpMode, val drive: Drive, val sequenceName: String, val isMirrored: Boolean = false) {
+open class BaseAutonManager(val opMode: OpMode, val drive: Drive, val isMirrored: Boolean = false) {
     val builder: PedroBuilder = PedroBuilder(isMirrored)
+}
+
+class AutonManager(opMode: OpMode, drive: Drive, val sequenceName: String, isMirrored: Boolean = false): BaseAutonManager(opMode, drive, isMirrored) {
     val loadedSequence: Sequence = PedroLoader.load("Paths/$sequenceName.pp")
     val loadedPath: List<Pair<com.millburnx.cmdxpedro.paths.path.Path, HeadingInterpolation>>
         get() = PedroLoader.sequenceToPath(loadedSequence)
