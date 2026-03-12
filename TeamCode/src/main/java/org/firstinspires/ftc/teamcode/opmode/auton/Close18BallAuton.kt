@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmode.auton
 
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
+import com.millburnx.cmdx.commandGroups.Parallel
 import com.millburnx.cmdx.commandGroups.Sequential
 import com.millburnx.cmdxpedro.util.SleepFor
 import com.millburnx.cmdxpedro.util.WaitFor
@@ -46,7 +47,7 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
             Command {
                 drive.follower.breakFollowing()
                 drive.follower.startTeleopDrive(true)
-                drive.follower.setTeleOpDrive(gatePower, 0.0, 0.0, false)
+                drive.follower.setTeleOpDrive(gatePower, 0.0, gateCounterRotate, false)
 
                 SleepFor { gateDuration }
 
@@ -59,8 +60,10 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
         val gateCycle = Sequential {
             +autonManager.runPath(4)
             +gateIntake
-            +autonManager.runPath(6) {
-                it.addParametricCallback(rampOutakeT) {
+            +Parallel {
+                +autonManager.runPath(6)
+                Command {
+                    WaitFor { drive.follower.currentTValue >= rampOutakeT }
                     intake.power = -1.0
                 }
             }
@@ -103,7 +106,6 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
             +fire
             +autonManager.runPath(10) // row 1
             +autonManager.runPath(11)
-            +autonManager.runPath(12)
             +fire
             +endAuton
         })
@@ -111,23 +113,24 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
 
     companion object {
         @JvmField
-        var upDuration = 150L
+        var upDuration = 200L
 
         @JvmField
         var downDuration = 50L
 
         @JvmField
-        var stablizationTime = 200L
-
-        @JvmField
         var gatePower = 0.6
 
         @JvmField
+        var gateCounterRotate = -0.125
+
+        @JvmField
         var gateDuration = 500L
+
         @JvmField
         var rampDuration = 1500L
 
         @JvmField
-        var rampOutakeT = 0.25
+        var rampOutakeT = 0.125
     }
 }

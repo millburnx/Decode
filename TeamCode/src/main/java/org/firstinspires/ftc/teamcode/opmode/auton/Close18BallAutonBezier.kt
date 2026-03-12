@@ -46,7 +46,7 @@ open class Close18BallAutonBezier(var isRed: Boolean) : OpMode() {
             Command {
                 drive.follower.breakFollowing()
                 drive.follower.startTeleopDrive(true)
-                drive.follower.setTeleOpDrive(gatePower, 0.0, gateCounterRotate, false)
+                drive.follower.setTeleOpDrive(gatePower, 0.0, 0.0, false)
 
                 SleepFor { gateDuration }
 
@@ -115,9 +115,6 @@ open class Close18BallAutonBezier(var isRed: Boolean) : OpMode() {
 
         @JvmField
         var gatePower = 0.6
-
-        @JvmField
-        var gateCounterRotate = 0.1
 
         @JvmField
         var gateDuration = 500L
