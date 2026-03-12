@@ -78,7 +78,7 @@ class CentripetalTest : OpMode() {
 
     companion object {
         @JvmField
-        var distance = 48.0
+        var distance = 24.0
 
         @JvmField
         var isRunning = false
