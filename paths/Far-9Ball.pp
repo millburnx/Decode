@@ -1,25 +1,25 @@
 {
   "startPoint": {
-    "x": 112,
-    "y": 137,
+    "x": 89,
+    "y": 8.4,
     "heading": "linear",
-    "startDeg": -90,
+    "startDeg": 0,
     "endDeg": 180,
     "locked": false
   },
   "lines": [
     {
-      "id": "line-3f3eu3wu70t",
-      "name": "Path 1",
+      "id": "line-649s4snu9z",
+      "name": "Fire Preload",
       "endPoint": {
-        "x": 88,
-        "y": 88,
+        "x": 89,
+        "y": 15.6,
         "heading": "linear",
-        "startDeg": -90,
+        "startDeg": 0,
         "endDeg": 0
       },
       "controlPoints": [],
-      "color": "#A65BAA",
+      "color": "#88C75C",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -27,162 +27,108 @@
       "waitAfterName": ""
     },
     {
-      "id": "mm5iwhc5-v8mao8",
-      "name": "Path 2",
+      "id": "mml6izlv-ckhw6l",
       "endPoint": {
-        "x": 126,
-        "y": 84,
+        "x": 133,
+        "y": 10,
         "heading": "linear",
         "reverse": false,
         "startDeg": 0,
         "endDeg": 0
       },
       "controlPoints": [],
-      "color": "#BDD898",
+      "color": "#CBBD9C",
+      "name": "Intake HP",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": ""
     },
     {
-      "id": "mm5iwltm-266xbv",
-      "name": "Path 3",
+      "id": "mml513g2-0knh5s",
+      "name": "Shoot HP",
       "endPoint": {
-        "x": 88,
-        "y": 88,
+        "x": 89,
+        "y": 15.6,
         "heading": "linear",
         "reverse": false,
         "startDeg": 0,
         "endDeg": 0
       },
       "controlPoints": [],
-      "color": "#8A7779",
+      "color": "#D76D8C",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": ""
     },
     {
-      "id": "mm5iws0z-oqtlxa",
-      "name": "Path 4",
+      "id": "mml51svy-1u0kmo",
+      "name": "Move To 3rd Row",
       "endPoint": {
-        "x": 127,
-        "y": 60,
-        "heading": "linear",
-        "reverse": false,
-        "startDeg": 0,
-        "endDeg": 0
-      },
-      "controlPoints": [
-        {
-          "x": 88,
-          "y": 60
-        },
-        {
-          "x": 96,
-          "y": 60
-        }
-      ],
-      "color": "#AD7797",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": ""
-    },
-    {
-      "id": "mm5iwus9-y138s7",
-      "name": "Path 5",
-      "endPoint": {
-        "x": 88,
-        "y": 88,
-        "heading": "linear",
-        "reverse": true,
-        "startDeg": 0,
-        "endDeg": 0
-      },
-      "controlPoints": [
-        {
-          "x": 96,
-          "y": 60
-        },
-        {
-          "x": 88,
-          "y": 60
-        }
-      ],
-      "color": "#ABB8DC",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": ""
-    },
-    {
-      "id": "mm69y8co-lu9h45",
-      "name": "Path 6",
-      "endPoint": {
-        "x": 126,
+        "x": 102,
         "y": 36,
         "heading": "linear",
         "reverse": false,
         "startDeg": 0,
         "endDeg": 0
       },
-      "controlPoints": [
-        {
-          "x": 88,
-          "y": 36
-        },
-        {
-          "x": 96,
-          "y": 36
-        }
-      ],
-      "color": "#B7B9BD",
+      "controlPoints": [],
+      "color": "#AA9B7B",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": ""
     },
     {
-      "id": "mm6drbzx-isr87i",
-      "name": "Path 7",
+      "id": "mml52ku5-ak9me0",
+      "name": "Intake 3rd Row",
       "endPoint": {
-        "x": 88,
-        "y": 88,
-        "heading": "linear",
-        "reverse": false,
-        "startDeg": 0,
-        "endDeg": 0
-      },
-      "controlPoints": [
-        {
-          "x": 96,
-          "y": 36
-        },
-        {
-          "x": 88,
-          "y": 36
-        }
-      ],
-      "color": "#758A59",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": ""
-    },
-    {
-      "id": "mm6ds5v7-af3ugi",
-      "name": "Path 8",
-      "endPoint": {
-        "x": 96,
-        "y": 72,
+        "x": 128,
+        "y": 36,
         "heading": "linear",
         "reverse": false,
         "startDeg": 0,
         "endDeg": 0
       },
       "controlPoints": [],
-      "color": "#86C88C",
+      "color": "#69CD6A",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "id": "mml53zvr-nr6n3e",
+      "name": "Shoot 3rd Row",
+      "endPoint": {
+        "x": 89,
+        "y": 15.6,
+        "heading": "linear",
+        "reverse": false,
+        "startDeg": 0,
+        "endDeg": 0
+      },
+      "controlPoints": [],
+      "color": "#B7A7CB",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "id": "mml5e167-kfs4i9",
+      "name": "Park",
+      "endPoint": {
+        "x": 108,
+        "y": 15.6,
+        "heading": "linear",
+        "reverse": false,
+        "startDeg": 0,
+        "endDeg": 0
+      },
+      "controlPoints": [],
+      "color": "#7CCD99",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -250,35 +196,31 @@
   "sequence": [
     {
       "kind": "path",
-      "lineId": "line-3f3eu3wu70t"
+      "lineId": "line-649s4snu9z"
     },
     {
       "kind": "path",
-      "lineId": "mm5iwhc5-v8mao8"
+      "lineId": "mml6izlv-ckhw6l"
     },
     {
       "kind": "path",
-      "lineId": "mm5iwltm-266xbv"
+      "lineId": "mml513g2-0knh5s"
     },
     {
       "kind": "path",
-      "lineId": "mm5iws0z-oqtlxa"
+      "lineId": "mml51svy-1u0kmo"
     },
     {
       "kind": "path",
-      "lineId": "mm5iwus9-y138s7"
+      "lineId": "mml52ku5-ak9me0"
     },
     {
       "kind": "path",
-      "lineId": "mm69y8co-lu9h45"
+      "lineId": "mml53zvr-nr6n3e"
     },
     {
       "kind": "path",
-      "lineId": "mm6drbzx-isr87i"
-    },
-    {
-      "kind": "path",
-      "lineId": "mm6ds5v7-af3ugi"
+      "lineId": "mml5e167-kfs4i9"
     }
   ],
   "settings": {
@@ -299,8 +241,13 @@
     "showOnionLayers": false,
     "onionLayerSpacing": 3,
     "onionColor": "#dc2626",
-    "onionNextPointOnly": false
+    "onionNextPointOnly": false,
+    "showHeadingArrow": false,
+    "headingArrowLength": 50,
+    "headingArrowColor": "#ffffff",
+    "headingArrowThickness": 2,
+    "pathOpacity": 1
   },
   "version": "1.2.1",
-  "timestamp": "2026-02-28T13:54:20.732Z"
+  "timestamp": "2026-03-10T22:27:00.618Z"
 }

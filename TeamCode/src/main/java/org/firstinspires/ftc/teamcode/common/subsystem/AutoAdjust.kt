@@ -34,7 +34,7 @@ class AutoAdjust(
 
                 val rawDistance = getPose().distanceTo(goal)
                 val distance = if (useSOTM) SOTMResults.first else rawDistance
-                tel.addData("distance!", distance)
+                if (useTelemetry) tel.addData("distance!", distance)
                 turretAngle = if (useSOTM) SOTMResults.second else getPose().position.angleTo(goal).toDegrees()
 
                 val target = getTarget(distance)
@@ -42,9 +42,12 @@ class AutoAdjust(
 
                 flyWheel.shootingRPM = target.first
                 hood.target = target.second
-                tel.addData("aa | target rpm", target.first)
-                tel.addData("aa | target angle", target.second)
-                tel.addData("aa | dist", rawDistance)
+
+                if (useTelemetry) {
+                    tel.addData("aa | target rpm", target.first)
+                    tel.addData("aa | target angle", target.second)
+                    tel.addData("aa | dist", rawDistance)
+                }
             }
         }
     }
@@ -59,5 +62,8 @@ class AutoAdjust(
 
         @JvmField
         var useSOTM = true
+
+        @JvmField
+        var useTelemetry = false
     }
 }

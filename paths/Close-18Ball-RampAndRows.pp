@@ -9,28 +9,191 @@
   },
   "lines": [
     {
-      "id": "line-3f3eu3wu70t",
-      "name": "Path 1",
+      "id": "mmhirzrb-mkrwxs",
+      "name": "Shoot Preload",
       "endPoint": {
         "x": 90,
-        "y": 90,
+        "y": 78,
         "heading": "linear",
+        "reverse": false,
+        "degrees": 0,
         "startDeg": -90,
         "endDeg": 0
       },
       "controlPoints": [],
-      "color": "#A65BAA",
-      "locked": false,
+      "color": "#AB8CB5",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": ""
     },
     {
-      "id": "mm5iwhc5-v8mao8",
-      "name": "Path 2",
+      "id": "mmhiu8iz-c79p9u",
+      "name": "Move To 2nd Row",
       "endPoint": {
-        "x": 126,
+        "x": 102,
+        "y": 60,
+        "heading": "linear",
+        "reverse": false,
+        "startDeg": 0,
+        "endDeg": 0
+      },
+      "controlPoints": [],
+      "color": "#DA8C9D",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "id": "mmhivdbc-r1l4s3",
+      "name": "Intake 2nd Row",
+      "endPoint": {
+        "x": 124,
+        "y": 60,
+        "heading": "linear",
+        "reverse": false,
+        "startDeg": 0,
+        "endDeg": 0
+      },
+      "controlPoints": [],
+      "color": "#58D6DC",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "id": "mmkwmu2c-7guqnx",
+      "name": "Shoot 2nd Row",
+      "endPoint": {
+        "x": 90,
+        "y": 80,
+        "heading": "linear",
+        "reverse": false,
+        "startDeg": 0,
+        "endDeg": 40
+      },
+      "controlPoints": [],
+      "color": "#BC57CA",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "id": "mmkwnrfb-5n5gun",
+      "name": "Move To Ramp",
+      "endPoint": {
+        "x": 128,
+        "y": 60,
+        "heading": "linear",
+        "reverse": false,
+        "startDeg": 40,
+        "endDeg": 40
+      },
+      "controlPoints": [],
+      "color": "#6B87DD",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "id": "mmkwo9ik-zbs26a",
+      "name": "Open Ramp",
+      "endPoint": {
+        "x": 132,
+        "y": 60,
+        "heading": "linear",
+        "reverse": false,
+        "startDeg": 40,
+        "endDeg": 40
+      },
+      "controlPoints": [],
+      "color": "#C985B5",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "id": "mmkwrba9-0ayodn",
+      "name": "Shoot Ramp",
+      "endPoint": {
+        "x": 90,
+        "y": 80,
+        "heading": "linear",
+        "reverse": false,
+        "startDeg": 40,
+        "endDeg": 40
+      },
+      "controlPoints": [],
+      "color": "#7959AC",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "id": "mmmoua1w-nl1f25",
+      "name": "Move to Row 3",
+      "endPoint": {
+        "x": 102,
+        "y": 36,
+        "heading": "linear",
+        "reverse": false,
+        "startDeg": 40,
+        "endDeg": 0
+      },
+      "controlPoints": [],
+      "color": "#6CC6B6",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "id": "mmmov0ic-lcqcbz",
+      "name": "Intake Row 3",
+      "endPoint": {
+        "x": 132,
+        "y": 36,
+        "heading": "linear",
+        "reverse": false,
+        "startDeg": 0,
+        "endDeg": 0
+      },
+      "controlPoints": [],
+      "color": "#685D65",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "id": "mmmovcrr-euiwzn",
+      "name": "Shoot Row 3",
+      "endPoint": {
+        "x": 90,
+        "y": 78,
+        "heading": "linear",
+        "reverse": false,
+        "startDeg": 0,
+        "endDeg": 0
+      },
+      "controlPoints": [],
+      "color": "#C76A68",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "id": "mmmoxhlv-3tuz5z",
+      "name": "Move To Row 1",
+      "endPoint": {
+        "x": 102,
         "y": 84,
         "heading": "linear",
         "reverse": false,
@@ -38,169 +201,41 @@
         "endDeg": 0
       },
       "controlPoints": [],
-      "color": "#BDD898",
+      "color": "#B95876",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": ""
     },
     {
-      "id": "mm6q69g6-p2c3am",
+      "id": "mmmp2htg-3fm37x",
       "endPoint": {
         "x": 126,
-        "y": 76,
+        "y": 84,
+        "heading": "tangential",
+        "reverse": false
+      },
+      "controlPoints": [],
+      "color": "#85796D",
+      "name": "Intake Row1",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "id": "mmmoxwdx-h22s1e",
+      "name": "Shoot Row 1",
+      "endPoint": {
+        "x": 84,
+        "y": 104,
         "heading": "linear",
         "reverse": false,
         "startDeg": 0,
         "endDeg": 0
       },
       "controlPoints": [],
-      "color": "#CBAC85",
-      "name": "Path 3",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": ""
-    },
-    {
-      "id": "mm5iwltm-266xbv",
-      "name": "Path 4",
-      "endPoint": {
-        "x": 90,
-        "y": 90,
-        "heading": "linear",
-        "reverse": false,
-        "startDeg": 0,
-        "endDeg": 0
-      },
-      "controlPoints": [],
-      "color": "#8A7779",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": ""
-    },
-    {
-      "id": "mm5iws0z-oqtlxa",
-      "name": "Path 5",
-      "endPoint": {
-        "x": 127,
-        "y": 58,
-        "heading": "linear",
-        "reverse": false,
-        "startDeg": 0,
-        "endDeg": 0
-      },
-      "controlPoints": [
-        {
-          "x": 90,
-          "y": 58
-        },
-        {
-          "x": 96,
-          "y": 58
-        }
-      ],
-      "color": "#AD7797",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": ""
-    },
-    {
-      "id": "mm5iwus9-y138s7",
-      "name": "Path 6",
-      "endPoint": {
-        "x": 90,
-        "y": 90,
-        "heading": "linear",
-        "reverse": true,
-        "startDeg": 0,
-        "endDeg": 0
-      },
-      "controlPoints": [
-        {
-          "x": 96,
-          "y": 58
-        },
-        {
-          "x": 90,
-          "y": 58
-        }
-      ],
-      "color": "#ABB8DC",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": ""
-    },
-    {
-      "id": "mm69y8co-lu9h45",
-      "name": "Path 7",
-      "endPoint": {
-        "x": 126,
-        "y": 36,
-        "heading": "linear",
-        "reverse": false,
-        "startDeg": 0,
-        "endDeg": 0
-      },
-      "controlPoints": [
-        {
-          "x": 88,
-          "y": 36
-        },
-        {
-          "x": 96,
-          "y": 36
-        }
-      ],
-      "color": "#B7B9BD",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": ""
-    },
-    {
-      "id": "mm6drbzx-isr87i",
-      "name": "Path 8",
-      "endPoint": {
-        "x": 90,
-        "y": 90,
-        "heading": "linear",
-        "reverse": false,
-        "startDeg": 0,
-        "endDeg": 0
-      },
-      "controlPoints": [
-        {
-          "x": 96,
-          "y": 36
-        },
-        {
-          "x": 90,
-          "y": 36
-        }
-      ],
-      "color": "#758A59",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": ""
-    },
-    {
-      "id": "mm6ds5v7-af3ugi",
-      "name": "Path 9",
-      "endPoint": {
-        "x": 96,
-        "y": 72,
-        "heading": "linear",
-        "reverse": false,
-        "startDeg": 0,
-        "endDeg": 0
-      },
-      "controlPoints": [],
-      "color": "#86C88C",
+      "color": "#CA887D",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -268,39 +303,55 @@
   "sequence": [
     {
       "kind": "path",
-      "lineId": "line-3f3eu3wu70t"
+      "lineId": "mmhirzrb-mkrwxs"
     },
     {
       "kind": "path",
-      "lineId": "mm5iwhc5-v8mao8"
+      "lineId": "mmhiu8iz-c79p9u"
     },
     {
       "kind": "path",
-      "lineId": "mm6q69g6-p2c3am"
+      "lineId": "mmhivdbc-r1l4s3"
     },
     {
       "kind": "path",
-      "lineId": "mm5iwltm-266xbv"
+      "lineId": "mmkwmu2c-7guqnx"
     },
     {
       "kind": "path",
-      "lineId": "mm5iws0z-oqtlxa"
+      "lineId": "mmkwnrfb-5n5gun"
     },
     {
       "kind": "path",
-      "lineId": "mm5iwus9-y138s7"
+      "lineId": "mmkwo9ik-zbs26a"
     },
     {
       "kind": "path",
-      "lineId": "mm69y8co-lu9h45"
+      "lineId": "mmkwrba9-0ayodn"
     },
     {
       "kind": "path",
-      "lineId": "mm6drbzx-isr87i"
+      "lineId": "mmmoua1w-nl1f25"
     },
     {
       "kind": "path",
-      "lineId": "mm6ds5v7-af3ugi"
+      "lineId": "mmmov0ic-lcqcbz"
+    },
+    {
+      "kind": "path",
+      "lineId": "mmmovcrr-euiwzn"
+    },
+    {
+      "kind": "path",
+      "lineId": "mmmoxhlv-3tuz5z"
+    },
+    {
+      "kind": "path",
+      "lineId": "mmmp2htg-3fm37x"
+    },
+    {
+      "kind": "path",
+      "lineId": "mmmoxwdx-h22s1e"
     }
   ],
   "settings": {
@@ -321,8 +372,13 @@
     "showOnionLayers": false,
     "onionLayerSpacing": 3,
     "onionColor": "#dc2626",
-    "onionNextPointOnly": false
+    "onionNextPointOnly": false,
+    "showHeadingArrow": false,
+    "headingArrowLength": 50,
+    "headingArrowColor": "#ffffff",
+    "headingArrowThickness": 2,
+    "pathOpacity": 1
   },
   "version": "1.2.1",
-  "timestamp": "2026-02-28T20:27:50.619Z"
+  "timestamp": "2026-03-12T01:10:06.515Z"
 }

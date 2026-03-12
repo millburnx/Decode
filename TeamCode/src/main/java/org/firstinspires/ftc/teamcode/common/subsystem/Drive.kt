@@ -49,7 +49,7 @@ open class Drive(val opMode: OpMode, limelight: Limelight? = null) : Subsystem("
     open val loop: suspend Command.() -> Unit = {
         follower.update()
         drawRobot()
-        println("end pose ${follower.currentPath?.endPose()}")
+//        println("end pose ${follower.currentPath?.endPose()}")
     }
 
     fun drawRobot(pose: Pose2d = this.pose, name: String = "pose", color: String = "white") {

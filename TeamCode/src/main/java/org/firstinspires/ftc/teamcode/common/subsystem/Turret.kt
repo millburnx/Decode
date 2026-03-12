@@ -111,24 +111,28 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
 
                     motor.power = power * voltageComp
 
-                    tel.addData("turret | power", power)
-                    tel.addData("turret | kv", driveCompFF)
+                    if (useTelemetry) {
+                        tel.addData("turret | power", power)
+                        tel.addData("turret | kv", driveCompFF)
+                    }
                 }
-                tel.addData("turret | dv", velocity())
-                tel.addData("turret | qv", quadatureVelocity)
-                tel.addData("turret | aqv", averagedQuadatureVelocity.average)
+                if (useTelemetry) {
+                    tel.addData("turret | dv", velocity())
+                    tel.addData("turret | qv", quadatureVelocity)
+                    tel.addData("turret | aqv", averagedQuadatureVelocity.average)
 
-                tel.addData("turret | ea", angle)
-                tel.addData("turret | ra", heading())
-                tel.addData("turret | ta", normalizeDegrees(angle + heading()))
-                tel.addData("turret | it", _target)
-                tel.addData("turret | rt", relativeTarget)
-                tel.addData("turret | et", target)
-                tel.addData("turret | drift", drift)
-                tel.addData("turret | ia", _angle)
-                tel.addData("turret | ia (w/o)", _angle - drift)
-                tel.addData("turret | at target", atTarget)
-                tel.addData("turret | in deadzone", inDeadzone)
+                    tel.addData("turret | ea", angle)
+                    tel.addData("turret | ra", heading())
+                    tel.addData("turret | ta", normalizeDegrees(angle + heading()))
+                    tel.addData("turret | it", _target)
+                    tel.addData("turret | rt", relativeTarget)
+                    tel.addData("turret | et", target)
+                    tel.addData("turret | drift", drift)
+                    tel.addData("turret | ia", _angle)
+                    tel.addData("turret | ia (w/o)", _angle - drift)
+                    tel.addData("turret | at target", atTarget)
+                    tel.addData("turret | in deadzone", inDeadzone)
+                }
             }
         }
     }
@@ -199,5 +203,8 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
 
         @JvmField
         var velocityAverageDuration = 250.0
+
+        @JvmField
+        var useTelemetry = false
     }
 }

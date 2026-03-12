@@ -1,123 +1,135 @@
 {
   "startPoint": {
-    "x": 89,
-    "y": 8,
+    "x": 112,
+    "y": 137,
     "heading": "linear",
-    "startDeg": 0,
+    "startDeg": -90,
     "endDeg": 180,
     "locked": false
   },
   "lines": [
     {
-      "id": "line-3f3eu3wu70t",
-      "name": "Path 1",
+      "id": "mmhirzrb-mkrwxs",
+      "name": "Shoot Preload",
       "endPoint": {
-        "x": 89,
-        "y": 16,
+        "x": 90,
+        "y": 78,
         "heading": "linear",
-        "startDeg": 0,
+        "reverse": false,
+        "degrees": 0,
+        "startDeg": -90,
         "endDeg": 0
       },
       "controlPoints": [],
-      "color": "#A65BAA",
-      "locked": false,
+      "color": "#AB8CB5",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": ""
     },
     {
-      "id": "mm6bfbee-ggi4vi",
+      "id": "mmhiu8iz-c79p9u",
+      "name": "Move To 2nd Row",
       "endPoint": {
-        "x": 130,
-        "y": 9,
+        "x": 102,
+        "y": 60,
         "heading": "linear",
         "reverse": false,
         "startDeg": 0,
         "endDeg": 0
       },
       "controlPoints": [],
-      "color": "#7A886B",
-      "name": "Path 6",
+      "color": "#DA8C9D",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": ""
     },
     {
-      "id": "mm6aqjaj-21egfm",
-      "name": "Path 2",
+      "id": "mmhivdbc-r1l4s3",
+      "name": "Intake 2nd Row",
       "endPoint": {
-        "x": 89,
-        "y": 16,
+        "x": 124,
+        "y": 60,
         "heading": "linear",
         "reverse": false,
         "startDeg": 0,
         "endDeg": 0
       },
       "controlPoints": [],
-      "color": "#C55D67",
+      "color": "#58D6DC",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": ""
     },
     {
-      "id": "mm6arbgf-9yaze0",
-      "name": "Path 3",
+      "id": "mmkwmu2c-7guqnx",
+      "name": "Shoot 2nd Row",
+      "endPoint": {
+        "x": 90,
+        "y": 78,
+        "heading": "linear",
+        "reverse": false,
+        "startDeg": 0,
+        "endDeg": 40
+      },
+      "controlPoints": [],
+      "color": "#BC57CA",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "id": "mmkwnrfb-5n5gun",
+      "name": "Move To Ramp",
       "endPoint": {
         "x": 128,
-        "y": 36,
+        "y": 60,
         "heading": "linear",
         "reverse": false,
-        "startDeg": 0,
-        "endDeg": 0
+        "startDeg": 40,
+        "endDeg": 40
       },
-      "controlPoints": [
-        {
-          "x": 89,
-          "y": 36
-        },
-        {
-          "x": 89,
-          "y": 36
-        }
-      ],
-      "color": "#95B7C8",
+      "controlPoints": [],
+      "color": "#6B87DD",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": ""
     },
     {
-      "id": "mm6asbfc-oyy8cf",
-      "name": "Path 4",
+      "id": "mmkwo9ik-zbs26a",
+      "name": "Open Ramp",
       "endPoint": {
-        "x": 89,
-        "y": 16,
+        "x": 132,
+        "y": 59,
         "heading": "linear",
         "reverse": false,
-        "startDeg": 0,
-        "endDeg": 0
+        "startDeg": 40,
+        "endDeg": 40
       },
       "controlPoints": [],
-      "color": "#8B6D85",
+      "color": "#C985B5",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": ""
     },
     {
-      "id": "mm6asora-hyabbh",
-      "name": "Path 5",
+      "id": "mmkwrba9-0ayodn",
+      "name": "Shoot Ramp",
       "endPoint": {
-        "x": 120,
-        "y": 16,
-        "heading": "tangential",
-        "reverse": false
+        "x": 90,
+        "y": 78,
+        "heading": "linear",
+        "reverse": false,
+        "startDeg": 40,
+        "endDeg": 40
       },
       "controlPoints": [],
-      "color": "#6C9B6B",
+      "color": "#7959AC",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -185,27 +197,31 @@
   "sequence": [
     {
       "kind": "path",
-      "lineId": "line-3f3eu3wu70t"
+      "lineId": "mmhirzrb-mkrwxs"
     },
     {
       "kind": "path",
-      "lineId": "mm6bfbee-ggi4vi"
+      "lineId": "mmhiu8iz-c79p9u"
     },
     {
       "kind": "path",
-      "lineId": "mm6aqjaj-21egfm"
+      "lineId": "mmhivdbc-r1l4s3"
     },
     {
       "kind": "path",
-      "lineId": "mm6arbgf-9yaze0"
+      "lineId": "mmkwmu2c-7guqnx"
     },
     {
       "kind": "path",
-      "lineId": "mm6asbfc-oyy8cf"
+      "lineId": "mmkwnrfb-5n5gun"
     },
     {
       "kind": "path",
-      "lineId": "mm6asora-hyabbh"
+      "lineId": "mmkwo9ik-zbs26a"
+    },
+    {
+      "kind": "path",
+      "lineId": "mmkwrba9-0ayodn"
     }
   ],
   "settings": {
@@ -226,8 +242,13 @@
     "showOnionLayers": false,
     "onionLayerSpacing": 3,
     "onionColor": "#dc2626",
-    "onionNextPointOnly": false
+    "onionNextPointOnly": false,
+    "showHeadingArrow": false,
+    "headingArrowLength": 50,
+    "headingArrowColor": "#ffffff",
+    "headingArrowThickness": 2,
+    "pathOpacity": 1
   },
   "version": "1.2.1",
-  "timestamp": "2026-02-28T12:47:48.966Z"
+  "timestamp": "2026-03-11T23:28:05.375Z"
 }

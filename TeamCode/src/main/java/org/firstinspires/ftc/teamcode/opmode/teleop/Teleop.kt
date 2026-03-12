@@ -6,13 +6,10 @@ import com.millburnx.cmdxpedro.util.WaitFor
 import com.millburnx.cmdxpedro.util.mirror
 import com.millburnx.util.Pose2d
 import com.millburnx.util.toDegrees
-import com.millburnx.util.toRadians
-import com.pedropathing.geometry.BezierLine
-import com.pedropathing.paths.HeadingInterpolator
-import com.pedropathing.paths.Path
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.common.hardware.toPedro
+import org.firstinspires.ftc.teamcode.common.commands.AutoPark
 import org.firstinspires.ftc.teamcode.common.subsystem.*
+import org.firstinspires.ftc.teamcode.common.subsystem.sorter.IndicatorLight
 import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
@@ -27,6 +24,8 @@ class TeleopBlue : Teleop(false)
 @Configurable
 open class Teleop(val isRed: Boolean) : OpMode() {
     override fun run() {
+        val indicatorLight = IndicatorLight(this)
+
         val limelight = Limelight(this)
         val drive = TeleOpDrive(this, true, limelight)
         val turret = Turret(this, { drive.pose.heading }, { drive.velocity.heading }, { voltageSensor.voltage })
@@ -37,7 +36,7 @@ open class Teleop(val isRed: Boolean) : OpMode() {
         val hood = Hood(this)
         val flyWheel = FlyWheel(this)
         val intake = Intake(this)
-        val sorter = Sorter(this)
+        val sorter = Sorter(this, indicatorLight)
         val autoAdjust = AutoAdjust(
             this, flyWheel, hood, { drive.pose }, { drive.velocity.position }, isRed
         )
@@ -48,62 +47,49 @@ open class Teleop(val isRed: Boolean) : OpMode() {
         var manualMode = false
         var lastIntake = 0L
 
+        var greenSlot: Sorter.Pods? = null
+        var greenPosition = 0
+
         val rapidFire = Command("Rapid Fire", {
             sorter.resetKickers()
         }) {
             flyWheel.state = FlyWheel.FlyWheelState.SHOOTING
             turret.targetingMode = Turret.TargetingMode.GLOBAL
 
-            val turretReady = { turret.atTarget && !turret.inDeadzone && turret.isSteady }
-            val zoneCheck = { if (useZoneCheck) drive.inZonePartial else true }
-
-            WaitFor {
-                turretReady() && zoneCheck()
+            val turretReady = turretReady@{
+                val deadzone = turret.inDeadzone
+                indicatorLight.stateFlags[IndicatorLight.State.TURRET_DEADZONE] = deadzone
+                return@turretReady turret.atTarget && !deadzone && turret.isSteady
+            }
+            val zoneCheck = zoneCheck@{
+                val zoneCheckResult = if (useZoneCheck) drive.inZonePartial else true
+                indicatorLight.stateFlags[IndicatorLight.State.OUT_OF_ZONE] = !zoneCheckResult
+                return@zoneCheck zoneCheckResult
             }
 
-            val minRPM = { flyWheel.shootingRPM - FlyWheel.Controller.rpmThreshold }
-            val maxRPM = { flyWheel.shootingRPM + FlyWheel.Controller.rpmThreshold }
+            WaitFor { zoneCheck() && turretReady() }
+            indicatorLight.stateFlags[IndicatorLight.State.OUT_OF_ZONE] = false
+            indicatorLight.stateFlags[IndicatorLight.State.TURRET_DEADZONE] = false
+            WaitFor { flyWheel.atRPM }
 
-            val atRPM = { flyWheel.rpm in minRPM()..maxRPM() }
+            indicatorLight.stateFlags[IndicatorLight.State.FIRING] = true
 
-            WaitFor { atRPM() }
+            val greenSlotCopy = greenSlot
+            if (greenSlotCopy != null) {
+                val firingOrder = sorter.getFiringOrder(greenSlotCopy, greenPosition)
+                sorter.run { rapidFire(firingOrder, sortingUpDuration to sortingDownDuration) }
+                greenSlot = null // reset sorting
+                greenPosition = 0
+            } else {
+                sorter.run { rapidFire() }
+            }
 
-            sorter.frontPod.kick(this, upDuration, downDuration)
-            sorter.sidePod.kick(this, upDuration, downDuration)
-            sorter.backPod.kick(this, upDuration, downDuration)
-
+            indicatorLight.stateFlags[IndicatorLight.State.FIRING] = false
             flyWheel.state = FlyWheel.FlyWheelState.IDLE
             if (!liveTracking) turret.targetingMode = Turret.TargetingMode.RELATIVE
         }
 
-        val autoPark = Command("Auto Park", {
-            drive.isTeleopDrive = true
-        })
-        {
-            drive.isTeleopDrive = false
-            drive.follower.followPath(
-                drive.follower.pathBuilder()
-                    .addPath(
-                        Path(
-                            BezierLine(
-                                { drive.pose.toPedro() },
-                                Pose2d(105.0, 33.0, 0.0).mirror(!isRed).toPedro()
-                            )
-                        )
-                    )
-                    .setHeadingInterpolation(
-                        HeadingInterpolator.linearFromPoint(
-                            { drive.pose.radians },
-                            (0.0).toRadians(),
-                            0.5
-                        )
-                    )
-                    .build()
-            )
-            WaitFor { isStopRequested || drive.follower.atParametricEnd() }
-            drive.follower.breakFollowing()
-            drive.isTeleopDrive = true
-        }
+        val autoPark = AutoPark(drive, isRed) { !isStopRequested }
 
         scheduler.schedule(Command {
             OpModeLoop(this@Teleop) {
@@ -156,6 +142,35 @@ open class Teleop(val isRed: Boolean) : OpMode() {
                         if (liveTracking) Turret.TargetingMode.GLOBAL else Turret.TargetingMode.RELATIVE
                 }
 
+                // manual sorting
+                if (!gp2.prev.dPad.up && gp2.current.dPad.up) {
+                    greenSlot = Sorter.Pods.FRONT
+                }
+                if (!gp2.prev.dPad.left && gp2.current.dPad.left) {
+                    greenSlot = Sorter.Pods.SIDE
+                }
+                if (!gp2.prev.dPad.down && gp2.current.dPad.down) {
+                    greenSlot = Sorter.Pods.BACK
+                }
+
+                if (!gp2.prev.x && gp2.current.x) {
+                    greenPosition = 0
+                    println("green pos $greenPosition")
+                }
+                if (!gp2.prev.y && gp2.current.y) {
+                    greenPosition = 1
+                    println("green pos $greenPosition")
+                }
+                if (!gp2.prev.b && gp2.current.b) {
+                    greenPosition = 2
+                    println("green pos $greenPosition")
+                }
+
+                indicatorLight.stateFlags[IndicatorLight.State.SORTING] = greenSlot != null
+
+                tel.addData("green pos", greenPosition)
+                tel.addData("green slot", greenSlot?.ordinal ?: -1.0)
+
                 // auto
                 if (intakePower < -0.5) drive.useGateAssist = false
 
@@ -187,6 +202,12 @@ open class Teleop(val isRed: Boolean) : OpMode() {
 
         @JvmField
         var downDuration = 50L
+
+        @JvmField
+        var sortingUpDuration = 500L
+
+        @JvmField
+        var sortingDownDuration = 100L
 
         @JvmField
         var liveTracking = true

@@ -43,7 +43,7 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
                 if (override) {
                     leftMotor.power = overridePower
                     rightMotor.power = overridePower
-                    tel.addData("flywheel | rpm", rpm)
+                    if (useTelemetry) tel.addData("flywheel | rpm", rpm)
                     return@OpModeLoop
                 }
 
@@ -57,10 +57,12 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
                 leftMotor.power = power
                 rightMotor.power = power
 
-                tel.addData("flywheel | power", power)
-                tel.addData("flywheel | target", targetRpm)
-                tel.addData("flywheel | at rpm", atRPM)
-                tel.addData("flywheel | rpm", rpm)
+                if (useTelemetry) {
+                    tel.addData("flywheel | power", power)
+                    tel.addData("flywheel | target", targetRpm)
+                    tel.addData("flywheel | at rpm", atRPM)
+                    tel.addData("flywheel | rpm", rpm)
+                }
             }
         }
     }
@@ -101,6 +103,9 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
 
         @JvmField
         var intakingRPM = -1000.0
+
+        @JvmField
+        var useTelemetry = false
     }
 
     enum class FlyWheelState {

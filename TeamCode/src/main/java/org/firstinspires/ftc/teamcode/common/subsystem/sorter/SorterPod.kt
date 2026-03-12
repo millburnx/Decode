@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
 @Configurable
-class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("Sorter") {
+class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("Sorter Pod") {
     val config // for hot reloading
         get() = getConfig()
 
@@ -40,7 +40,10 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
         }
     }
 
-    val kick: suspend Command.(Long, Long) -> Unit = { upDuration, downDuration ->
+    suspend fun Command.kick(
+        durations: Pair<Long, Long>
+    ) {
+        val (upDuration, downDuration) = durations
         isUp = true
         SleepFor { upDuration }
         isUp = false
@@ -69,22 +72,24 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
                 return
             }
 
+            state = State.EMPTY
+
             // v2 fallback
-            val v2Color = v2.argb().hsv()
-
-            state = if (config.greenRangeV2.contains(v2Color)) {
-                State.GREEN
-            } else if (config.purpleRangeV2.contains(v2Color)) {
-                State.PURPLE
-            } else {
-                State.EMPTY
-            }
-
-            if (config.useTelemetry) {
-                tel.addData("v2 | h", v2Color.hue)
-                tel.addData("v2 | s", v2Color.saturation)
-                tel.addData("v2 | v", v2Color.brightness)
-            }
+//            val v2Color = v2.argb().hsv()
+//
+//            state = if (config.greenRangeV2.contains(v2Color)) {
+//                State.GREEN
+//            } else if (config.purpleRangeV2.contains(v2Color)) {
+//                State.PURPLE
+//            } else {
+//                State.EMPTY
+//            }
+//
+//            if (config.useTelemetry) {
+//                tel.addData("v2 | h", v2Color.hue)
+//                tel.addData("v2 | s", v2Color.saturation)
+//                tel.addData("v2 | v", v2Color.brightness)
+//            }
         }
     }
 
@@ -103,12 +108,12 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
             "s5", false, .4, .8, "c0e", "c2e", 10.0, ColorRange(
                 150.0..155.0, 27.0..30.5, 19.0..25.0
             ), ColorRange(
-                164.5..171.0, 0.0..100.0, 79.0..100.0
+                165.0..172.0, 40.0..45.0, 66.0..70.0
             ), ColorRange(
                 155.5..160.0, 34.5..37.0, 19.0..25.0
             ), ColorRange(
-                161.0..164.4, 0.0..100.0, 79.0..100.0
-            ), false
+                158.0..165.0, 47.0..50.0, 68.0..74.0
+            ), true
         )
 
         @JvmField
@@ -116,11 +121,11 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
             "s3", true, .36, .76, "c1e", "c0", 10.0, ColorRange(
                 154.0..159.0, 30.0..33.0, 15.0..19.0
             ), ColorRange(
-                133.5..137.0, 40.0..42.0, 32.0..35.0
+                145.5..152.0, 39.0..42.0, 40.0..42.0
             ), ColorRange(
                 153.0..157.0, 35.0..38.0, 15.0..19.0
             ), ColorRange(
-                130.0..133.5, 43.0..45.0, 27.0..32.0
+                145.0..152.5, 44.0..47.0, 42.0..45.0
             ), false
         )
 
@@ -131,17 +136,17 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
                 10.0..20.0,
                 26.0..29.0,
             ), ColorRange(
-                166.0..172.0,
-                39.0..43.0,
-                83.5..84.5,
+                162.0..170.0,
+                40.0..46.0,
+                74.5..78.0
             ), ColorRange(
                 143.0..159.0,
                 10.0..20.0,
                 32.0..36.0,
             ), ColorRange(
-                159.0..164.0,
-                43.5..47.0,
-                84.5..100.0,
+                155.0..162.0,
+                46.0..52.0,
+                76.0..80.0,
             ), false
         )
     }

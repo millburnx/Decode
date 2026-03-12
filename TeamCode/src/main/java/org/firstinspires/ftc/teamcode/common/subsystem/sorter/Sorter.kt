@@ -3,41 +3,61 @@ package org.firstinspires.ftc.teamcode.common.subsystem.sorter
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import org.firstinspires.ftc.teamcode.common.subsystem.Subsystem
-import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
+import org.firstinspires.ftc.teamcode.opmode.teleop.Teleop
 
 @Configurable
-class Sorter(val opMode: OpMode) : Subsystem("FlyWheel") {
+class Sorter(val opMode: OpMode, val indicatorLight: IndicatorLight? = null) : Subsystem("Sorter") {
+    enum class Pods {
+        FRONT, BACK, SIDE
+    }
+
     val frontPod = SorterPod.fromSlot(opMode, SorterPod.Slot.FRONT)
-    val backPod = SorterPod.fromSlot(opMode, SorterPod.Slot.BACK)
     val sidePod = SorterPod.fromSlot(opMode, SorterPod.Slot.SIDE)
+    val backPod = SorterPod.fromSlot(opMode, SorterPod.Slot.BACK)
+
+    val pods = mapOf(
+        Pods.FRONT to frontPod,
+        Pods.SIDE to sidePod,
+        Pods.BACK to backPod,
+    )
 
     override val run: suspend Command.() -> Unit = {
 //        opMode.scheduler.schedule(Command {
+//            val timer = ElapsedTime()
 //            OpModeLoop(opMode) {
-//                SleepFor { colorPolling }
-//                frontPod.updateState()
-//                sidePod.updateState()
-//                backPod.updateState()
+//                WaitFor { timer.milliseconds() >= pollingRate }
+//                timer.reset()
+//                pods.values.forEach { it.updateState() }
+//                indicatorLight?.let {
+//                    val nonEmpty = pods.values.filter { it.state != SorterPod.State.EMPTY }
+//                }
 //            }
 //        })
-        OpModeLoop(opMode) {
-            with(opMode) {
-//                tel.addData("front state", frontPod.state)
-//                tel.addData("back state", backPod.state)
-//                tel.addData("side state", sidePod.state)
-            }
-        }
     }
 
     fun resetKickers() {
-        frontPod.isUp = false
-        sidePod.isUp = false
-        backPod.isUp = false
+        pods.values.forEach { it.isUp = false }
+    }
+
+    suspend fun Command.rapidFire(
+        firingOrder: List<Pods> = pods.keys.toList(),
+        firingSpeed: Pair<Long, Long> = Teleop.upDuration to Teleop.downDuration
+    ) {
+        firingOrder.forEach {
+            val pod = pods[it] ?: return@forEach
+            pod.run { kick(firingSpeed) }
+        }
+    }
+
+    fun getFiringOrder(greenPod: Pods, greenPosition: Int): List<Pods> = buildList {
+        val purples = pods.keys.filter { it != greenPod }
+        addAll(purples)
+        add(greenPosition, greenPod)
     }
 
     companion object {
         @JvmField
-        var colorPolling = 2000L
+        var pollingRate = 5000.0
     }
 }

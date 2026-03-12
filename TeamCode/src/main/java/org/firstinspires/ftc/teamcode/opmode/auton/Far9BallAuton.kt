@@ -1,0 +1,93 @@
+package org.firstinspires.ftc.teamcode.opmode.auton
+
+import com.bylazar.configurables.annotations.Configurable
+import com.millburnx.cmdx.Command
+import com.millburnx.cmdx.commandGroups.Sequential
+import com.millburnx.cmdxpedro.util.SleepFor
+import com.millburnx.cmdxpedro.util.WaitFor
+import com.millburnx.cmdxpedro.util.mirror
+import com.millburnx.util.toDegrees
+import com.millburnx.util.vector.Vec2d
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import org.firstinspires.ftc.teamcode.common.subsystem.*
+import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
+import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
+import org.firstinspires.ftc.teamcode.opmode.OpMode
+
+
+@Autonomous
+class Far9BallRed : Far9BallAuton(true)
+
+@Autonomous
+class Far9BallBlue : Far9BallAuton(false)
+
+@Configurable
+open class Far9BallAuton(var isRed: Boolean) : OpMode() {
+    override fun run() {
+        val sorter = Sorter(this)
+        val hood = Hood(this)
+        val flyWheel = FlyWheel(this)
+        val intake = Intake(this)
+        val drive = Drive(this)
+        val turret = Turret(this, { drive.pose.heading }, { drive.velocity.heading }, { voltageSensor.voltage })
+        val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose }, { Vec2d() }, isRed)
+
+        val autonManager = AutonManager(this, drive, "Far-9Ball", isMirrored = !isRed)
+
+        val fire = Command {
+            intake.power = -1.0
+            WaitFor { turret.atTarget && turret.isSteady }
+            val atRPM = { flyWheel.atRPM }
+            WaitFor { atRPM() }
+            sorter.run { rapidFire(firingSpeed = upDuration to downDuration) }
+            intake.power = 1.0
+        }
+
+        val endAuton = Command {
+            intake.power = 0.0
+            FlyWheel.override = true
+            FlyWheel.overridePower = 0.0
+            println("auton end ${matchTimer.seconds()}")
+        }
+
+        val goal = Vec2d(-5.0, 144.0).mirror(!autonManager.isMirrored)
+
+        scheduler.schedule(Command("general") {
+            OpModeLoop(this@Far9BallAuton) {
+                turret.targetingMode = Turret.TargetingMode.GLOBAL
+                turret.target = drive.pose.position.angleTo(goal).toDegrees()
+            }
+        })
+
+        scheduler.schedule(Sequential("Far Auton") {
+            Command("Start") {
+                WaitFor { isStarted }
+                flyWheel.state = FlyWheel.FlyWheelState.SHOOTING
+            }
+            +autonManager.runPath(0)
+            +fire
+            +autonManager.runPath(1)
+            +autonManager.runPath(2)
+            Command { SleepFor { stablizationTime } }
+            +fire
+            +autonManager.runPath(3)
+            +autonManager.runPath(4)
+            +autonManager.runPath(5)
+            Command { SleepFor { stablizationTime } }
+            +fire
+            +autonManager.runPath(6)
+            +endAuton
+        })
+    }
+
+    companion object {
+        @JvmField
+        var upDuration = 250L
+
+        @JvmField
+        var downDuration = 50L
+
+        @JvmField
+        var stablizationTime = 200L
+    }
+}

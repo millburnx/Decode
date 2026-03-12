@@ -3,7 +3,7 @@
     "x": 112,
     "y": 137,
     "heading": "linear",
-    "startDeg": 90,
+    "startDeg": -90,
     "endDeg": 180,
     "locked": false
   },
@@ -104,7 +104,7 @@
       "name": "Move To Gate",
       "endPoint": {
         "x": 124,
-        "y": 64,
+        "y": 68,
         "heading": "linear",
         "reverse": false,
         "startDeg": 0,
