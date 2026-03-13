@@ -22,11 +22,11 @@ object Constants {
         .mass(13.97)
         .forwardZeroPowerAcceleration(-68.384)
         .lateralZeroPowerAcceleration(-96.985)
-        .centripetalScaling(0.0)
+        .centripetalScaling(0.005)
 
         .predictiveBrakingCoefficients(
             PredictiveBrakingCoefficients(
-                .1,
+                .09,
                 0.08759,
                 0.001914
             )
@@ -37,7 +37,7 @@ object Constants {
 
         .translationalPIDFCoefficients(PIDFCoefficients(0.2, 0.0, 0.02, 0.04))
         .headingPIDFCoefficients(PIDFCoefficients(2.0, 0.0, 0.1, 0.04))
-        .drivePIDFCoefficients(FilteredPIDFCoefficients(0.04, 0.0, 0.0, 0.6, 0.05))
+        .drivePIDFCoefficients(FilteredPIDFCoefficients(0.05, 0.0, 0.0, 0.6, 0.05))
 
         .useSecondaryTranslationalPIDF(true)
         .useSecondaryHeadingPIDF(true)
@@ -45,7 +45,7 @@ object Constants {
 
         .secondaryTranslationalPIDFCoefficients(PIDFCoefficients(0.35, 0.0, 0.03, 0.03))
         .secondaryHeadingPIDFCoefficients(PIDFCoefficients(3.0, 0.0, 0.2, 0.04))
-        .secondaryDrivePIDFCoefficients(FilteredPIDFCoefficients(0.05, 0.0, 0.0, 0.6, 0.3))
+        .secondaryDrivePIDFCoefficients(FilteredPIDFCoefficients(0.06, 0.0, 0.0, 0.6, 0.3))
 
     fun MecanumConstants.setMotors() = apply {
         rightFrontMotorName("m2")
@@ -77,7 +77,7 @@ object Constants {
         .forwardEncoderDirection(EncoderDirection.FORWARD)
         .strafeEncoderDirection(EncoderDirection.FORWARD)
 
-    val pathConstraints: PathConstraints = PathConstraints(0.97, 100.0, 1.0, 1.0)
+    val pathConstraints: PathConstraints = PathConstraints(0.9, 100.0, 1.0, 1.0)
 
     fun createFollower(hardwareMap: HardwareMap): Follower {
         return FollowerBuilder(followerConstants, hardwareMap)

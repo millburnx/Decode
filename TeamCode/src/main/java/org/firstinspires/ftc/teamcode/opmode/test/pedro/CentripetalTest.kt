@@ -6,12 +6,14 @@ import com.millburnx.cmdx.Command
 import com.millburnx.cmdx.commandGroups.Sequential
 import com.millburnx.cmdxpedro.paths.heading.TangentialHeading
 import com.millburnx.cmdxpedro.paths.path.Path
+import com.millburnx.cmdxpedro.util.WaitFor
 import com.millburnx.cmdxpedro.util.mirror
 import com.millburnx.cmdxpedro.util.toPedro
 import com.millburnx.util.vector.Vec2d
 import com.pedropathing.geometry.BezierCurve
 import com.pedropathing.paths.PathBuilder
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.common.subsystem.TeleOpDrive
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 import org.firstinspires.ftc.teamcode.opmode.auton.BaseAutonManager
@@ -58,7 +60,11 @@ class CentripetalTest : OpMode() {
 
         scheduler.schedule(
             Command {
+                WaitFor { isStarted }
+                val timer = ElapsedTime()
                 while (!isStopRequested) {
+                    WaitFor { timer.milliseconds() >= 1000.0 / targetLoopHz || isStopRequested }
+                    timer.reset()
                     if (!gp1.prev.rightBumper && gp1.current.rightBumper) {
                         isRunning = !isRunning
                     }
@@ -82,6 +88,9 @@ class CentripetalTest : OpMode() {
 
         @JvmField
         var isRunning = false
+
+        @JvmField
+        var targetLoopHz = 60.0
     }
 }
 

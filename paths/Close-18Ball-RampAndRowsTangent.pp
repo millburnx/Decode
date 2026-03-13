@@ -18,7 +18,7 @@
         "reverse": false,
         "degrees": 0,
         "startDeg": -90,
-        "endDeg": 0
+        "endDeg": -120
       },
       "controlPoints": [],
       "color": "#AB8CB5",
@@ -85,7 +85,7 @@
       "id": "mmkwnrfb-5n5gun",
       "name": "Move To Ramp",
       "endPoint": {
-        "x": 130,
+        "x": 131,
         "y": 60,
         "heading": "linear",
         "reverse": false,
@@ -141,10 +141,10 @@
       "endPoint": {
         "x": 102,
         "y": 36,
-        "heading": "linear",
+        "heading": "tangential",
         "reverse": false,
-        "startDeg": 40,
-        "endDeg": 0
+        "startDeg": -70,
+        "endDeg": -70
       },
       "controlPoints": [],
       "color": "#6CC6B6",
@@ -177,8 +177,8 @@
       "endPoint": {
         "x": 90,
         "y": 84,
-        "heading": "linear",
-        "reverse": false,
+        "heading": "tangential",
+        "reverse": true,
         "startDeg": 0,
         "endDeg": 0
       },
@@ -211,8 +211,8 @@
       "endPoint": {
         "x": 84,
         "y": 104,
-        "heading": "linear",
-        "reverse": false,
+        "heading": "tangential",
+        "reverse": true,
         "startDeg": 0,
         "endDeg": 0
       },
@@ -358,5 +358,5 @@
     "pathOpacity": 1
   },
   "version": "1.2.1",
-  "timestamp": "2026-03-13T01:44:52.650Z"
+  "timestamp": "2026-03-13T02:14:16.822Z"
 }

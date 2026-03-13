@@ -32,7 +32,7 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
         val turret = Turret(this, { drive.pose.heading }, { drive.velocity.heading }, { voltageSensor.voltage })
         val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose }, { Vec2d() }, isRed)
 
-        val autonManager = AutonManager(this, drive, "Close-18Ball-RampAndRows", isMirrored = !isRed)
+        val autonManager = AutonManager(this, drive, "Close-18Ball-RampAndRowsTangent", isMirrored = !isRed)
 
         val fire = Command {
             intake.power = -1.0
@@ -63,6 +63,7 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
             +Parallel {
                 +autonManager.runPath(6)
                 Command {
+                    SleepFor { 100 }
                     WaitFor { drive.follower.currentTValue >= rampOutakeT }
                     intake.power = -1.0
                 }
@@ -94,18 +95,55 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
             +fire
             +autonManager.runPath(1) // row 2
             +autonManager.runPath(2)
-            +autonManager.runPath(3)
+            +Parallel {
+                +autonManager.runPath(3)
+                Command {
+                    SleepFor { 100 }
+                    WaitFor { drive.follower.currentTValue >= row2OuttakeT }
+                    intake.power = -1.0
+                }
+            }
             +fire
             repeat(2) { // ramp
                 +gateCycle
                 +fire
             }
             +autonManager.runPath(7) // row 3
-            +autonManager.runPath(8)
-            +autonManager.runPath(9)
+            +Parallel {
+                +autonManager.runPath(8) // row 1
+                Command {
+                    SleepFor { 100 }
+                    WaitFor { drive.follower.currentTValue >= row2SlowT }
+                    drive.follower.setMaxPower(row2SlowSpeed)
+                }
+            }
+            +Parallel {
+                +autonManager.runPath(9)
+                drive.follower.setMaxPower(1.0)
+                Command {
+                    SleepFor { 100 }
+                    WaitFor { drive.follower.currentTValue >= row3OuttakeT }
+                    intake.power = -1.0
+                }
+            }
             +fire
-            +autonManager.runPath(10) // row 1
-            +autonManager.runPath(11)
+            +Parallel {
+                +autonManager.runPath(10) // row 1
+                Command {
+                    SleepFor { 100 }
+                    WaitFor { drive.follower.currentTValue >= row1SlowT }
+                    drive.follower.setMaxPower(row1SlowSpeed)
+                }
+            }
+            +Parallel {
+                +autonManager.runPath(11)
+                Command {
+                    drive.follower.setMaxPower(1.0)
+                    SleepFor { 100 }
+                    WaitFor { drive.follower.currentTValue >= row1OuttakeT }
+                    intake.power = -1.0
+                }
+            }
             +fire
             +endAuton
         })
@@ -132,5 +170,26 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
 
         @JvmField
         var rampOutakeT = 0.125
+
+        @JvmField
+        var row2OuttakeT = 0.75
+
+        @JvmField
+        var row2SlowT = 0.25
+
+        @JvmField
+        var row2SlowSpeed = 0.75
+
+        @JvmField
+        var row3OuttakeT = 0.375
+
+        @JvmField
+        var row1OuttakeT = 0.75
+
+        @JvmField
+        var row1SlowT = 0.25
+
+        @JvmField
+        var row1SlowSpeed = 0.75
     }
 }
