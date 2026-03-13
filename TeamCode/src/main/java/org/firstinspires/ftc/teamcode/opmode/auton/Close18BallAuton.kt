@@ -99,16 +99,16 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
             // row 2
             +autonManager.runPathChain(
                 listOf(1, 2), listOf({}, {
-                    it.addTemporalCallback(row2SlowT) {
+                    it.addParametricCallback(row2SlowT) {
                         drive.follower.setMaxPower(row2SlowSpeed)
                     }
                 })
             )
             +autonManager.runPath(3) {
-                it.addTemporalCallback(0.0) {
+                it.addParametricCallback(0.0) {
                     drive.follower.setMaxPower(1.0)
                 }
-                it.addTemporalCallback(row2OuttakeT) {
+                it.addParametricCallback(row2OuttakeT) {
                     intake.power = -1.0
                 }
             }
@@ -122,15 +122,15 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
 
             // row 3
             +autonManager.runPathChain(listOf(7, 8), listOf({}, {
-                it.addTemporalCallback(row3SlowT) {
+                it.addParametricCallback(row3SlowT) {
                     drive.follower.setMaxPower(row3SlowSpeed)
                 }
             }))
             +autonManager.runPath(9) {
-                it.addTemporalCallback(0.0) {
+                it.addParametricCallback(0.0) {
                     drive.follower.setMaxPower(1.0)
                 }
-                it.addTemporalCallback(row3OuttakeT) {
+                it.addParametricCallback(row3OuttakeT) {
                     intake.power = -1.0
                 }
             }
@@ -138,15 +138,15 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
 
             // row 1
             +autonManager.runPath(10) {
-                it.addTemporalCallback(row1SlowT) {
+                it.addParametricCallback(row1SlowT) {
                     drive.follower.setMaxPower(row1SlowSpeed)
                 }
             }
             +autonManager.runPath(11) {
-                it.addTemporalCallback(0.0) {
+                it.addParametricCallback(0.0) {
                     drive.follower.setMaxPower(1.0)
                 }
-                it.addTemporalCallback(row1OuttakeT) {
+                it.addParametricCallback(row1OuttakeT) {
                     intake.power = -1.0
                 }
             }
