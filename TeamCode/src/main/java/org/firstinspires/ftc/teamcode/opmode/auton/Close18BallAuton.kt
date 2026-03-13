@@ -93,13 +93,19 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
             }
             +autonManager.runPath(0) // preload
             +fire
-            +autonManager.runPath(1) // row 2
-            +autonManager.runPath(2)
-            +Parallel {
-                +autonManager.runPath(3)
-                Command {
-                    SleepFor { 100 }
-                    WaitFor { drive.follower.currentTValue >= row2OuttakeT }
+            // row 2
+            +autonManager.runPathChain(
+                listOf(1, 2), listOf({}, {
+                    it.addTemporalCallback(row2SlowT) {
+                        drive.follower.setMaxPower(row2SlowSpeed)
+                    }
+                })
+            )
+            +autonManager.runPath(3) {
+                it.addTemporalCallback(0.0) {
+                    drive.follower.setMaxPower(1.0)
+                }
+                it.addTemporalCallback(row2OuttakeT) {
                     intake.power = -1.0
                 }
             }
@@ -108,39 +114,30 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
                 +gateCycle
                 +fire
             }
-            +autonManager.runPath(7) // row 3
-            +Parallel {
-                +autonManager.runPath(8) // row 1
-                Command {
-                    SleepFor { 100 }
-                    WaitFor { drive.follower.currentTValue >= row2SlowT }
-                    drive.follower.setMaxPower(row2SlowSpeed)
+            +autonManager.runPathChain(listOf(7, 8), listOf({}, {
+                it.addTemporalCallback(row3SlowT) {
+                    drive.follower.setMaxPower(row3SlowSpeed)
                 }
-            }
-            +Parallel {
-                +autonManager.runPath(9)
-                drive.follower.setMaxPower(1.0)
-                Command {
-                    SleepFor { 100 }
-                    WaitFor { drive.follower.currentTValue >= row3OuttakeT }
+            }))
+            +autonManager.runPath(9) {
+                it.addTemporalCallback(0.0) {
+                    drive.follower.setMaxPower(1.0)
+                }
+                it.addTemporalCallback(row3OuttakeT) {
                     intake.power = -1.0
                 }
             }
             +fire
-            +Parallel {
-                +autonManager.runPath(10) // row 1
-                Command {
-                    SleepFor { 100 }
-                    WaitFor { drive.follower.currentTValue >= row1SlowT }
+            +autonManager.runPath(10) {
+                it.addTemporalCallback(row1SlowT) {
                     drive.follower.setMaxPower(row1SlowSpeed)
                 }
             }
-            +Parallel {
-                +autonManager.runPath(11)
-                Command {
+            +autonManager.runPath(11) {
+                it.addTemporalCallback(0.0) {
                     drive.follower.setMaxPower(1.0)
-                    SleepFor { 100 }
-                    WaitFor { drive.follower.currentTValue >= row1OuttakeT }
+                }
+                it.addTemporalCallback(row1OuttakeT) {
                     intake.power = -1.0
                 }
             }
@@ -179,6 +176,12 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
 
         @JvmField
         var row2SlowSpeed = 0.75
+
+        @JvmField
+        var row3SlowT = 0.25
+
+        @JvmField
+        var row3SlowSpeed = 0.75
 
         @JvmField
         var row3OuttakeT = 0.375
