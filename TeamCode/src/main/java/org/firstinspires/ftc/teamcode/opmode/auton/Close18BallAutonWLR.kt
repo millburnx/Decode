@@ -16,13 +16,13 @@ import org.firstinspires.ftc.teamcode.opmode.OpMode
 
 
 @Autonomous
-class Close18BallRed : Close18BallAuton(true)
+class Close18BallRedWLR : Close18BallAutonWLR(true)
 
 @Autonomous
-class Close18BallBlue : Close18BallAuton(false)
+class Close18BallBlueWLR : Close18BallAutonWLR(false)
 
 @Configurable
-open class Close18BallAuton(var isRed: Boolean) : OpMode() {
+open class Close18BallAutonWLR(var isRed: Boolean) : OpMode() {
     override fun run() {
         val sorter = Sorter(this)
         val hood = Hood(this)
@@ -80,7 +80,7 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
         val goal = if (autonManager.isMirrored) Vec2d(-3.0, 144.0) else Vec2d(144.0, 144.0)
 
         scheduler.schedule(Command("general") {
-            OpModeLoop(this@Close18BallAuton) {
+            OpModeLoop(this@Close18BallAutonWLR) {
                 turret.targetingMode = Turret.TargetingMode.GLOBAL
                 turret.target = drive.pose.position.angleTo(goal).toDegrees()
             }
@@ -104,29 +104,10 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
                 }
             }
             +fire
-            repeat(2) { // ramp
+            repeat(3) { // ramp
                 +gateCycle
                 +fire
             }
-            +autonManager.runPath(7) // row 3
-            +Parallel {
-                +autonManager.runPath(8) // row 1
-                Command {
-                    SleepFor { 100 }
-                    WaitFor { drive.follower.currentTValue >= row2SlowT }
-                    drive.follower.setMaxPower(row2SlowSpeed)
-                }
-            }
-            +Parallel {
-                +autonManager.runPath(9)
-                drive.follower.setMaxPower(1.0)
-                Command {
-                    SleepFor { 100 }
-                    WaitFor { drive.follower.currentTValue >= row3OuttakeT }
-                    intake.power = -1.0
-                }
-            }
-            +fire
             +Parallel {
                 +autonManager.runPath(10) // row 1
                 Command {
