@@ -69,7 +69,8 @@ object ZoneAssist {
     @JvmField
     var epilsonGain = 1.0
 
-    fun inZonePartial(pos: Vec2d): Boolean = closeZoneFull.contains(pos) || farZoneFull.contains(pos)
+    fun inZonePartial(pos: Vec2d, useClose: Boolean = true, useFar: Boolean = true): Boolean =
+        (useClose && closeZoneFull.contains(pos)) || (useFar && farZoneFull.contains(pos))
 
     fun inZone(pos: Vec2d): Boolean = closeZone.contains(pos) || farZone.contains(pos)
 

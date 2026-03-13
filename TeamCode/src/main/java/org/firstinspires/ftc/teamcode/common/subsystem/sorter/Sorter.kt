@@ -42,7 +42,7 @@ class Sorter(val opMode: OpMode, val indicatorLight: IndicatorLight? = null) : S
 
     suspend fun Command.rapidFire(
         firingOrder: List<Pods> = pods.keys.toList(),
-        firingSpeed: Pair<Long, Long> = Teleop.upDuration to Teleop.downDuration
+        firingSpeed: Pair<Long, Long> = Teleop.getFiringSpeed()
     ) {
         firingOrder.forEach {
             val pod = pods[it] ?: return@forEach

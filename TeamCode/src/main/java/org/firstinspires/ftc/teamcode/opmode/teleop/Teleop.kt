@@ -81,7 +81,11 @@ open class Teleop(val isRed: Boolean) : OpMode() {
                 greenSlot = null // reset sorting
                 greenPosition = 0
             } else {
-                sorter.run { rapidFire() }
+                sorter.run {
+                    rapidFire(
+                        firingSpeed = getFiringSpeed(drive.inZoneFarPartial)
+                    )
+                }
             }
 
             indicatorLight.stateFlags[IndicatorLight.State.FIRING] = false
@@ -204,6 +208,12 @@ open class Teleop(val isRed: Boolean) : OpMode() {
         var downDuration = 50L
 
         @JvmField
+        var farUpDuration = 250L
+
+        @JvmField
+        var farDownDuration = 50L
+
+        @JvmField
         var sortingUpDuration = 500L
 
         @JvmField
@@ -223,5 +233,10 @@ open class Teleop(val isRed: Boolean) : OpMode() {
 
         @JvmField
         var useZoneCheck = true
+
+        fun getFiringSpeed(isFarZone: Boolean = false): Pair<Long, Long> {
+            if (isFarZone) return farUpDuration to farDownDuration
+            return upDuration to downDuration
+        }
     }
 }

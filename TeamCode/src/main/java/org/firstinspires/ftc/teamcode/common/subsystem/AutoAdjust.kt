@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.common.subsystem
 
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
+import com.millburnx.cmdxpedro.util.mirror
 import com.millburnx.util.Pose2d
 import com.millburnx.util.toDegrees
 import com.millburnx.util.vector.Vec2d
@@ -28,7 +29,7 @@ class AutoAdjust(
         OpModeLoop(opMode) {
             with(opMode) {
                 if (!enabled) return@OpModeLoop
-                val goal = if (isRed) redGoal else blueGoal
+                val goal = goal.mirror(isRed)
 
                 val SOTMResults = SOTM.calculate(opMode.tel, getVelocity(), getPose(), goal)
 
@@ -53,8 +54,7 @@ class AutoAdjust(
     }
 
     companion object {
-        val redGoal = Vec2d(144.0 - 6.0, 144.0 - 6.0)
-        val blueGoal = Vec2d(6.0, 144.0 - 6.0)
+        val goal = Vec2d(-4.0, 144.0)
 
         fun getTarget(distance: Distance): Pair<RPM, Angle> {
             return (DATA.ceilingEntry(distance) ?: DATA.lastEntry()).value
