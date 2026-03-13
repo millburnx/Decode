@@ -91,8 +91,11 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
                 WaitFor { isStarted }
                 flyWheel.state = FlyWheel.FlyWheelState.SHOOTING
             }
-            +autonManager.runPath(0) // preload
+
+            // preload
+            +autonManager.runPath(0)
             +fire
+
             // row 2
             +autonManager.runPathChain(
                 listOf(1, 2), listOf({}, {
@@ -110,10 +113,14 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
                 }
             }
             +fire
-            repeat(2) { // ramp
+
+            // ramp
+            repeat(2) {
                 +gateCycle
                 +fire
             }
+
+            // row 3
             +autonManager.runPathChain(listOf(7, 8), listOf({}, {
                 it.addTemporalCallback(row3SlowT) {
                     drive.follower.setMaxPower(row3SlowSpeed)
@@ -128,6 +135,8 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
                 }
             }
             +fire
+
+            // row 1
             +autonManager.runPath(10) {
                 it.addTemporalCallback(row1SlowT) {
                     drive.follower.setMaxPower(row1SlowSpeed)
@@ -142,6 +151,8 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
                 }
             }
             +fire
+
+            // ending
             +endAuton
         })
     }
