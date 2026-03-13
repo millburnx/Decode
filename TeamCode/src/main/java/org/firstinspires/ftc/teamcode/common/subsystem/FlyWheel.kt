@@ -23,7 +23,7 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
             FlyWheelState.IDLE -> idleRPM
             FlyWheelState.SHOOTING -> shootingRPM
             FlyWheelState.INTAKING -> intakingRPM
-        }
+        } + Controller.rpmBoost
 
     val atRPM: Boolean
         get() = state == FlyWheelState.IDLE || abs(rpm - targetRpm) < Controller.rpmThreshold
@@ -150,6 +150,9 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
 
             @JvmField
             var rpmThreshold = 300.0
+
+            @JvmField
+            var rpmBoost = 0.0
         }
     }
 }
