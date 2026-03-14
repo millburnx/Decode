@@ -7,6 +7,7 @@ import com.millburnx.cmdxpedro.util.mirror
 import com.millburnx.util.Pose2d
 import com.millburnx.util.toDegrees
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.teamcode.common.GlobalStore
 import org.firstinspires.ftc.teamcode.common.commands.AutoPark
 import org.firstinspires.ftc.teamcode.common.subsystem.*
 import org.firstinspires.ftc.teamcode.common.subsystem.sorter.IndicatorLight
@@ -40,6 +41,9 @@ open class Teleop(val isRed: Boolean) : OpMode() {
         val autoAdjust = AutoAdjust(
             this, flyWheel, hood, { drive.pose }, { drive.velocity.position }, isRed
         )
+
+        drive.pose = GlobalStore.autonPose ?: Pose2d(112.0, 137.0, -90.0).mirror(!isRed)
+        GlobalStore.autonPose = null
 
         turret.targetingMode = if (liveTracking) Turret.TargetingMode.GLOBAL else Turret.TargetingMode.RELATIVE
         turret.target = 180.0
@@ -208,7 +212,7 @@ open class Teleop(val isRed: Boolean) : OpMode() {
         var downDuration = 50L
 
         @JvmField
-        var farUpDuration = 250L
+        var farUpDuration = 175L
 
         @JvmField
         var farDownDuration = 50L

@@ -24,7 +24,7 @@ fun AutoPark(drive: TeleOpDrive, isRed: Boolean, isRunning: () -> Boolean): Comm
                     Path(
                         BezierLine(
                             { drive.pose.toPedro() },
-                            Pose2d(105.0, 33.0, 0.0).mirror(!isRed).toPedro()
+                            Pose2d(105.0, 33.0, 0.0).mirror(isRed).toPedro()
                         )
                     )
                 )

@@ -6,8 +6,10 @@ import com.millburnx.cmdx.commandGroups.Parallel
 import com.millburnx.cmdx.commandGroups.Sequential
 import com.millburnx.cmdxpedro.util.SleepFor
 import com.millburnx.cmdxpedro.util.WaitFor
+import com.millburnx.cmdxpedro.util.mirror
 import com.millburnx.util.toDegrees
 import com.millburnx.util.vector.Vec2d
+import com.pedropathing.follower.Follower
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import org.firstinspires.ftc.teamcode.common.subsystem.*
 import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
@@ -63,10 +65,11 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
             +Parallel {
                 +autonManager.runPath(6)
                 Command {
-                    SleepFor { 100 }
-                    WaitFor { drive.follower.currentTValue >= rampOutakeT }
-                    intake.power = -1.0
+                    ParametricCallback(drive.follower, 0, rampOutakeT) {
+                        intake.power = -1.0
+                    }
                 }
+
             }
         }
 
@@ -77,7 +80,7 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
             println("auton end ${matchTimer.seconds()}")
         }
 
-        val goal = if (autonManager.isMirrored) Vec2d(-3.0, 144.0) else Vec2d(144.0, 144.0)
+        val goal = Vec2d(-4.0, 144.0).mirror(isRed)
 
         scheduler.schedule(Command("general") {
             OpModeLoop(this@Close18BallAuton) {
@@ -98,18 +101,15 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
 
             // row 2
             +autonManager.runPathChain(
-                listOf(1, 2), listOf({}, {
-                    it.addParametricCallback(row2SlowT) {
-                        drive.follower.setMaxPower(row2SlowSpeed)
-                    }
-                })
+                listOf(1, 2)
             )
-            +autonManager.runPath(3) {
-                it.addParametricCallback(0.0) {
+            +Parallel {
+                +autonManager.runPath(3)
+                Command {
                     drive.follower.setMaxPower(1.0)
-                }
-                it.addParametricCallback(row2OuttakeT) {
-                    intake.power = -1.0
+                    ParametricCallback(drive.follower, 0, row2OuttakeT) {
+                        intake.power = -1.0
+                    }
                 }
             }
             +fire
@@ -121,35 +121,21 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
             }
 
             // row 3
-            +autonManager.runPathChain(listOf(7, 8), listOf({}, {
-                it.addParametricCallback(row3SlowT) {
-                    drive.follower.setMaxPower(row3SlowSpeed)
-                }
-            }))
-            +autonManager.runPath(9) {
-                it.addParametricCallback(0.0) {
+            +autonManager.runPathChain(listOf(7, 8))
+            +Parallel {
+                +autonManager.runPath(9) {
                     drive.follower.setMaxPower(1.0)
                 }
-                it.addParametricCallback(row3OuttakeT) {
-                    intake.power = -1.0
+                Command {
+                    ParametricCallback(drive.follower, 0, row3OuttakeT) {
+                        intake.power = -1.0
+                    }
                 }
             }
             +fire
 
             // row 1
-            +autonManager.runPath(10) {
-                it.addParametricCallback(row1SlowT) {
-                    drive.follower.setMaxPower(row1SlowSpeed)
-                }
-            }
-            +autonManager.runPath(11) {
-                it.addParametricCallback(0.0) {
-                    drive.follower.setMaxPower(1.0)
-                }
-                it.addParametricCallback(row1OuttakeT) {
-                    intake.power = -1.0
-                }
-            }
+            +autonManager.runPathChain(listOf(10, 11))
             +fire
 
             // ending
@@ -159,7 +145,7 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
 
     companion object {
         @JvmField
-        var upDuration = 175L
+        var upDuration = 200L
 
         @JvmField
         var downDuration = 50L
@@ -168,7 +154,7 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
         var gatePower = 0.6
 
         @JvmField
-        var gateCounterRotate = -0.15
+        var gateCounterRotate = -0.175
 
         @JvmField
         var gateDuration = 500L
@@ -177,33 +163,23 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
         var rampDuration = 1500L
 
         @JvmField
-        var rampOutakeT = 0.125
+        var rampOutakeT = 0.05
 
         @JvmField
         var row2OuttakeT = 0.75
 
         @JvmField
-        var row2SlowT = 0.25
-
-        @JvmField
-        var row2SlowSpeed = 0.75
-
-        @JvmField
-        var row3SlowT = 0.25
-
-        @JvmField
-        var row3SlowSpeed = 0.75
-
-        @JvmField
         var row3OuttakeT = 0.375
-
-        @JvmField
-        var row1OuttakeT = 0.75
-
-        @JvmField
-        var row1SlowT = 0.25
-
-        @JvmField
-        var row1SlowSpeed = 0.75
     }
+}
+
+suspend fun Command.ParametricCallback(
+    follower: Follower,
+    pathIndex: Int,
+    tValue: Double,
+    callback: suspend Command.() -> Unit
+) {
+    sync()
+    WaitFor { follower.currentPathNumber > pathIndex || (follower.chainIndex == pathIndex && follower.currentTValue >= tValue) }
+    callback()
 }

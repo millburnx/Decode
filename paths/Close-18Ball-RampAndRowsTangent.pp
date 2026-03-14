@@ -49,9 +49,9 @@
       "id": "mmhivdbc-r1l4s3",
       "name": "Intake 2nd Row",
       "endPoint": {
-        "x": 126,
-        "y": 60,
-        "heading": "linear",
+        "x": 132,
+        "y": 59,
+        "heading": "tangential",
         "reverse": false,
         "startDeg": 0,
         "endDeg": 0
@@ -139,7 +139,7 @@
       "id": "mmmoua1w-nl1f25",
       "name": "Move to Row 3",
       "endPoint": {
-        "x": 102,
+        "x": 100,
         "y": 36,
         "heading": "tangential",
         "reverse": false,
@@ -159,7 +159,7 @@
       "endPoint": {
         "x": 133,
         "y": 36,
-        "heading": "linear",
+        "heading": "tangential",
         "reverse": false,
         "startDeg": 0,
         "endDeg": 0
@@ -192,7 +192,7 @@
     {
       "id": "mmmp2htg-3fm37x",
       "endPoint": {
-        "x": 126,
+        "x": 127,
         "y": 84,
         "heading": "tangential",
         "reverse": false
@@ -358,5 +358,5 @@
     "pathOpacity": 1
   },
   "version": "1.2.1",
-  "timestamp": "2026-03-13T02:35:51.958Z"
+  "timestamp": "2026-03-13T19:27:25.034Z"
 }

@@ -98,10 +98,10 @@ class TeleOpDrive(opMode: OpMode, val isRed: Boolean, limelight: Limelight? = nu
         get() = ZoneAssist.inZonePartial(pose.position)
 
     val inZoneClosePartial: Boolean
-        get() = ZoneAssist.inZonePartial(pose.position, useClose = false)
+        get() = ZoneAssist.inZonePartial(pose.position, useFar = false)
 
     val inZoneFarPartial: Boolean
-        get() = ZoneAssist.inZonePartial(pose.position, useFar = false)
+        get() = ZoneAssist.inZonePartial(pose.position, useClose = false)
 
     val inZone: Boolean
         get() = ZoneAssist.inZone(pose.position)

@@ -54,7 +54,7 @@ class AutoAdjust(
     }
 
     companion object {
-        val goal = Vec2d(-4.0, 144.0)
+        val goal = Vec2d(-0.0, 144.0)
 
         fun getTarget(distance: Distance): Pair<RPM, Angle> {
             return (DATA.ceilingEntry(distance) ?: DATA.lastEntry()).value
