@@ -24,6 +24,7 @@ class Limelight(
     var getPose: () -> Pose2d = { Pose2d() }
     var setPose: (Pose2d) -> Unit = {}
     var drawPose: (Pose2d) -> Unit = {}
+    var onSwitch: () -> Unit = {}
 
     /**
      * Heading of turret in global space
@@ -49,6 +50,8 @@ class Limelight(
                     setPose(pose)
                     drawPose(pose)
                     localizationState = LocalizationState.READY
+
+                    onSwitch()
                 }
             }
             if (localizationState == LocalizationState.READY) {

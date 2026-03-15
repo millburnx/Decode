@@ -11,16 +11,17 @@ import com.millburnx.util.toDegrees
 import com.millburnx.util.vector.Vec2d
 import com.pedropathing.follower.Follower
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import org.firstinspires.ftc.teamcode.common.GlobalStore
 import org.firstinspires.ftc.teamcode.common.subsystem.*
 import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
 
-@Autonomous
+@Autonomous(preselectTeleOp = "TeleopRed")
 class Close18BallRed : Close18BallAuton(true)
 
-@Autonomous
+@Autonomous(preselectTeleOp = "TeleopBlue")
 class Close18BallBlue : Close18BallAuton(false)
 
 @Configurable
@@ -86,6 +87,7 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
             OpModeLoop(this@Close18BallAuton) {
                 turret.targetingMode = Turret.TargetingMode.GLOBAL
                 turret.target = drive.pose.position.angleTo(goal).toDegrees()
+                GlobalStore.autonPose = drive.pose
             }
         })
 

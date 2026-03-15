@@ -10,6 +10,7 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit
+import org.firstinspires.ftc.teamcode.common.GlobalStore
 import org.firstinspires.ftc.teamcode.common.hardware.fromFTC
 import org.firstinspires.ftc.teamcode.common.hardware.fromPedro
 import org.firstinspires.ftc.teamcode.common.hardware.toFTC
@@ -86,7 +87,7 @@ class FusionLocalizer(hardwareMap: HardwareMap, val deltaTime: () -> Double, val
             kfX.predict(deltaTime())
             kfY.predict(deltaTime())
 
-            if (limelight != null) {
+            if (limelight != null && GlobalStore.useKF) {
                 val llPose = limelight.pose
                 if (llPose != null && llPose.second != _lastLLTimestamp) {
                     _lastLLTimestamp = llPose.second

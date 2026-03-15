@@ -45,9 +45,9 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
     ) {
         val (upDuration, downDuration) = durations
         isUp = true
-        SleepFor { upDuration }
+        SleepFor { if (config.isAxon) Config.axonDurationUp else upDuration }
         isUp = false
-        SleepFor { downDuration }
+        SleepFor { if (config.isAxon) Config.axonDurationDown else downDuration }
     }
 
     fun updateState() {
@@ -105,7 +105,7 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
 
         @JvmField // done
         var frontConfig = Config(
-            "s5", false, .4, .8, "c0e", "c2e", 10.0, ColorRange(
+            "s0", false, .4, .8, "c0e", "c2e", 10.0, ColorRange(
                 150.0..155.0, 27.0..30.5, 19.0..25.0
             ), ColorRange(
                 165.0..172.0, 40.0..45.0, 66.0..70.0
@@ -113,12 +113,12 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
                 155.5..160.0, 34.5..37.0, 19.0..25.0
             ), ColorRange(
                 158.0..165.0, 47.0..50.0, 68.0..74.0
-            ), true
+            ), false
         )
 
         @JvmField
         var backConfig = Config(
-            "s3", true, .36, .76, "c1e", "c0", 10.0, ColorRange(
+            "s3", false, .35, .67, "c1e", "c0", 10.0, ColorRange(
                 154.0..159.0, 30.0..33.0, 15.0..19.0
             ), ColorRange(
                 145.5..152.0, 39.0..42.0, 40.0..42.0
@@ -126,7 +126,7 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
                 153.0..157.0, 35.0..38.0, 15.0..19.0
             ), ColorRange(
                 145.0..152.5, 44.0..47.0, 42.0..45.0
-            ), false
+            ), false, true
         )
 
         @JvmField
@@ -159,6 +159,8 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
         EMPTY, PURPLE, GREEN,
     }
 
+    @Configurable
+
     class Config(
         var servoName: String,
         var servoReversed: Boolean,
@@ -178,7 +180,19 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
         var greenRangeV3: ColorRange,
 
         var useTelemetry: Boolean,
-    )
+
+        var isAxon: Boolean = false
+
+
+    ) {
+        companion object {
+            @JvmField
+            var axonDurationUp = 500L
+
+            @JvmField
+            var axonDurationDown = 100L
+        }
+    }
 }
 
 class ColorRange(

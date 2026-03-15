@@ -4,13 +4,15 @@ import com.bylazar.configurables.annotations.Configurable
 import com.bylazar.field.PanelsField
 import com.millburnx.cmdx.Command
 import com.millburnx.util.vector.Vec2d
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.subsystem.TeleOpDrive
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
+@Disabled
 @Configurable
-@TeleOp
+@TeleOp(group = "test")
 class PinpointTest : OpMode() {
     override fun run() {
         val drive = TeleOpDrive(this, true)

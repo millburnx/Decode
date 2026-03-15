@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
 @Configurable
-@TeleOp
+@TeleOp(group = "test")
 class FusionTest : OpMode() {
     override fun run() {
         val limelight = Limelight(this)

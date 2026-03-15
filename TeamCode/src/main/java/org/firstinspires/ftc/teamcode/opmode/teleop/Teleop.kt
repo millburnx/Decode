@@ -25,10 +25,12 @@ class TeleopBlue : Teleop(false)
 @Configurable
 open class Teleop(val isRed: Boolean) : OpMode() {
     override fun run() {
+        GlobalStore.useKF = true
+
         val indicatorLight = IndicatorLight(this)
 
         val limelight = Limelight(this)
-        val drive = TeleOpDrive(this, true, limelight)
+        val drive = TeleOpDrive(this, isRed, limelight)
         val turret = Turret(this, { drive.pose.heading }, { drive.velocity.heading }, { voltageSensor.voltage })
         limelight.turretHeading = { turret.angle }
         limelight.drawPose = { pose ->
@@ -42,10 +44,14 @@ open class Teleop(val isRed: Boolean) : OpMode() {
             this, flyWheel, hood, { drive.pose }, { drive.velocity.position }, isRed
         )
 
-        drive.pose = GlobalStore.autonPose ?: Pose2d(112.0, 137.0, -90.0).mirror(!isRed)
-        GlobalStore.autonPose = null
+        limelight.onSwitch = {
+            turret.targetingMode = Turret.TargetingMode.GLOBAL
+        }
 
-        turret.targetingMode = if (liveTracking) Turret.TargetingMode.GLOBAL else Turret.TargetingMode.RELATIVE
+        drive.pose = GlobalStore.autonPose ?: Pose2d(112.0, 137.0, -90.0).mirror(!isRed)
+        turret.targetingMode =
+            if (liveTracking && GlobalStore.autonPose != null) Turret.TargetingMode.GLOBAL else Turret.TargetingMode.RELATIVE
+        GlobalStore.autonPose = null
         turret.target = 180.0
 
         var manualMode = false
@@ -72,6 +78,7 @@ open class Teleop(val isRed: Boolean) : OpMode() {
             }
 
             WaitFor { zoneCheck() && turretReady() }
+            GlobalStore.useKF = false
             indicatorLight.stateFlags[IndicatorLight.State.OUT_OF_ZONE] = false
             indicatorLight.stateFlags[IndicatorLight.State.TURRET_DEADZONE] = false
             WaitFor { flyWheel.atRPM }
@@ -95,6 +102,7 @@ open class Teleop(val isRed: Boolean) : OpMode() {
             indicatorLight.stateFlags[IndicatorLight.State.FIRING] = false
             flyWheel.state = FlyWheel.FlyWheelState.IDLE
             if (!liveTracking) turret.targetingMode = Turret.TargetingMode.RELATIVE
+            GlobalStore.useKF = true
         }
 
         val autoPark = AutoPark(drive, isRed) { !isStopRequested }

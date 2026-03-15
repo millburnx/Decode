@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.opmode.teleop.Teleop.Companion.downDuratio
 import org.firstinspires.ftc.teamcode.opmode.teleop.Teleop.Companion.upDuration
 
 @Configurable
-@TeleOp
+@TeleOp(group = "test")
 class ShooterTester : OpMode() {
     override fun run() {
         val drive = TeleOpDrive(this, !isBlue)
@@ -85,6 +85,6 @@ class ShooterTester : OpMode() {
         var intakePower = 0.0
 
         @JvmField
-        var isBlue = false
+        var isBlue = true
     }
 }

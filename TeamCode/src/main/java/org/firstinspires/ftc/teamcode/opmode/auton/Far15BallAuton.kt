@@ -17,13 +17,13 @@ import org.firstinspires.ftc.teamcode.opmode.OpMode
 
 
 @Autonomous(preselectTeleOp = "TeleopRed")
-class Far9BallRed : Far9BallAuton(true)
+class Far15BallRed : Far15BallAuton(true)
 
 @Autonomous(preselectTeleOp = "TeleopBlue")
-class Far9BallBlue : Far9BallAuton(false)
+class Far15BallBlue : Far15BallAuton(false)
 
 @Configurable
-open class Far9BallAuton(var isRed: Boolean) : OpMode() {
+open class Far15BallAuton(var isRed: Boolean) : OpMode() {
     override fun run() {
         val sorter = Sorter(this)
         val hood = Hood(this)
@@ -33,7 +33,7 @@ open class Far9BallAuton(var isRed: Boolean) : OpMode() {
         val turret = Turret(this, { drive.pose.heading }, { drive.velocity.heading }, { voltageSensor.voltage })
         val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose }, { Vec2d() }, isRed)
 
-        val autonManager = AutonManager(this, drive, "Far-9Ball", isMirrored = !isRed)
+        val autonManager = AutonManager(this, drive, "Far-15Ball", isMirrored = !isRed)
 
         val fire = Command {
             intake.power = -1.0
@@ -54,7 +54,7 @@ open class Far9BallAuton(var isRed: Boolean) : OpMode() {
         val goal = Vec2d(-5.0, 144.0).mirror(!autonManager.isMirrored)
 
         scheduler.schedule(Command("general") {
-            OpModeLoop(this@Far9BallAuton) {
+            OpModeLoop(this@Far15BallAuton) {
                 turret.targetingMode = Turret.TargetingMode.GLOBAL
                 turret.target = drive.pose.position.angleTo(goal).toDegrees()
                 GlobalStore.autonPose = drive.pose
@@ -68,16 +68,35 @@ open class Far9BallAuton(var isRed: Boolean) : OpMode() {
             }
             +autonManager.runPath(0)
             +fire
+
             +autonManager.runPath(1)
             +autonManager.runPath(2)
             Command { SleepFor { stablizationTime } }
             +fire
+
             +autonManager.runPath(3)
             +autonManager.runPath(4)
             +autonManager.runPath(5)
             Command { SleepFor { stablizationTime } }
             +fire
+
             +autonManager.runPath(6)
+            +autonManager.runPath(7)
+            Command { SleepFor { stablizationTime } }
+            +fire
+
+            +autonManager.runPath(8)
+            +autonManager.runPath(9)
+            +autonManager.runPath(10)
+            Command { SleepFor { stablizationTime } }
+            +fire
+
+            +autonManager.runPath(6)
+            +autonManager.runPath(7)
+            Command { SleepFor { stablizationTime } }
+            +fire
+
+            +autonManager.runPath(11)
             +endAuton
         })
     }

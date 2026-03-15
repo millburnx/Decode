@@ -8,15 +8,18 @@ import com.millburnx.cmdxpedro.util.WaitFor
 import com.millburnx.util.toDegrees
 import com.millburnx.util.vector.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import org.firstinspires.ftc.teamcode.common.subsystem.*
 import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
 
+@Disabled
 @Autonomous
 class CloseRampRed : CloseRampAuton(true)
 
+@Disabled
 @Autonomous
 class CloseRampBlue : CloseRampAuton(false)
 

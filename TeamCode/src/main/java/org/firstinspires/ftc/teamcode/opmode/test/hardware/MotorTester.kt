@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
-@TeleOp
+@TeleOp(group = "test")
 @Configurable
 class MotorTester : OpMode() {
     override fun run() {

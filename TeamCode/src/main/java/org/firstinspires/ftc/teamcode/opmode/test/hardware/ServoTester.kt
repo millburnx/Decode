@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
-@TeleOp
+@TeleOp(group = "test")
 @Configurable
 class ServoTester : OpMode() {
     override fun run() {

@@ -109,6 +109,7 @@ class TeleOpDrive(opMode: OpMode, val isRed: Boolean, limelight: Limelight? = nu
     var isTeleopDrive = true
         set(value) {
             if (!field && value) {
+                follower.breakFollowing()
                 follower.startTeleopDrive(false)
             }
             field = value

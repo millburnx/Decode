@@ -45,8 +45,8 @@ abstract class OpMode : LinearOpMode() {
 
             val syncTimer = ElapsedTime()
 
-            tel.addData("hz", loopHertz)
-            tel.addData("ms", ms)
+//            tel.addData("hz", loopHertz)
+//            tel.addData("ms", ms)
 
             averageHz.update(loopHertz)
             tel.addData("smoothed hz", averageHz.average)
@@ -54,7 +54,7 @@ abstract class OpMode : LinearOpMode() {
             val telUpdateTime = measureTime {
                 tel.update(telemetry)
             }
-            tel.addData("tel ms", telUpdateTime.inWholeMilliseconds)
+//            tel.addData("tel ms", telUpdateTime.inWholeMilliseconds)
 //            Drawing.sendPacket()
 
             PanelsField.field.update()
@@ -66,14 +66,14 @@ abstract class OpMode : LinearOpMode() {
             val manualUpdateTime = measureTime {
                 ManualManager.update()
             }
-            tel.addData("br ms", bulkReadTime.inWholeMilliseconds)
-            tel.addData("mu ms", manualUpdateTime.inWholeMilliseconds)
+//            tel.addData("br ms", bulkReadTime.inWholeMilliseconds)
+//            tel.addData("mu ms", manualUpdateTime.inWholeMilliseconds)
 
             if (::gamepadManager.isInitialized) {
                 gamepadManager.update()
             }
 
-            tel.addData("onsync ms", syncTimer.milliseconds())
+//            tel.addData("onsync ms", syncTimer.milliseconds())
             tel.addData("match timer", matchTimer.seconds())
             syncTimer.reset()
         }

@@ -10,16 +10,17 @@ import com.millburnx.cmdxpedro.util.mirror
 import com.millburnx.util.toDegrees
 import com.millburnx.util.vector.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import org.firstinspires.ftc.teamcode.common.GlobalStore
 import org.firstinspires.ftc.teamcode.common.subsystem.*
 import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
 
-@Autonomous
+@Autonomous(preselectTeleOp = "TeleopRed")
 class Close18BallRedWLR : Close18BallAutonWLR(true)
 
-@Autonomous
+@Autonomous(preselectTeleOp = "TeleopBlue")
 class Close18BallBlueWLR : Close18BallAutonWLR(false)
 
 @Configurable
@@ -40,7 +41,7 @@ open class Close18BallAutonWLR(var isRed: Boolean) : OpMode() {
             WaitFor { turret.atTarget && turret.isSteady }
             val atRPM = { flyWheel.atRPM }
             WaitFor { atRPM() }
-            sorter.run { rapidFire(firingSpeed = Close18BallAuton.upDuration to Close18BallAuton.downDuration) }
+            sorter.run { rapidFire(firingSpeed = upDuration to downDuration) }
             intake.power = 1.0
         }
 
@@ -49,17 +50,17 @@ open class Close18BallAutonWLR(var isRed: Boolean) : OpMode() {
                 drive.follower.breakFollowing()
                 drive.follower.startTeleopDrive(true)
                 drive.follower.setTeleOpDrive(
-                    Close18BallAuton.gatePower,
+                    gatePower * (if (isRed) 1.0 else -1.0),
                     0.0,
-                    Close18BallAuton.gateCounterRotate,
+                    gateCounterRotate * (if (isRed) 1.0 else -1.0),
                     false
                 )
 
-                SleepFor { Close18BallAuton.gateDuration }
+                SleepFor { gateDuration }
 
                 drive.follower.setTeleOpDrive(0.0, 0.0, 0.0)
 
-                SleepFor { Close18BallAuton.rampDuration }
+                SleepFor { rampDuration }
             }
         }
 
@@ -69,7 +70,7 @@ open class Close18BallAutonWLR(var isRed: Boolean) : OpMode() {
             +Parallel {
                 +autonManager.runPath(6)
                 Command {
-                    ParametricCallback(drive.follower, 0, Close18BallAuton.rampOutakeT) {
+                    ParametricCallback(drive.follower, 0, rampOutakeT) {
                         intake.power = -1.0
                     }
                 }
@@ -90,6 +91,7 @@ open class Close18BallAutonWLR(var isRed: Boolean) : OpMode() {
             OpModeLoop(this@Close18BallAutonWLR) {
                 turret.targetingMode = Turret.TargetingMode.GLOBAL
                 turret.target = drive.pose.position.angleTo(goal).toDegrees()
+                GlobalStore.autonPose = drive.pose
             }
         })
 
@@ -111,7 +113,7 @@ open class Close18BallAutonWLR(var isRed: Boolean) : OpMode() {
                 +autonManager.runPath(3)
                 Command {
                     drive.follower.setMaxPower(1.0)
-                    ParametricCallback(drive.follower, 0, Close18BallAuton.row2OuttakeT) {
+                    ParametricCallback(drive.follower, 0, row2OuttakeT) {
                         intake.power = -1.0
                     }
                 }
@@ -131,5 +133,34 @@ open class Close18BallAutonWLR(var isRed: Boolean) : OpMode() {
             // ending
             +endAuton
         })
+    }
+
+    companion object {
+        @JvmField
+        var upDuration = 200L
+
+        @JvmField
+        var downDuration = 50L
+
+        @JvmField
+        var gatePower = 0.6
+
+        @JvmField
+        var gateCounterRotate = -0.175
+
+        @JvmField
+        var gateDuration = 500L
+
+        @JvmField
+        var rampDuration = 1500L
+
+        @JvmField
+        var rampOutakeT = 0.05
+
+        @JvmField
+        var row2OuttakeT = 0.75
+
+        @JvmField
+        var row3OuttakeT = 0.375
     }
 }

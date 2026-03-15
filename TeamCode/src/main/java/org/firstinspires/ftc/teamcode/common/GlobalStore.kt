@@ -9,4 +9,7 @@ object GlobalStore {
 
     @JvmField
     var useTelemetry: Boolean = false
+
+    @JvmField
+    var useKF: Boolean = true
 }

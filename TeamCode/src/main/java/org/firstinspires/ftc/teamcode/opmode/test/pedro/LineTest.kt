@@ -8,6 +8,7 @@ import com.millburnx.cmdxpedro.paths.heading.LinearHeading
 import com.millburnx.cmdxpedro.paths.path.Line
 import com.millburnx.cmdxpedro.util.WaitFor
 import com.millburnx.util.vector.Vec2d
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.common.subsystem.TeleOpDrive
@@ -15,6 +16,7 @@ import org.firstinspires.ftc.teamcode.opmode.OpMode
 import org.firstinspires.ftc.teamcode.opmode.auton.BaseAutonManager
 import org.firstinspires.ftc.teamcode.pedro.Tuning
 
+@Disabled
 @Configurable
 @TeleOp
 class LineTest : OpMode() {
