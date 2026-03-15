@@ -82,7 +82,7 @@ open class Far15BallAuton(var isRed: Boolean) : OpMode() {
 
             +autonManager.runPath(6)
             +autonManager.runPath(7)
-            Command { SleepFor { stablizationTime } }
+            Command { SleepFor { intake.power = -1.0; stablizationTimeLong } }
             +fire
 
             +autonManager.runPath(8)
@@ -93,7 +93,7 @@ open class Far15BallAuton(var isRed: Boolean) : OpMode() {
 
             +autonManager.runPath(6)
             +autonManager.runPath(7)
-            Command { SleepFor { stablizationTime } }
+            Command { SleepFor { intake.power = -1.0; stablizationTimeLong } }
             +fire
 
             +autonManager.runPath(11)
@@ -110,5 +110,8 @@ open class Far15BallAuton(var isRed: Boolean) : OpMode() {
 
         @JvmField
         var stablizationTime = 200L
+
+        @JvmField
+        var stablizationTimeLong = 1000L
     }
 }

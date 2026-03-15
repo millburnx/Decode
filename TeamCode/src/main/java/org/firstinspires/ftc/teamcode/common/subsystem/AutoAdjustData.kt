@@ -11,12 +11,12 @@ fun <K, V> treeMapOf(vararg pairs: Pair<K, V>): TreeMap<K, V> {
 }
 
 val DATA: TreeMap<Distance, Pair<RPM, Angle>> = treeMapOf(
-    40.0 to (3000.0 to 0.0),
-    44.0 to (3000.0 to 0.0),
-    48.0 to (2900.0 to 0.0),
-    52.0 to (2900.0 to 0.0),
-    56.0 to (3000.0 to 0.0),
-    60.0 to (3000.0 to 0.0),
+    40.0 to (2800.0 to 0.0),
+    44.0 to (2900.0 to 0.0),
+    48.0 to (2800.0 to 0.0),
+    52.0 to (2800.0 to 0.0),
+    56.0 to (2800.0 to 0.0),
+    60.0 to (2900.0 to 0.0),
     64.0 to (3000.0 to 0.0),
     68.0 to (3100.0 to 0.0),
     72.0 to (3100.0 to 0.0),
