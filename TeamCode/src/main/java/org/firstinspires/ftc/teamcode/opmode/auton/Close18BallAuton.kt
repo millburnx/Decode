@@ -33,7 +33,7 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
         val intake = Intake(this)
         val drive = Drive(this)
         val turret = Turret(this, { drive.pose.heading }, { drive.velocity.heading }, { voltageSensor.voltage })
-        val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose }, { Vec2d() }, isRed)
+        val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose }, { Vec2d() }, isRed = isRed)
 
         val autonManager = AutonManager(this, drive, "Close-18Ball-RampAndRowsTangent", isMirrored = !isRed)
 
@@ -50,7 +50,10 @@ open class Close18BallAuton(var isRed: Boolean) : OpMode() {
             Command {
                 drive.follower.breakFollowing()
                 drive.follower.startTeleopDrive(true)
-                drive.follower.setTeleOpDrive(gatePower, 0.0, gateCounterRotate, false)
+                drive.follower.setTeleOpDrive(
+                    gatePower * (if (isRed) 1.0 else -1.0),
+                    0.0,
+                    gateCounterRotate * (if (isRed) 1.0 else -1.0), false)
 
                 SleepFor { gateDuration }
 

@@ -32,7 +32,7 @@ open class Close18BallAutonWLR(var isRed: Boolean) : OpMode() {
         val intake = Intake(this)
         val drive = Drive(this)
         val turret = Turret(this, { drive.pose.heading }, { drive.velocity.heading }, { voltageSensor.voltage })
-        val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose }, { Vec2d() }, isRed)
+        val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose }, { Vec2d() }, isRed = isRed)
 
         val autonManager = AutonManager(this, drive, "Close-18Ball-RampAndRowsTangent", isMirrored = !isRed)
 
@@ -146,7 +146,7 @@ open class Close18BallAutonWLR(var isRed: Boolean) : OpMode() {
         var gatePower = 0.6
 
         @JvmField
-        var gateCounterRotate = -0.175
+        var gateCounterRotate = -0.2
 
         @JvmField
         var gateDuration = 500L

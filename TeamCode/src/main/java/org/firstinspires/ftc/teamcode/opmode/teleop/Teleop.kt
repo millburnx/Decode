@@ -41,7 +41,7 @@ open class Teleop(val isRed: Boolean) : OpMode() {
         val intake = Intake(this)
         val sorter = Sorter(this, indicatorLight)
         val autoAdjust = AutoAdjust(
-            this, flyWheel, hood, { drive.pose }, { drive.velocity.position }, isRed
+            this, flyWheel, hood, { drive.pose }, { drive.velocity.position }, { drive.inZoneFarPartial }, isRed
         )
 
         limelight.onSwitch = {

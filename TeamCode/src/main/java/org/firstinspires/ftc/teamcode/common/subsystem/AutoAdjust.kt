@@ -16,6 +16,7 @@ class AutoAdjust(
     val hood: Hood,
     val getPose: () -> Pose2d,
     val getVelocity: () -> Vec2d,
+    val isFarZone: () -> Boolean = {false},
     val isRed: Boolean = true
 ) :
     Subsystem("AutoAdjust") {
@@ -29,7 +30,7 @@ class AutoAdjust(
         OpModeLoop(opMode) {
             with(opMode) {
                 if (!enabled) return@OpModeLoop
-                val goal = goal.mirror(isRed)
+                val goal = (if (isFarZone()) goalFar else goal).mirror(isRed)
 
                 val SOTMResults = SOTM.calculate(opMode.tel, getVelocity(), getPose(), goal)
 
@@ -54,7 +55,15 @@ class AutoAdjust(
     }
 
     companion object {
-        val goal = Vec2d(-0.0, 144.0)
+        @JvmField
+        var goalXOffsetClose = 0.0
+        @JvmField
+        var goalXOffsetFar = 5.0
+
+        val goal
+            get() =  Vec2d(0.0 + goalXOffsetClose, 144.0)
+        val goalFar
+            get() =  Vec2d(0.0 + goalXOffsetFar, 144.0)
 
         fun getTarget(distance: Distance): Pair<RPM, Angle> {
             return (DATA.ceilingEntry(distance) ?: DATA.lastEntry()).value

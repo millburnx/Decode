@@ -30,7 +30,7 @@ open class Close12BallAuton(var isRed: Boolean) : OpMode() {
         val intake = Intake(this)
         val drive = Drive(this)
         val turret = Turret(this, { drive.pose.heading }, { drive.velocity.heading }, { voltageSensor.voltage })
-        val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose }, { Vec2d() }, isRed)
+        val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose }, { Vec2d() }, isRed = isRed)
 
         val autonManager = AutonManager(this, drive, "Close-12Ball-6Ramp-AllRows", isMirrored = !isRed)
 
