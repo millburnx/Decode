@@ -5,14 +5,15 @@ import com.bylazar.field.PanelsField
 import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.util.mirror
 import com.millburnx.util.Pose2d
+import com.millburnx.util.toRadians
 import com.millburnx.util.vector.Vec2d
 import com.pedropathing.geometry.Pose
 import org.firstinspires.ftc.teamcode.common.hardware.fromPedro
-import org.firstinspires.ftc.teamcode.common.hardware.normalizeDegrees
 import org.firstinspires.ftc.teamcode.common.hardware.toPedro
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.common.util.ZoneAssist
 import org.firstinspires.ftc.teamcode.opmode.OpMode
+import org.firstinspires.ftc.teamcode.opmode.test.pedro.StandaloneRotation
 import org.firstinspires.ftc.teamcode.pedro.Constants
 
 @Configurable
@@ -73,6 +74,8 @@ open class Drive(val opMode: OpMode, limelight: Limelight? = null) : Subsystem("
 class TeleOpDrive(opMode: OpMode, val isRed: Boolean, limelight: Limelight? = null) : Drive(opMode, limelight) {
     override val follower = Constants.createManualFusionFollower(opMode.hardwareMap, { opMode.deltaTime }, limelight)
 
+    val headingLockController = StandaloneRotation()
+
     var useGateAssist = false
 
     var useZoneAssist = false
@@ -88,10 +91,8 @@ class TeleOpDrive(opMode: OpMode, val isRed: Boolean, limelight: Limelight? = nu
     }
 
     fun gateAssist(): Double {
-        val heading = pose.heading
-        val diff = normalizeDegrees(heading - gateAssistHeading.mirror(!isRed))
-        opMode.tel.addData("gateassist", diff)
-        return diff * gateAssistPower
+        val target = gateAssistHeading.mirror(!isRed)
+        return headingLockController.calc(pose.radians, target.toRadians())
     }
 
     val inZonePartial: Boolean
@@ -151,7 +152,7 @@ class TeleOpDrive(opMode: OpMode, val isRed: Boolean, limelight: Limelight? = nu
                     follower.setTeleOpDrive(
                         -gp1.current.leftJoyStick.y,
                         -gp1.current.leftJoyStick.x,
-                        -(gp1.current.rightJoyStick.x + gateAssist()),
+                        -gp1.current.rightJoyStick.x + gateAssist(),
                         !useFieldCentric
                     )
                 }
@@ -162,9 +163,6 @@ class TeleOpDrive(opMode: OpMode, val isRed: Boolean, limelight: Limelight? = nu
     companion object {
         @JvmField
         var gateAssistHeading = 35.0
-
-        @JvmField
-        var gateAssistPower = 0.02
 
         @JvmField
         var useFieldCentric = false

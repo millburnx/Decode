@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.common.subsystem
 
-import com.arcrobotics.ftclib.controller.PIDController
 import com.arcrobotics.ftclib.kotlin.extensions.util.clamp
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
@@ -13,9 +12,11 @@ import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.common.util.PIDFCoefficients
 import org.firstinspires.ftc.teamcode.common.util.TimeAverage
 import org.firstinspires.ftc.teamcode.opmode.OpMode
+import org.firstinspires.ftc.teamcode.opmode.test.pedro.StandaloneRotation
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sign
+import com.pedropathing.control.PIDFCoefficients as PedroPIDFCoeff
 
 /**
  * Everything here is within the internal range
@@ -79,7 +80,11 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
     val isSteady
         get() = abs(averagedQuadatureVelocity.average) < steadyThreshold
 
-    val pid = PIDController(coeff.kP, coeff.kI, coeff.kD)
+    val controller = StandaloneRotation(
+        { PedroPIDFCoeff(coeff.kP, coeff.kI, coeff.kD, coeff.kS) },
+        { PedroPIDFCoeff(coeffSecondary.kP, coeffSecondary.kI, coeffSecondary.kD, coeffSecondary.kS) },
+        { useSecondary }
+    )
 
     override val run
             : suspend Command .()
@@ -96,10 +101,9 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
                 if (targetingMode == TargetingMode.OFF) {
                     motor.power = 0.0
                 } else {
-                    pid.setPID(coeff.kP, coeff.kI, coeff.kD)
 
                     val driveCompFF = if (targetingMode == TargetingMode.GLOBAL) kR * -velocity() else 0.0
-                    val pidf = pid.calculate(_angle, _target) + driveCompFF
+                    val pidf = controller.calc(_angle, _target) + driveCompFF
                     val ks = sign(pidf) * coeff.kS
 
                     val rawPower = pidf + ks
@@ -184,10 +188,16 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
         var coeff = PIDFCoefficients(0.05, 0.0, 0.001, 0.1)
 
         @JvmField
+        var coeffSecondary = PIDFCoefficients(0.05, 0.0, 0.001, 0.1)
+
+        @JvmField
+        var useSecondary = false
+
+        @JvmField
         var kR = 0.15
 
         @JvmField
-        var minPower = 0.2
+        var minPower = 0.0
 
         @JvmField
         var startingOffset = -8.0
