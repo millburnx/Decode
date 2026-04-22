@@ -65,11 +65,13 @@ class Limelight(
                 }
 
                 val tags = result.fiducialResults.map { it.fiducialId }.joinToString(", ")
-                opMode.tel.addData("tag ids", tags)
+                if (useTelemetry) opMode.tel.addData("tag ids", tags)
             }
 
-            opMode.tel.addData("ll state", localizationState)
-            opMode.tel.addData("ll heading", normalizeDegrees(getPose().heading + turretHeading() + mtOffset))
+            if (useTelemetry) {
+                opMode.tel.addData("ll state", localizationState)
+                opMode.tel.addData("ll heading", normalizeDegrees(getPose().heading + turretHeading() + mtOffset))
+            }
         }
     }
 
@@ -108,5 +110,8 @@ class Limelight(
 
         @JvmField
         var useMT2 = true
+
+        @JvmField
+        var useTelemetry = false
     }
 }

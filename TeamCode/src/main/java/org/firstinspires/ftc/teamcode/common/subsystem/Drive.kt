@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.common.util.ZoneAssist
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 import org.firstinspires.ftc.teamcode.opmode.test.pedro.StandaloneRotation
 import org.firstinspires.ftc.teamcode.pedro.Constants
+import kotlin.math.abs
 
 @Configurable
 open class Drive(val opMode: OpMode, limelight: Limelight? = null) : Subsystem("Drive") {
@@ -60,13 +61,16 @@ open class Drive(val opMode: OpMode, limelight: Limelight? = null) : Subsystem("
         val lookPos = pose + Vec2d(1.0, 0.0).rotate(pose.radians) * 8.0
         canvas.line(lookPos.x, lookPos.y)
 
-        opMode.tel.addData("$name.x", pose.x)
-        opMode.tel.addData("$name.y", pose.y)
-        opMode.tel.addData("$name.h", pose.heading)
+        if (useTelemetry) {
+            opMode.tel.addData("$name.x", pose.x)
+            opMode.tel.addData("$name.y", pose.y)
+            opMode.tel.addData("$name.h", pose.heading)
+        }
     }
 
     companion object {
-
+        @JvmField
+        var useTelemetry = false
     }
 }
 
@@ -142,9 +146,15 @@ class TeleOpDrive(opMode: OpMode, val isRed: Boolean, limelight: Limelight? = nu
 
                     if (inZone) useZoneAssist = false // disable on enter
 
+                    var forward = -gp1.current.leftJoyStick.y
+                    if (abs(forward) < minPower) forward = 0.0
+
+                    var strafe = -gp1.current.leftJoyStick.x
+                    if (abs(strafe) < minPower) strafe = 0.0
+
                     follower.setTeleOpDrive(
-                        -gp1.current.leftJoyStick.y + zoneAssist.x,
-                        -gp1.current.leftJoyStick.x + zoneAssist.y,
+                        forward + zoneAssist.x,
+                        strafe + zoneAssist.y,
                         -gp1.current.rightJoyStick.x,
                         !useFieldCentric
                     )
@@ -166,5 +176,8 @@ class TeleOpDrive(opMode: OpMode, val isRed: Boolean, limelight: Limelight? = nu
 
         @JvmField
         var useFieldCentric = false
+
+        @JvmField
+        var minPower = 0.3
     }
 }

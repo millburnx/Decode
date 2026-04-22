@@ -2,9 +2,9 @@ package org.firstinspires.ftc.teamcode.opmode.test.pedro
 
 import com.pedropathing.control.PIDFCoefficients
 import com.pedropathing.control.PIDFController
-import com.pedropathing.math.MathFunctions
 import org.firstinspires.ftc.teamcode.pedro.Constants
 import kotlin.math.abs
+import kotlin.math.sign
 
 class StandaloneRotation(
     val headingPIDFCoefficients: () -> PIDFCoefficients = { Constants.followerConstants.coefficientsHeadingPIDF },
@@ -16,21 +16,23 @@ class StandaloneRotation(
     val secondaryPidf = PIDFController(secondaryHeadingPIDFCoefficients())
 
     fun calc(current: Double, target: Double): Double {
-        pidf.coefficients = Constants.followerConstants.coefficientsHeadingPIDF
-        secondaryPidf.coefficients = Constants.followerConstants.coefficientsSecondaryHeadingPIDF
+        pidf.coefficients = headingPIDFCoefficients()
+        secondaryPidf.coefficients = secondaryHeadingPIDFCoefficients()
 
-        val direction = MathFunctions.getTurnDirection(current, target)
-        val magnitude = MathFunctions.getSmallestAngleDifference(current, target);
-        val headingError = direction * magnitude
+//        val direction = MathFunctions.getTurnDirection(current, target)
+//        val magnitude = MathFunctions.getSmallestAngleDifference(current, target);
+//        val headingError = direction * magnitude
+
+        val headingError = target - current
 
         val useSecondaryPIDF = useSecondaryHeadingPIDF()
         val secondaryPIDFThreshold = headingPIDFSwitch()
         if (useSecondaryPIDF && abs(headingError) < secondaryPIDFThreshold) {
-            secondaryPidf.updateFeedForwardInput(direction)
+            secondaryPidf.updateFeedForwardInput(sign(headingError))
             secondaryPidf.updateError(headingError)
             return secondaryPidf.run()
         }
-        pidf.updateFeedForwardInput(direction)
+        pidf.updateFeedForwardInput(sign(headingError))
         pidf.updateError(headingError)
         return pidf.run()
     }

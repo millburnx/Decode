@@ -23,6 +23,7 @@ import kotlin.math.exp
 import kotlin.math.max
 import kotlin.math.min
 
+@Configurable
 class FusionLocalizer(hardwareMap: HardwareMap, val deltaTime: () -> Double, val limelight: Limelight? = null) :
     Localizer {
     val pinpoint = (hardwareMap.get("pinpoint") as GoBildaPinpointDriver).apply {
@@ -54,8 +55,8 @@ class FusionLocalizer(hardwareMap: HardwareMap, val deltaTime: () -> Double, val
 
     var _lastLLTimestamp = 0L
 
-    val kfX = DriftKalmanFilter()
-    val kfY = DriftKalmanFilter()
+    val kfX = DriftKalmanFilter { kfConfig }
+    val kfY = DriftKalmanFilter { kfConfig }
 
     private val lock = ReentrantLock()
 
@@ -115,6 +116,18 @@ class FusionLocalizer(hardwareMap: HardwareMap, val deltaTime: () -> Double, val
     override fun resetIMU() = pinpoint.resetPosAndIMU()
     override fun getIMUHeading(): Double = Double.NaN
     override fun isNAN(): Boolean = pose.x.isNaN() || pose.y.isNaN() || pose.heading.isNaN()
+
+    companion object {
+        @JvmField
+        var kfConfig = DriftKalmanFilter.Config(
+            startingUncertainty = 1.0,
+            processNoise = 0.0001, // q
+            measurementNoise = 12.0, // r
+            maxGain = 0.01,
+            maxDist = 12.0,
+            minUncertainty = 1e-6
+        )
+    }
 }
 
 fun FollowerBuilder.fusionLocalizer(
@@ -126,50 +139,39 @@ fun FollowerBuilder.fusionLocalizer(
 }
 
 @Configurable
-class DriftKalmanFilter {
+class DriftKalmanFilter(val config: () -> Config) {
     var drift = 0.0
-    var uncertainty = startingUncertainty
+    var uncertainty = config().startingUncertainty
 
     fun reset() {
         drift = 0.0
-        uncertainty = startingUncertainty
+        uncertainty = config().startingUncertainty
     }
 
     fun predict(dt: Double) {
-        uncertainty += processNoise * dt
+        uncertainty += config().processNoise * dt
     }
 
     fun update(pinpoint: Double, limelight: Double) {
         val rawDrift = pinpoint - limelight
-        if (abs(rawDrift - drift) > maxDist) return
+        if (abs(rawDrift - drift) > config().maxDist) return
 
-        val rawGain = uncertainty / (uncertainty + measurementNoise)
-        val gain = min(maxGain * (1 - exp(-rawGain / maxGain)), maxGain)
+        val rawGain = uncertainty / (uncertainty + config().measurementNoise)
+        val gain = min(config().maxGain * (1 - exp(-rawGain / config().maxGain)), config().maxGain)
 
         drift += gain * (rawDrift - drift)
 
-        uncertainty = max(uncertainty * (1 - gain), minUncertainty)
+        uncertainty = max(uncertainty * (1 - gain), config().minUncertainty)
     }
 
-    companion object {
-        @JvmField
-        var startingUncertainty = 1.0
-
-        @JvmField
-        var processNoise = 0.0001 // q
-
-        @JvmField
-        var measurementNoise = 12.0 // r
-
-        @JvmField
-        var maxGain = 0.01
-
-        @JvmField
-        var maxDist = 12.0
-
-        @JvmField
-        var minUncertainty = 1e-6
-    }
+    data class Config(
+        var startingUncertainty: Double,
+        var processNoise: Double, // q
+        var measurementNoise: Double, // r
+        var maxGain: Double,
+        var maxDist: Double,
+        var minUncertainty: Double
+    )
 }
 
 @Configurable

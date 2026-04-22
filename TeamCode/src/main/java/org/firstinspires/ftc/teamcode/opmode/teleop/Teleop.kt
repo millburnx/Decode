@@ -41,7 +41,14 @@ open class Teleop(val isRed: Boolean) : OpMode() {
         val intake = Intake(this)
         val sorter = Sorter(this, indicatorLight)
         val autoAdjust = AutoAdjust(
-            this, flyWheel, hood, { drive.pose }, { drive.velocity.position }, { drive.inZoneFarPartial }, isRed
+            this,
+            flyWheel,
+            hood,
+            { drive.pose },
+            { drive.velocity.position },
+            { drive.velocity.heading },
+            { drive.inZoneFarPartial },
+            isRed
         )
 
         limelight.onSwitch = {
@@ -73,8 +80,10 @@ open class Teleop(val isRed: Boolean) : OpMode() {
             }
             val zoneCheck = zoneCheck@{
                 val zoneCheckResult = if (useZoneCheck) drive.inZonePartial else true
-                indicatorLight.stateFlags[IndicatorLight.State.OUT_OF_ZONE] = !zoneCheckResult
-                return@zoneCheck zoneCheckResult
+                val goal = AutoAdjust.goal.mirror(isRed)
+                val finalResult = (drive.pose.distanceTo(goal) < minDistToGoal) && zoneCheckResult
+                indicatorLight.stateFlags[IndicatorLight.State.OUT_OF_ZONE] = !finalResult
+                return@zoneCheck finalResult
             }
 
             WaitFor { zoneCheck() && turretReady() }
@@ -123,16 +132,18 @@ open class Teleop(val isRed: Boolean) : OpMode() {
                     drive.useGateAssist = false
                 }
 
-                if (!gp1.prev.dPad.left && gp1.current.dPad.left) {
-                    drive.pose = Pose2d(112.0, 137.0, -90.0).mirror(!isRed)
-                }
+//                if (!gp1.prev.dPad.left && gp1.current.dPad.left) {
+//                    drive.pose = Pose2d(112.0, 137.0, -90.0).mirror(!isRed)
+//                }
+//                if (!gp1.prev.dPad.up && gp1.current.dPad.up) {
+//                    drive.pose = Pose2d(137.0, 8.5, 180.0).mirror(!isRed)
+//                }
+//                if (!gp1.prev.leftBumper && gp1.current.leftBumper) {
                 if (!gp1.prev.dPad.up && gp1.current.dPad.up) {
-                    drive.pose = Pose2d(137.0, 8.5, 180.0).mirror(!isRed)
-                }
-                if (!gp1.prev.leftBumper && gp1.current.leftBumper) {
                     limelight.localizationState = Limelight.LocalizationState.NONE
                 }
-                if (!gp1.prev.rightBumper && gp1.current.rightBumper) {
+//                if (!gp1.prev.rightBumper && gp1.current.rightBumper) {
+                if (!gp1.prev.dPad.down && gp1.current.dPad.down) {
                     rapidFire.cancel()
                     scheduler.schedule(rapidFire)
                 }
@@ -184,8 +195,8 @@ open class Teleop(val isRed: Boolean) : OpMode() {
 
                 indicatorLight.stateFlags[IndicatorLight.State.SORTING] = greenSlot != null
 
-                tel.addData("green pos", greenPosition)
-                tel.addData("green slot", greenSlot?.ordinal ?: -1.0)
+//                tel.addData("green pos", greenPosition)
+//                tel.addData("green slot", greenSlot?.ordinal ?: -1.0)
 
                 // auto
                 if (intakePower < -0.5) drive.useGateAssist = false
@@ -204,9 +215,12 @@ open class Teleop(val isRed: Boolean) : OpMode() {
                         turret.target = 180.0
                         turret.targetingMode = Turret.TargetingMode.RELATIVE
                     }
-                    val shooterTarget = AutoAdjust.getTarget(72.0)
-                    flyWheel.shootingRPM = shooterTarget.first
-                    hood.target = shooterTarget.second
+//                    val shooterTarget = AutoAdjust.getTarget(72.0)
+//                    flyWheel.shootingRPM = shooterTarget.first
+//                    hood.target = shooterTarget.second
+                    val target = DATA.ceilingEntry(72.0)!!.value
+                    flyWheel.shootingRPM = target.first
+                    hood.target = target.second
                 }
             }
         })
@@ -245,6 +259,9 @@ open class Teleop(val isRed: Boolean) : OpMode() {
 
         @JvmField
         var useZoneCheck = true
+
+        @JvmField
+        var minDistToGoal = 38.0
 
         fun getFiringSpeed(isFarZone: Boolean = false): Pair<Long, Long> {
             if (isFarZone) return farUpDuration to farDownDuration

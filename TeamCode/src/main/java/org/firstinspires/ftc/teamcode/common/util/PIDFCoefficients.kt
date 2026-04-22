@@ -5,5 +5,4 @@ class PIDFCoefficients(
     var kI: Double,
     var kD: Double,
     var kS: Double,
-) {
-}
+)
