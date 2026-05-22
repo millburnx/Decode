@@ -1,10 +1,6 @@
 package org.firstinspires.ftc.teamcode.common.subsystem.sorter
 
 import android.graphics.Color
-import androidx.core.graphics.alpha
-import androidx.core.graphics.blue
-import androidx.core.graphics.green
-import androidx.core.graphics.red
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.util.SleepFor
@@ -38,10 +34,8 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
                     config.downPosition
                 }
 
-                updateState()
-                if (config.useTelemetry) {
-                    tel.addData("state", state)
-                }
+                updateState() // TODO: Implement polling & caching once working
+                if (config.useTelemetry) tel.addData("pod | state", state)
             }
         }
     }
@@ -58,43 +52,36 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
 
     fun updateState() {
         with(opMode) {
-            // v3
             v3.gain = config.v3Gain.toFloat()
+            val v3Dist = v3.getDistance(DistanceUnit.MM)
 
-            val v3Color = v3.normalizedColors
-            val v3HSV = v3Color.toHSV()
-            val alpha = v3.alpha()
-            val distance = v3.getDistance(DistanceUnit.MM)
+            if (v3Dist < Config.distThresV3) {
+                // v3 has a detection
+                val hsv = v3.normalizedColors.toHSV()
+                state = if (hsv.saturation < Config.satThresV3) {
+                    State.PURPLE
+                } else {
+                    State.GREEN
+                }
 
-            if (config.useTelemetry) {
-                tel.addData("v3 | h", v3HSV.hue)
-                tel.addData("v3 | s", v3HSV.saturation)
-                tel.addData("v3 | v", v3HSV.brightness)
-                tel.addData("v3 | r", v3Color.red)
-                tel.addData("v3 | g", v3Color.green)
-                tel.addData("v3 | b", v3Color.blue)
-                tel.addData("v3 | a", v3Color.alpha)
-                tel.addData("v3 | alpha", alpha)
-                tel.addData("v3 | dist", distance)
+                if (config.useTelemetry) opMode.tel.addData("pod | sensor", 0)
+                return@with
             }
-
-            // v2 fallback
-            val v2Color = v2.argb()
-            val v2HSV = v2Color.hsv()
-            val v2Alpha = v2.alpha()
-            val v2Distance = v2.getDistance(DistanceUnit.MM)
-
-            if (config.useTelemetry) {
-                tel.addData("v2 | r", v2Color.red)
-                tel.addData("v2 | g", v2Color.green)
-                tel.addData("v2 | b", v2Color.blue)
-                tel.addData("v2 | h", v2HSV.hue)
-                tel.addData("v2 | s", v2HSV.saturation)
-                tel.addData("v2 | v", v2HSV.brightness)
-                tel.addData("v2 | a", v2Color.alpha)
-                tel.addData("v2 | alpha", v2Alpha)
-                tel.addData("v2 | dist", v2Distance)
+            // v3 is empty
+            val v2Dist = v2.getDistance(DistanceUnit.MM)
+            if (v2Dist > Config.distThresV2) {
+                // both sensors empty
+                state = State.EMPTY
+                return@with
             }
+            // v2 has a detection
+            val hsv = v3.normalizedColors.toHSV()
+            state = if (hsv.saturation < Config.satThresV3 || hsv.hue > Config.hueThresV2) {
+                State.PURPLE
+            } else {
+                State.GREEN
+            }
+            if (config.useTelemetry) opMode.tel.addData("pod | sensor", 1)
         }
     }
 
@@ -110,49 +97,17 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
 
         @JvmField // done
         var frontConfig = Config(
-            "s0", false, .4, .8, "c1e", "c2e", 10.0, ColorRange(
-                150.0..155.0, 27.0..30.5, 19.0..25.0
-            ), ColorRange(
-                165.0..172.0, 40.0..45.0, 66.0..70.0
-            ), ColorRange(
-                155.5..160.0, 34.5..37.0, 19.0..25.0
-            ), ColorRange(
-                158.0..165.0, 47.0..50.0, 68.0..74.0
-            ), false
+            "s0", false, .4, .8, "c1e", "c2e"
         )
 
         @JvmField
         var backConfig = Config(
-            "s3", false, .35, .67, "c1e", "c0e", 10.0, ColorRange(
-                154.0..159.0, 30.0..33.0, 15.0..19.0
-            ), ColorRange(
-                145.5..152.0, 39.0..42.0, 40.0..42.0
-            ), ColorRange(
-                153.0..157.0, 35.0..38.0, 15.0..19.0
-            ), ColorRange(
-                145.0..152.5, 44.0..47.0, 42.0..45.0
-            ), false, true
+            "s3", false, .35, .67, "c1e", "c0e", isAxon = true
         )
 
         @JvmField
         var sideConfig = Config(
-            "s4", true, .30, .70, "c2", "c1", 10.0, ColorRange(
-                160.0..164.0,
-                10.0..20.0,
-                26.0..29.0,
-            ), ColorRange(
-                162.0..170.0,
-                40.0..46.0,
-                74.5..78.0
-            ), ColorRange(
-                143.0..159.0,
-                10.0..20.0,
-                32.0..36.0,
-            ), ColorRange(
-                155.0..162.0,
-                46.0..52.0,
-                76.0..80.0,
-            ), false
+            "s4", true, .30, .70, "c2", "c1"
         )
     }
 
@@ -165,30 +120,17 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
     }
 
     @Configurable
-
+    @Suppress("detekt:LongParameterList")
     class Config(
         var servoName: String,
         var servoReversed: Boolean,
-
         var downPosition: Double,
         var upPosition: Double,
-
         var v2Name: String,
         var v3Name: String,
-
-        var v3Gain: Double,
-
-        var purpleRangeV2: ColorRange,
-        var purpleRangeV3: ColorRange,
-
-        var greenRangeV2: ColorRange,
-        var greenRangeV3: ColorRange,
-
-        var useTelemetry: Boolean,
-
+        var v3Gain: Double = 10.0,
+        var useTelemetry: Boolean = false,
         var isAxon: Boolean = false
-
-
     ) {
         companion object {
             @JvmField
@@ -196,34 +138,23 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
 
             @JvmField
             var axonDurationDown = 100L
+
+            @JvmField
+            var distThresV3 = 25.0
+
+            @JvmField
+            var distThresV2 = 70.0
+
+            @JvmField
+            var satThresV3 = 45.0 // v3 doesn't detect hue properly, only consistent metric
+
+            @JvmField
+            var satThresV2 = 40.0
+
+            @JvmField
+            var hueThresV2 = 190.0
         }
     }
-}
-
-class ColorRange(
-    var minHue: Double,
-    var maxHue: Double,
-    var minSaturation: Double,
-    var maxSaturation: Double,
-    var minValue: Double,
-    var maxValue: Double
-) {
-    fun contains(color: HSV): Boolean {
-        return color.hue in minHue..maxHue && color.saturation in minSaturation..maxSaturation && color.brightness in minValue..maxValue
-    }
-
-    constructor(
-        hueRange: ClosedFloatingPointRange<Double>,
-        saturationRange: ClosedFloatingPointRange<Double>,
-        valueRange: ClosedFloatingPointRange<Double>
-    ) : this(
-        hueRange.start,
-        hueRange.endInclusive,
-        saturationRange.start,
-        saturationRange.endInclusive,
-        valueRange.start,
-        valueRange.endInclusive
-    )
 }
 
 data class HSV(
