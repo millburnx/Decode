@@ -45,9 +45,9 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
     ) {
         val (upDuration, downDuration) = durations
         isUp = true
-        SleepFor { if (config.isAxon) Config.axonDurationUp else upDuration }
+        SleepFor { if (config.isAxon) axonDurationUp else upDuration }
         isUp = false
-        SleepFor { if (config.isAxon) Config.axonDurationDown else downDuration }
+        SleepFor { if (config.isAxon) axonDurationDown else downDuration }
     }
 
     fun updateState() {
@@ -55,33 +55,39 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
             v3.gain = config.v3Gain.toFloat()
             val v3Dist = v3.getDistance(DistanceUnit.MM)
 
-            if (v3Dist < Config.distThresV3) {
+            if (v3Dist < distThresV3) {
                 // v3 has a detection
                 val hsv = v3.normalizedColors.toHSV()
-                state = if (hsv.saturation < Config.satThresV3) {
+                state = if (hsv.saturation < satThresV3) {
                     State.PURPLE
                 } else {
                     State.GREEN
                 }
 
                 if (config.useTelemetry) opMode.tel.addData("pod | sensor", 0)
+                if (config.useTelemetry) opMode.tel.addData("pod | h", hsv.hue)
+                if (config.useTelemetry) opMode.tel.addData("pod | s", hsv.saturation)
+                if (config.useTelemetry) opMode.tel.addData("pod | dist", v3Dist)
                 return@with
             }
             // v3 is empty
             val v2Dist = v2.getDistance(DistanceUnit.MM)
-            if (v2Dist > Config.distThresV2) {
+            if (v2Dist > distThresV2) {
                 // both sensors empty
                 state = State.EMPTY
                 return@with
             }
             // v2 has a detection
             val hsv = v3.normalizedColors.toHSV()
-            state = if (hsv.saturation < Config.satThresV3 || hsv.hue > Config.hueThresV2) {
+            state = if (hsv.hue > hueThresV2) {
                 State.PURPLE
             } else {
                 State.GREEN
             }
             if (config.useTelemetry) opMode.tel.addData("pod | sensor", 1)
+            if (config.useTelemetry) opMode.tel.addData("pod | h", hsv.hue)
+            if (config.useTelemetry) opMode.tel.addData("pod | s", hsv.saturation)
+            if (config.useTelemetry) opMode.tel.addData("pod | dist", v2Dist)
         }
     }
 
@@ -102,13 +108,31 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
 
         @JvmField
         var backConfig = Config(
-            "s3", false, .35, .67, "c1e", "c0e", isAxon = true
+            "s3", false, .35, .67, "c0", "c0e", isAxon = true
         )
 
         @JvmField
         var sideConfig = Config(
             "s4", true, .30, .70, "c2", "c1"
         )
+
+        @JvmField
+        var axonDurationUp = 500L
+
+        @JvmField
+        var axonDurationDown = 100L
+
+        @JvmField
+        var distThresV3 = 25.0
+
+        @JvmField
+        var distThresV2 = 70.0
+
+        @JvmField
+        var satThresV3 = 45.0 // v3 doesn't detect hue properly, only consistent metric
+
+        @JvmField
+        var hueThresV2 = 190.0 // seems to be more consistent than saturation for v2
     }
 
     enum class Slot {
@@ -131,30 +155,7 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
         var v3Gain: Double = 10.0,
         var useTelemetry: Boolean = false,
         var isAxon: Boolean = false
-    ) {
-        companion object {
-            @JvmField
-            var axonDurationUp = 500L
-
-            @JvmField
-            var axonDurationDown = 100L
-
-            @JvmField
-            var distThresV3 = 25.0
-
-            @JvmField
-            var distThresV2 = 70.0
-
-            @JvmField
-            var satThresV3 = 45.0 // v3 doesn't detect hue properly, only consistent metric
-
-            @JvmField
-            var satThresV2 = 40.0
-
-            @JvmField
-            var hueThresV2 = 190.0
-        }
-    }
+    )
 }
 
 data class HSV(
