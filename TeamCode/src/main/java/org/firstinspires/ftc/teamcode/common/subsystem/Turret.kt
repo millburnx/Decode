@@ -84,6 +84,7 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
         get() = averagedQuadatureVelocity.average < steadyThreshold
 
     val controller = StandaloneRotation(
+        useWraparound = false,
         { PedroPIDFCoeff(coeff.kP, coeff.kI, coeff.kD, coeff.kS) },
         { PedroPIDFCoeff(coeffSecondary.kP, coeffSecondary.kI, coeffSecondary.kD, coeffSecondary.kS) },
         { useSecondary }

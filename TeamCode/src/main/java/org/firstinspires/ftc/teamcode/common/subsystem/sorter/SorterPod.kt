@@ -1,11 +1,17 @@
 package org.firstinspires.ftc.teamcode.common.subsystem.sorter
 
 import android.graphics.Color
+import androidx.core.graphics.alpha
+import androidx.core.graphics.blue
+import androidx.core.graphics.green
+import androidx.core.graphics.red
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.util.SleepFor
 import com.qualcomm.hardware.rev.RevColorSensorV3
+import com.qualcomm.robotcore.hardware.ColorRangeSensor
 import com.qualcomm.robotcore.hardware.NormalizedRGBA
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualServo
 import org.firstinspires.ftc.teamcode.common.subsystem.Subsystem
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
@@ -17,7 +23,7 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
         get() = getConfig()
 
     val servo = ManualServo(opMode.hardwareMap, config.servoName, config.servoReversed)
-    val v2 = opMode.hardwareMap.colorSensor[config.v2Name]
+    val v2 = opMode.hardwareMap[config.v2Name] as ColorRangeSensor
     val v3 = opMode.hardwareMap[config.v3Name] as RevColorSensorV3
 
     var isUp = false
@@ -32,7 +38,7 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
                     config.downPosition
                 }
 
-//                updateState()
+                updateState()
                 if (config.useTelemetry) {
                     tel.addData("state", state)
                 }
@@ -55,41 +61,40 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
             // v3
             v3.gain = config.v3Gain.toFloat()
 
-            val v3Color = v3.normalizedColors.toHSV()
+            val v3Color = v3.normalizedColors
+            val v3HSV = v3Color.toHSV()
+            val alpha = v3.alpha()
+            val distance = v3.getDistance(DistanceUnit.MM)
 
             if (config.useTelemetry) {
-                tel.addData("v3 | h", v3Color.hue)
-                tel.addData("v3 | s", v3Color.saturation)
-                tel.addData("v3 | v", v3Color.brightness)
+                tel.addData("v3 | h", v3HSV.hue)
+                tel.addData("v3 | s", v3HSV.saturation)
+                tel.addData("v3 | v", v3HSV.brightness)
+                tel.addData("v3 | r", v3Color.red)
+                tel.addData("v3 | g", v3Color.green)
+                tel.addData("v3 | b", v3Color.blue)
+                tel.addData("v3 | a", v3Color.alpha)
+                tel.addData("v3 | alpha", alpha)
+                tel.addData("v3 | dist", distance)
             }
-
-            if (config.greenRangeV3.contains(v3Color)) {
-                state = State.GREEN
-                return
-            }
-            if (config.purpleRangeV3.contains(v3Color)) {
-                state = State.PURPLE
-                return
-            }
-
-            state = State.EMPTY
 
             // v2 fallback
-//            val v2Color = v2.argb().hsv()
-//
-//            state = if (config.greenRangeV2.contains(v2Color)) {
-//                State.GREEN
-//            } else if (config.purpleRangeV2.contains(v2Color)) {
-//                State.PURPLE
-//            } else {
-//                State.EMPTY
-//            }
-//
-//            if (config.useTelemetry) {
-//                tel.addData("v2 | h", v2Color.hue)
-//                tel.addData("v2 | s", v2Color.saturation)
-//                tel.addData("v2 | v", v2Color.brightness)
-//            }
+            val v2Color = v2.argb()
+            val v2HSV = v2Color.hsv()
+            val v2Alpha = v2.alpha()
+            val v2Distance = v2.getDistance(DistanceUnit.MM)
+
+            if (config.useTelemetry) {
+                tel.addData("v2 | r", v2Color.red)
+                tel.addData("v2 | g", v2Color.green)
+                tel.addData("v2 | b", v2Color.blue)
+                tel.addData("v2 | h", v2HSV.hue)
+                tel.addData("v2 | s", v2HSV.saturation)
+                tel.addData("v2 | v", v2HSV.brightness)
+                tel.addData("v2 | a", v2Color.alpha)
+                tel.addData("v2 | alpha", v2Alpha)
+                tel.addData("v2 | dist", v2Distance)
+            }
         }
     }
 
@@ -105,7 +110,7 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
 
         @JvmField // done
         var frontConfig = Config(
-            "s0", false, .4, .8, "c0e", "c2e", 10.0, ColorRange(
+            "s0", false, .4, .8, "c1e", "c2e", 10.0, ColorRange(
                 150.0..155.0, 27.0..30.5, 19.0..25.0
             ), ColorRange(
                 165.0..172.0, 40.0..45.0, 66.0..70.0
@@ -118,7 +123,7 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
 
         @JvmField
         var backConfig = Config(
-            "s3", false, .35, .67, "c1e", "c0", 10.0, ColorRange(
+            "s3", false, .35, .67, "c1e", "c0e", 10.0, ColorRange(
                 154.0..159.0, 30.0..33.0, 15.0..19.0
             ), ColorRange(
                 145.5..152.0, 39.0..42.0, 40.0..42.0
@@ -131,7 +136,7 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
 
         @JvmField
         var sideConfig = Config(
-            "s4", true, .30, .70, "c1", "c2", 10.0, ColorRange(
+            "s4", true, .30, .70, "c2", "c1", 10.0, ColorRange(
                 160.0..164.0,
                 10.0..20.0,
                 26.0..29.0,

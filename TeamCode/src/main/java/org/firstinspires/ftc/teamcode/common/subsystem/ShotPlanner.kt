@@ -6,6 +6,7 @@ import com.millburnx.util.Pose2d
 import com.millburnx.util.toDegrees
 import com.millburnx.util.vector.Vec2d
 import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.teamcode.common.subsystem.AutoAdjust.Companion.goal
 import org.firstinspires.ftc.teamcode.common.subsystem.DATA
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -291,6 +292,11 @@ class ShotPlanner(
         tel.addData("[SOTM] launch x",  "%.1f".format(_launchX))
         tel.addData("[SOTM] launch y",  "%.1f".format(_launchY))
 
+        val realDist = robotPose.distanceTo(goal)
+        val deltaDist = robotPose.distanceTo(virtualGoal) - realDist
+        tel.addData("[SOTM] real dist", "%.1f".format(realDist))
+        tel.addData("[SOTM] delta dist", "%.1f".format(deltaDist))
+
         return IterResult(predictedPose, virtualGoal, totalHorizon, true)
     }
 
@@ -325,9 +331,9 @@ class ShotPlanner(
             realGoal,
         )
 
-        val dist              = result.predictedPose.distanceTo(result.virtualGoal)
+        val dist = result.predictedPose.distanceTo(result.virtualGoal)
         val (targetRpm, hoodNorm) = lookup(dist)
-        val possible          = result.possible && isPossible(dist)
+        val possible = result.possible && isPossible(dist)
 
         tel?.apply {
             addData("[SOTM] goal x", "%.1f".format(result.virtualGoal.x))

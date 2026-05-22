@@ -81,7 +81,7 @@ open class Teleop(val isRed: Boolean) : OpMode() {
             val zoneCheck = zoneCheck@{
                 val zoneCheckResult = if (useZoneCheck) drive.inZonePartial else true
                 val goal = AutoAdjust.goal.mirror(isRed)
-                val finalResult = (drive.pose.distanceTo(goal) < minDistToGoal) && zoneCheckResult
+                val finalResult = (drive.pose.distanceTo(goal) > minDistToGoal) && zoneCheckResult
                 indicatorLight.stateFlags[IndicatorLight.State.OUT_OF_ZONE] = !finalResult
                 return@zoneCheck finalResult
             }

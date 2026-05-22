@@ -2,11 +2,13 @@ package org.firstinspires.ftc.teamcode.opmode.test.pedro
 
 import com.pedropathing.control.PIDFCoefficients
 import com.pedropathing.control.PIDFController
+import com.pedropathing.math.MathFunctions
 import org.firstinspires.ftc.teamcode.pedro.Constants
 import kotlin.math.abs
 import kotlin.math.sign
 
 class StandaloneRotation(
+    val useWraparound: Boolean = true,
     val headingPIDFCoefficients: () -> PIDFCoefficients = { Constants.followerConstants.coefficientsHeadingPIDF },
     val secondaryHeadingPIDFCoefficients: () -> PIDFCoefficients = { Constants.followerConstants.coefficientsSecondaryHeadingPIDF },
     val useSecondaryHeadingPIDF: () -> Boolean = { Constants.followerConstants.useSecondaryHeadingPIDF },
@@ -19,11 +21,13 @@ class StandaloneRotation(
         pidf.coefficients = headingPIDFCoefficients()
         secondaryPidf.coefficients = secondaryHeadingPIDFCoefficients()
 
-//        val direction = MathFunctions.getTurnDirection(current, target)
-//        val magnitude = MathFunctions.getSmallestAngleDifference(current, target);
-//        val headingError = direction * magnitude
-
-        val headingError = target - current
+        val headingError = if (useWraparound) {
+            val direction = MathFunctions.getTurnDirection(current, target)
+            val magnitude = MathFunctions.getSmallestAngleDifference(current, target);
+            direction * magnitude
+        } else {
+            target - current
+        }
 
         val useSecondaryPIDF = useSecondaryHeadingPIDF()
         val secondaryPIDFThreshold = headingPIDFSwitch()
