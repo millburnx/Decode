@@ -28,17 +28,7 @@ open class Far15BallAuton(var isRed: Boolean) : OpMode() {
         val intake = Intake(this)
         val drive = Drive(this)
         val turret = Turret(this, { drive.pose.heading }, { drive.velocity.heading }, { voltageSensor.voltage })
-        val autoAdjust = AutoAdjust(
-            this,
-            flyWheel,
-            hood,
-            { drive.pose },
-            { drive.velocity.position },
-            { drive.velocity.heading },
-            { true },
-            isRed,
-            { rpmOffset }
-        )
+        val autoAdjust = AutoAdjust(this, flyWheel, hood, drive, isRed) { true }
 
         val autonManager = AutonManager(this, drive, "Far-15Ball", isMirrored = !isRed)
 
@@ -71,6 +61,7 @@ open class Far15BallAuton(var isRed: Boolean) : OpMode() {
             Command("Start") {
                 WaitFor { isStarted }
                 flyWheel.state = FlyWheel.FlyWheelState.SHOOTING
+                autoAdjust.rpmOffset = rpmOffset
             }
             +autonManager.runPath(0)
             +fire

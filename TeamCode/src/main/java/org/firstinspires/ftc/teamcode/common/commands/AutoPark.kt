@@ -9,7 +9,7 @@ import com.pedropathing.geometry.BezierLine
 import com.pedropathing.paths.HeadingInterpolator
 import com.pedropathing.paths.Path
 import org.firstinspires.ftc.teamcode.common.hardware.toPedro
-import org.firstinspires.ftc.teamcode.common.subsystem.TeleOpDrive
+import org.firstinspires.ftc.teamcode.common.subsystem.teleop.TeleOpDrive
 
 @Suppress("FunctionName")
 fun AutoPark(drive: TeleOpDrive, isRed: Boolean, isRunning: () -> Boolean): Command {

@@ -4,10 +4,10 @@ import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import com.millburnx.cmdxpedro.util.WaitFor
 import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.teamcode.common.commands.RapidFire.Companion.getFiringSpeed
 import org.firstinspires.ftc.teamcode.common.subsystem.Subsystem
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
-import org.firstinspires.ftc.teamcode.opmode.teleop.Teleop
 
 @Configurable
 class Sorter(val opMode: OpMode, val indicatorLight: IndicatorLight? = null) : Subsystem("Sorter") {
@@ -25,6 +25,9 @@ class Sorter(val opMode: OpMode, val indicatorLight: IndicatorLight? = null) : S
         Pods.BACK to backPod,
     )
 
+    val greenPod: Pods?
+        get() = pods.filter { it.value.state == SorterPod.State.GREEN }.keys.firstOrNull()
+
     override val run: suspend Command.() -> Unit = {
         opMode.scheduler.schedule(Command {
             val timer = ElapsedTime()
@@ -32,9 +35,6 @@ class Sorter(val opMode: OpMode, val indicatorLight: IndicatorLight? = null) : S
                 WaitFor { timer.milliseconds() >= pollingRate }
                 timer.reset()
                 pods.values.forEach { it.updateState() }
-//                indicatorLight?.let {
-//                    val nonEmpty = pods.values.filter { it.state != SorterPod.State.EMPTY }
-//                }
             }
         })
     }
@@ -45,7 +45,7 @@ class Sorter(val opMode: OpMode, val indicatorLight: IndicatorLight? = null) : S
 
     suspend fun Command.rapidFire(
         firingOrder: List<Pods> = pods.keys.toList(),
-        firingSpeed: Pair<Long, Long> = Teleop.getFiringSpeed()
+        firingSpeed: Pair<Long, Long> = getFiringSpeed()
     ) {
         firingOrder.forEach {
             val pod = pods[it] ?: return@forEach

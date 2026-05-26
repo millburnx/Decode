@@ -27,7 +27,7 @@ class GamepadState(private val gamepad: com.qualcomm.robotcore.hardware.Gamepad)
 
     val guide: Boolean = gamepad.guide
     val start: Boolean = gamepad.start
-    val back = gamepad.back
+    val back: Boolean = gamepad.back
 
     val leftBumper: Boolean = gamepad.left_bumper
     val rightBumper: Boolean = gamepad.right_bumper

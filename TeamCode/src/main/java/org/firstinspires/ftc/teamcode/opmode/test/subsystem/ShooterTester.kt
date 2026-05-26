@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.subsystem.FlyWheel
 import org.firstinspires.ftc.teamcode.common.subsystem.Hood
 import org.firstinspires.ftc.teamcode.common.subsystem.Intake
-import org.firstinspires.ftc.teamcode.common.subsystem.TeleOpDrive
+import org.firstinspires.ftc.teamcode.common.subsystem.teleop.TeleOpDrive
 import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode

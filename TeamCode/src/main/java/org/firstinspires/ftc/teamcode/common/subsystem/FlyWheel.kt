@@ -33,6 +33,25 @@ class FlyWheel(val opMode: OpMode) : Subsystem("FlyWheel") {
 
     var state = FlyWheelState.IDLE
 
+    val isIdle
+        get() = state == FlyWheelState.IDLE
+    val isShooting
+        get() = state == FlyWheelState.SHOOTING
+    val isIntaking
+        get() = state == FlyWheelState.INTAKING
+
+    fun setIdle() {
+        state = FlyWheelState.IDLE
+    }
+
+    fun setShooting() {
+        state = FlyWheelState.SHOOTING
+    }
+
+    fun setIntaking() {
+        state = FlyWheelState.INTAKING
+    }
+
     init {
         override = false
     }

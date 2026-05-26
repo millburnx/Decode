@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.common.hardware.AnalogEncoder
 import org.firstinspires.ftc.teamcode.common.hardware.Encoder
 import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualMotor
 import org.firstinspires.ftc.teamcode.common.hardware.normalizeDegrees
+import org.firstinspires.ftc.teamcode.common.subsystem.teleop.TeleopManager.Companion.rotationVelocityThreshold
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.common.util.PIDFCoefficients
 import org.firstinspires.ftc.teamcode.common.util.TimeAverage
@@ -58,6 +59,25 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
 
     var targetingMode = TargetingMode.RELATIVE
 
+    val isOff
+        get() = targetingMode == TargetingMode.OFF
+    val isRelative
+        get() = targetingMode == TargetingMode.RELATIVE
+    val isGlobal
+        get() = targetingMode == TargetingMode.GLOBAL
+
+    fun setOff() {
+        targetingMode = TargetingMode.OFF
+    }
+
+    fun setRelative() {
+        targetingMode = TargetingMode.RELATIVE
+    }
+
+    fun setGlobal() {
+        targetingMode = TargetingMode.GLOBAL
+    }
+
     private val relativeTarget
         get() = when (targetingMode) {
             TargetingMode.OFF -> Double.NEGATIVE_INFINITY
@@ -82,6 +102,12 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
 
     val isSteady
         get() = averagedQuadatureVelocity.average < steadyThreshold
+
+    val isReady: Boolean
+        get() {
+            val isSteady = isSteady && velocity() < rotationVelocityThreshold
+            return atTarget && !inDeadzone && isSteady
+        }
 
     val controller = StandaloneRotation(
         useWraparound = false,

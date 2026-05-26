@@ -27,5 +27,8 @@ class GamepadManager(private val opMode: OpMode) {
 
         gamepad1.prev = oldState1
         gamepad2.prev = oldState2
+
+        gamepad1.triggerHooks()
+        gamepad2.triggerHooks()
     }
 }

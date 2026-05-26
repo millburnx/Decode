@@ -15,7 +15,7 @@ import com.pedropathing.paths.PathBuilder
 import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.util.ElapsedTime
-import org.firstinspires.ftc.teamcode.common.subsystem.TeleOpDrive
+import org.firstinspires.ftc.teamcode.common.subsystem.teleop.TeleOpDrive
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 import org.firstinspires.ftc.teamcode.opmode.auton.BaseAutonManager
 import org.firstinspires.ftc.teamcode.pedro.Tuning

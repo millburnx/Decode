@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.opmode.test.subsystem
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.common.subsystem.TeleOpDrive
+import org.firstinspires.ftc.teamcode.common.subsystem.teleop.TeleOpDrive
 import org.firstinspires.ftc.teamcode.common.subsystem.Turret
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
