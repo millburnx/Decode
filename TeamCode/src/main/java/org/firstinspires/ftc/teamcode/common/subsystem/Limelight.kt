@@ -82,7 +82,7 @@ class Limelight(
 
         val newHeading = normalizeDegrees(pose.heading - turretHeading() - mtOffset)
 
-        val offset = Vec2d(-42.0, -16.0) / 25.4
+        val offset = Vec2d(turretX, turretY) / 25.4
 
         val driveHeading = if (useDriveHeading) {
             getPose().heading
@@ -94,7 +94,7 @@ class Limelight(
 
 //        println("correct pose $correctPose")
 
-        val newPos = correctPose - offset.rotate(driveHeading)
+        val newPos = correctPose - offset.rotate(driveHeading.toRadians())
 
         return Pose2d(newPos, newHeading) + Vec2d(72.0, 72.0)
     }
@@ -113,5 +113,9 @@ class Limelight(
 
         @JvmField
         var useTelemetry = false
+
+        @JvmField
+        var turretX = -42.0
+        var turretY = -16.0
     }
 }

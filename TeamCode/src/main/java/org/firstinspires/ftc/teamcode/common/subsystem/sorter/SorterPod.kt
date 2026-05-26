@@ -26,6 +26,9 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
     var state = State.EMPTY
 
     override val run: suspend Command.() -> Unit = {
+        opMode.scheduler.schedule(Command {
+
+        })
         OpModeLoop(opMode) {
             with(opMode) {
                 servo.position = if (isUp) {
@@ -34,7 +37,6 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
                     config.downPosition
                 }
 
-                updateState() // TODO: Implement polling & caching once working
                 if (config.useTelemetry) tel.addData("pod | state", state)
             }
         }
@@ -55,6 +57,8 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
             v3.gain = config.v3Gain.toFloat()
             val v3Dist = v3.getDistance(DistanceUnit.MM)
 
+            if (config.useTelemetry) opMode.tel.addData("pod | v3 dist", v3Dist)
+
             if (v3Dist < distThresV3) {
                 // v3 has a detection
                 val hsv = v3.normalizedColors.toHSV()
@@ -72,7 +76,7 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
             }
             // v3 is empty
             val v2Dist = v2.getDistance(DistanceUnit.MM)
-            if (v2Dist > distThresV2) {
+            if (v2Dist.isNaN() || v2Dist > distThresV2) {
                 // both sensors empty
                 state = State.EMPTY
                 return@with

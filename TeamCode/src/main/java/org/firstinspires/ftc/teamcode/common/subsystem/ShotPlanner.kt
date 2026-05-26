@@ -84,7 +84,7 @@ class ShotPlanner(
         val hoodDeg: Double get() = MIN_HOOD_DEG + hoodNorm * (MAX_HOOD_DEG - MIN_HOOD_DEG)
 
         /** Turret angle to virtual goal in degrees, from the predicted robot pose */
-        fun turretAngleDeg(robotPos: Vec2d) = robotPos.angleTo(virtualGoal).toDegrees()
+        fun turretAngleDeg(turretPos: Vec2d) = turretPos.angleTo(virtualGoal).toDegrees()
     }
 
     // ─────────────────────────────────────────────────────────────────────────

@@ -72,7 +72,7 @@
         "heading": "linear",
         "reverse": false,
         "startDeg": 0,
-        "endDeg": 40
+        "endDeg": 30
       },
       "controlPoints": [],
       "color": "#BC57CA",
@@ -89,7 +89,7 @@
         "y": 61,
         "heading": "linear",
         "reverse": false,
-        "startDeg": 40,
+        "startDeg": 30,
         "endDeg": 40
       },
       "controlPoints": [],
@@ -126,7 +126,7 @@
         "heading": "linear",
         "reverse": false,
         "startDeg": 40,
-        "endDeg": 40
+        "endDeg": 30
       },
       "controlPoints": [],
       "color": "#7959AC",
@@ -358,5 +358,5 @@
     "pathOpacity": 1
   },
   "version": "1.2.1",
-  "timestamp": "2026-03-14T21:04:11.442Z"
+  "timestamp": "2026-05-26T13:11:58.503Z"
 }

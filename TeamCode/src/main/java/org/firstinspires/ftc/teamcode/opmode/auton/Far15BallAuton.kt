@@ -5,9 +5,6 @@ import com.millburnx.cmdx.Command
 import com.millburnx.cmdx.commandGroups.Sequential
 import com.millburnx.cmdxpedro.util.SleepFor
 import com.millburnx.cmdxpedro.util.WaitFor
-import com.millburnx.cmdxpedro.util.mirror
-import com.millburnx.util.toDegrees
-import com.millburnx.util.vector.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import org.firstinspires.ftc.teamcode.common.GlobalStore
 import org.firstinspires.ftc.teamcode.common.subsystem.*
@@ -31,7 +28,17 @@ open class Far15BallAuton(var isRed: Boolean) : OpMode() {
         val intake = Intake(this)
         val drive = Drive(this)
         val turret = Turret(this, { drive.pose.heading }, { drive.velocity.heading }, { voltageSensor.voltage })
-        val autoAdjust = AutoAdjust(this, flyWheel, hood, { drive.pose }, { Vec2d() }, isRed = isRed)
+        val autoAdjust = AutoAdjust(
+            this,
+            flyWheel,
+            hood,
+            { drive.pose },
+            { drive.velocity.position },
+            { drive.velocity.heading },
+            { true },
+            isRed,
+            { rpmOffset }
+        )
 
         val autonManager = AutonManager(this, drive, "Far-15Ball", isMirrored = !isRed)
 
@@ -51,12 +58,11 @@ open class Far15BallAuton(var isRed: Boolean) : OpMode() {
             println("auton end ${matchTimer.seconds()}")
         }
 
-        val goal = Vec2d(-5.0, 144.0).mirror(!autonManager.isMirrored)
-
         scheduler.schedule(Command("general") {
             OpModeLoop(this@Far15BallAuton) {
                 turret.targetingMode = Turret.TargetingMode.GLOBAL
-                turret.target = drive.pose.position.angleTo(goal).toDegrees()
+//                turret.target = drive.pose.position.angleTo(goal).toDegrees()
+                turret.target = autoAdjust.turretAngle
                 GlobalStore.autonPose = drive.pose
             }
         })
@@ -113,5 +119,8 @@ open class Far15BallAuton(var isRed: Boolean) : OpMode() {
 
         @JvmField
         var stablizationTimeLong = 1000L
+
+        @JvmField
+        var rpmOffset = -200.0
     }
 }

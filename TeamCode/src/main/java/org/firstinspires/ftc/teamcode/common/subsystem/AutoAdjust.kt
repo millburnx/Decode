@@ -20,7 +20,8 @@ class AutoAdjust(
     val getVelocity: () -> Vec2d,
     val getOmegaDeg: () -> Double = { 0.0 },  // angular velocity in deg/s; wire up if available
     val isFarZone: () -> Boolean = { false },
-    val isRed: Boolean = true
+    val isRed: Boolean = true,
+    val rpmOffset: () -> Double = { 0.0 },
 ) : Subsystem("AutoAdjust") {
     val planner = ShotPlanner(opMode.tel)
 
@@ -52,18 +53,20 @@ class AutoAdjust(
                     normalizeDegrees(cmd.turretAngleDeg(pose.position) - pose.position.angleTo(rawGoal).toDegrees())
                 )
 
+                val turretPose = pose.position + Vec2d(turretX, turretY).rotate(pose.radians) / 25.4
+
                 if (cmd.possible) {
-                    turretAngle          = cmd.turretAngleDeg(pose.position)
-                    minRapidRPM          = cmd.targetRpm
-                    flyWheel.shootingRPM = cmd.targetRpm
+                    turretAngle          = cmd.turretAngleDeg(turretPose)
+                    minRapidRPM          = cmd.targetRpm + rpmOffset()
+                    flyWheel.shootingRPM = cmd.targetRpm + rpmOffset()
                     hood.target          = cmd.hoodNorm
                 } else {
                     // Fallback — raw distance, ceiling entry from table, aim at real goal
                     val rawDist  = pose.distanceTo(rawGoal)
                     val fallback = DATA.ceilingEntry(rawDist)?.value ?: DATA.lastEntry().value
-                    turretAngle          = pose.angleTo(rawGoal).toDegrees()
-                    minRapidRPM          = fallback.first
-                    flyWheel.shootingRPM = fallback.first
+                    turretAngle          = turretPose.angleTo(rawGoal).toDegrees()
+                    minRapidRPM          = fallback.first + rpmOffset()
+                    flyWheel.shootingRPM = fallback.first + rpmOffset()
                     hood.target          = fallback.second
                 }
 
@@ -82,11 +85,16 @@ class AutoAdjust(
 
     companion object {
         @JvmField var goalXOffsetClose = 0.0
+        @JvmField var goalYOffsetClose = -5.0
         @JvmField var goalXOffsetFar   = 5.0
+        @JvmField var goalYOffsetFar   = 0.0
 
-        val goal    get() = Vec2d(0.0 + goalXOffsetClose, 144.0)
-        val goalFar get() = Vec2d(0.0 + goalXOffsetFar,   144.0)
+        val goal    get() = Vec2d(0.0 + goalXOffsetClose, 144.0 + goalYOffsetClose)
+        val goalFar get() = Vec2d(0.0 + goalXOffsetFar,   144.0 + goalYOffsetFar)
 
         @JvmField var useTelemetry = true
+
+        @JvmField var turretX = -42.0
+        @JvmField var turretY = -16.0
     }
 }

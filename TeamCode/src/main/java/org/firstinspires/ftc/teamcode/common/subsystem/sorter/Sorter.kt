@@ -2,7 +2,10 @@ package org.firstinspires.ftc.teamcode.common.subsystem.sorter
 
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
+import com.millburnx.cmdxpedro.util.WaitFor
+import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.common.subsystem.Subsystem
+import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 import org.firstinspires.ftc.teamcode.opmode.teleop.Teleop
 
@@ -23,17 +26,17 @@ class Sorter(val opMode: OpMode, val indicatorLight: IndicatorLight? = null) : S
     )
 
     override val run: suspend Command.() -> Unit = {
-//        opMode.scheduler.schedule(Command {
-//            val timer = ElapsedTime()
-//            OpModeLoop(opMode) {
-//                WaitFor { timer.milliseconds() >= pollingRate }
-//                timer.reset()
-//                pods.values.forEach { it.updateState() }
+        opMode.scheduler.schedule(Command {
+            val timer = ElapsedTime()
+            OpModeLoop(opMode) {
+                WaitFor { timer.milliseconds() >= pollingRate }
+                timer.reset()
+                pods.values.forEach { it.updateState() }
 //                indicatorLight?.let {
 //                    val nonEmpty = pods.values.filter { it.state != SorterPod.State.EMPTY }
 //                }
-//            }
-//        })
+            }
+        })
     }
 
     fun resetKickers() {
