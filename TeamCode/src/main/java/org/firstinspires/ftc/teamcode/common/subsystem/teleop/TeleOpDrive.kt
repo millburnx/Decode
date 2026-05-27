@@ -63,7 +63,7 @@ class TeleOpDrive(opMode: OpMode, val isRed: Boolean, limelight: Limelight? = nu
 
     override val loop: suspend Command.() -> Unit = {
         with(opMode) {
-            gp1.dPad.up.onPress { limelight?.localizationState = Limelight.LocalizationState.NONE }
+            gp1.dPad.up.ifPressed { limelight?.localizationState = Limelight.LocalizationState.NONE }
 
             follower.update()
             drawRobot()
@@ -73,8 +73,8 @@ class TeleOpDrive(opMode: OpMode, val isRed: Boolean, limelight: Limelight? = nu
 
             if (!isTeleopDrive) return@with
 
-            gp1.b.onPress { useGateAssist = !useGateAssist }
-            gp1.a.onPress { useZoneAssist = !useZoneAssist }
+            gp1.b.ifPressed { useGateAssist = !useGateAssist }
+            gp1.a.ifPressed { useZoneAssist = !useZoneAssist }
 
             if (inZone) useZoneAssist = false
             if ((intake?.targetPower ?: 0.0) < 0.0 || useZoneAssist) useGateAssist = false

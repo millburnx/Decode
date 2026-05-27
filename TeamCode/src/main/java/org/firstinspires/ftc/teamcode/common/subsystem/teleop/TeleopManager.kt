@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.common.subsystem.teleop
 
+import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import org.firstinspires.ftc.teamcode.common.commands.AutoPark
 import org.firstinspires.ftc.teamcode.common.commands.RapidFire
@@ -9,6 +10,7 @@ import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
+@Configurable
 class TeleopManager(
     val opMode: OpMode,
     val drive: TeleOpDrive,
@@ -41,17 +43,17 @@ class TeleopManager(
     override val run: suspend Command.() -> Unit = {
         OpModeLoop(opMode) {
             with(opMode) {
-                gp1.y.onPress {
+                gp1.y.ifPressed {
                     if (!drive.follower.teleopDrive) {
                         autoPark.cancel()
-                        return@onPress
+                        return@ifPressed
                     }
                     scheduler.schedule(autoPark)
                 }
 
                 tel.addData("rotationVelocity", drive.velocity.heading)
 
-                gp1.leftBumper.onPress {
+                gp1.leftBumper.ifPressed {
                     println("triggering rapidfire")
                     rapidFire.trigger(scheduler)
                 }
@@ -73,7 +75,7 @@ class TeleopManager(
 
     companion object {
         @JvmField
-        var rotationVelocityThreshold = 100.0
+        var rotationVelocityThreshold = 0.5
 
         @JvmField
         var sortingUpDuration = 500L

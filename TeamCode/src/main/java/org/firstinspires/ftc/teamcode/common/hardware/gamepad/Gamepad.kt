@@ -4,63 +4,44 @@ class Gamepad(private val gamepad: com.qualcomm.robotcore.hardware.Gamepad) {
     var current: GamepadState = GamepadState(gamepad)
     var prev: GamepadState = GamepadState(gamepad)
 
-    val a = GamepadHooks()
-    val b = GamepadHooks()
-    val x = GamepadHooks()
-    val y = GamepadHooks()
+    val a = GamepadHooks { prev.a to current.a }
+    val b = GamepadHooks { prev.b to current.b }
+    val x = GamepadHooks { prev.x to current.x }
+    val y = GamepadHooks { prev.y to current.y }
 
-    val guide = GamepadHooks()
-    val start = GamepadHooks()
-    val back = GamepadHooks()
+    val guide = GamepadHooks { prev.guide to current.guide }
+    val start = GamepadHooks { prev.start to current.start }
+    val back = GamepadHooks { prev.back to current.back }
 
-    val leftBumper = GamepadHooks()
-    val rightBumper = GamepadHooks()
+    val leftBumper = GamepadHooks { prev.leftBumper to current.leftBumper }
+    val rightBumper = GamepadHooks { prev.rightBumper to current.rightBumper }
 
-    val dPad = DPadHooks()
+    val dPad = DPadHooks { prev.dPad to current.dPad }
+}
 
-    private val map = listOf(
-        ButtonMapping({ prev.a }, { current.a }, a),
-        ButtonMapping({ prev.b }, { current.b }, b),
-        ButtonMapping({ prev.x }, { current.x }, x),
-        ButtonMapping({ prev.y }, { current.y }, y),
-        ButtonMapping({ prev.guide }, { current.guide }, guide),
-        ButtonMapping({ prev.start }, { current.start }, start),
-        ButtonMapping({ prev.back }, { current.back }, back),
-        ButtonMapping({ prev.leftBumper }, { current.leftBumper }, leftBumper),
-        ButtonMapping({ prev.rightBumper }, { current.rightBumper }, rightBumper),
-        ButtonMapping({ prev.dPad.left }, { current.dPad.left }, dPad.left),
-        ButtonMapping({ prev.dPad.up }, { current.dPad.up }, dPad.up),
-        ButtonMapping({ prev.dPad.right }, { current.dPad.right }, dPad.right),
-        ButtonMapping({ prev.dPad.down }, { current.dPad.down }, dPad.down),
-    )
+// Pair<Prev, Current>
+class GamepadHooks(val state: () -> Pair<Boolean, Boolean>) {
+    fun ifPressed(callback: () -> Unit) {
+        val state = state()
+        if (!state.first && state.second) callback()
+    }
 
-    fun triggerHooks() {
-        for ((getPrev, getCurrent, hooks) in map) {
-            val prev = getPrev()
-            val current = getCurrent()
-            if (!prev && current) hooks.pressHooks.forEach { it() }
-            if (prev && !current) hooks.releaseHooks.forEach { it() }
-        }
+    fun ifReleased(callback: () -> Unit) {
+        val state = state()
+        if (state.first && !state.second) callback()
     }
 }
 
-data class ButtonMapping(
-    val prevState: () -> Boolean,
-    val currentState: () -> Boolean,
-    val hooks: GamepadHooks
-)
+// Pair<Prev, Current>
+class DPadHooks(val state: () -> Pair<DPad, DPad>) {
+    private val prev
+        get() = state().first
 
-class GamepadHooks {
-    val pressHooks = mutableListOf<() -> Unit>()
-    val releaseHooks = mutableListOf<() -> Unit>()
+    private val current
+        get() = state().second
 
-    fun onPress(callback: () -> Unit) = pressHooks.add(callback)
-    fun onRelease(callback: () -> Unit) = releaseHooks.add(callback)
-}
-
-class DPadHooks {
-    val left = GamepadHooks()
-    val up = GamepadHooks()
-    val right = GamepadHooks()
-    val down = GamepadHooks()
+    val left = GamepadHooks({ prev.left to current.left })
+    val up = GamepadHooks({ prev.left to current.up })
+    val right = GamepadHooks({ prev.right to current.right })
+    val down = GamepadHooks({ prev.down to current.down })
 }

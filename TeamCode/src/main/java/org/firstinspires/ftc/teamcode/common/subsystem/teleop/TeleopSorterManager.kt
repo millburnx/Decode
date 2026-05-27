@@ -25,16 +25,16 @@ class TeleopSorterManager(
         OpModeLoop(opMode) {
             with(opMode) {
                 // manual sorting
-                gp2.a.onPress { sortingConfig.reset() }
-                gp2.dPad.right.onPress { sortingConfig.pod = null }
+                gp2.a.ifPressed { sortingConfig.reset() }
+                gp2.dPad.right.ifPressed { sortingConfig.pod = null }
 
-                gp2.x.onPress { sortingConfig.pattern = 0 }
-                gp2.y.onPress { sortingConfig.pattern = 1 }
-                gp2.b.onPress { sortingConfig.pattern = 2 }
+                gp2.x.ifPressed { sortingConfig.pattern = 0 }
+                gp2.y.ifPressed { sortingConfig.pattern = 1 }
+                gp2.b.ifPressed { sortingConfig.pattern = 2 }
 
-                gp2.dPad.up.onPress { sortingConfig.pod = Sorter.Pods.FRONT }
-                gp2.dPad.left.onPress { sortingConfig.pod = Sorter.Pods.SIDE }
-                gp2.dPad.down.onPress { sortingConfig.pod = Sorter.Pods.BACK }
+                gp2.dPad.up.ifPressed { sortingConfig.pod = Sorter.Pods.FRONT }
+                gp2.dPad.left.ifPressed { sortingConfig.pod = Sorter.Pods.SIDE }
+                gp2.dPad.down.ifPressed { sortingConfig.pod = Sorter.Pods.BACK }
 
                 indicatorLight.stateFlags[IndicatorLight.State.SORTING] = isSorting
             }
