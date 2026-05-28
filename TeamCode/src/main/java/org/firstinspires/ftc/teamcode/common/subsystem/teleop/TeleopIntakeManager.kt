@@ -12,9 +12,11 @@ import org.firstinspires.ftc.teamcode.opmode.teleop.Teleop.Companion.outtakeBurs
 import kotlin.math.absoluteValue
 
 @Configurable
-class TeleopIntakeManager(val opMode: OpMode, val intake: Intake, val sorter: Sorter) :
-    Subsystem("Teleop Intake Manager") {
-
+class TeleopIntakeManager(
+    val opMode: OpMode,
+    val intake: Intake,
+    val sorter: Sorter,
+) : Subsystem("Teleop Intake Manager") {
     override val run: suspend Command.() -> Unit = {
         var lastIntake = System.currentTimeMillis()
 
@@ -22,6 +24,13 @@ class TeleopIntakeManager(val opMode: OpMode, val intake: Intake, val sorter: So
             val now = System.currentTimeMillis()
 
             val trigger = opMode.gp1.current.rightTrigger - opMode.gp1.current.leftTrigger
+
+            if (autoFullOuttake) {
+                val outtake = -trigger.absoluteValue
+                intake.targetPower = if (sorter.isFull) outtake else trigger
+                return@OpModeLoop
+            }
+
             if (trigger > triggerThreshold) lastIntake = now
             if (trigger.absoluteValue < triggerThreshold && now < lastIntake + outtakeBurstDuration) {
                 intake.targetPower = outtakeBurstPower
@@ -34,5 +43,8 @@ class TeleopIntakeManager(val opMode: OpMode, val intake: Intake, val sorter: So
     companion object {
         @JvmField
         var triggerThreshold = 0.2
+
+        @JvmField
+        var autoFullOuttake = true
     }
 }

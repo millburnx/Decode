@@ -12,33 +12,38 @@ import org.firstinspires.ftc.teamcode.common.hardware.toPedro
 import org.firstinspires.ftc.teamcode.common.subsystem.teleop.TeleOpDrive
 
 @Suppress("FunctionName")
-fun AutoPark(drive: TeleOpDrive, isRed: Boolean, isRunning: () -> Boolean): Command {
-    return Command("Auto Park", {
+fun AutoPark(
+    drive: TeleOpDrive,
+    isRed: Boolean,
+    isRunning: () -> Boolean,
+): Command =
+    Command("Auto Park", {
         drive.isTeleopDrive = true
+        drive.slowMode = false
     })
     {
+        drive.slowMode = false
         drive.isTeleopDrive = false
         drive.follower.followPath(
-            drive.follower.pathBuilder()
+            drive.follower
+                .pathBuilder()
                 .addPath(
                     Path(
                         BezierLine(
                             { drive.pose.toPedro() },
-                            Pose2d(105.0, 33.0, 0.0).mirror(isRed).toPedro()
-                        )
-                    )
-                )
-                .setHeadingInterpolation(
+                            Pose2d(105.0, 33.0, 0.0).mirror(isRed).toPedro(),
+                        ),
+                    ),
+                ).setHeadingInterpolation(
                     HeadingInterpolator.linearFromPoint(
                         { drive.pose.radians },
                         (0.0).toRadians(),
-                        0.5
-                    )
-                )
-                .build()
+                        0.5,
+                    ),
+                ).build(),
         )
         WaitFor { !isRunning() || drive.follower.atParametricEnd() }
         drive.follower.breakFollowing()
         drive.isTeleopDrive = true
+        drive.slowMode = true
     }
-}

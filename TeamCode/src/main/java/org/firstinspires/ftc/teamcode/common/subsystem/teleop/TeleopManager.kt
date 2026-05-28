@@ -5,7 +5,6 @@ import com.millburnx.cmdx.Command
 import org.firstinspires.ftc.teamcode.common.commands.AutoPark
 import org.firstinspires.ftc.teamcode.common.commands.RapidFire
 import org.firstinspires.ftc.teamcode.common.subsystem.*
-import org.firstinspires.ftc.teamcode.common.subsystem.sorter.IndicatorLight
 import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
 import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
@@ -23,22 +22,22 @@ class TeleopManager(
     val indicatorLight: IndicatorLight,
     var isRed: Boolean, // var in case we select the wrong side
 ) : Subsystem("Teleop Manager") {
-
     val intakeManager = TeleopIntakeManager(opMode, intake, sorter)
     val turretManager = TeleopTurretManager(opMode, turret, autoAdjust) { !autoAdjust.enabled }
-    val sorterManager = TeleopSorterManager(opMode, sorter, indicatorLight)
+    val sorterManager = TeleopSorterManager(opMode, drive, sorter, intake, indicatorLight)
 
     val autoPark = AutoPark(drive, isRed) { !opMode.isStopRequested }
-    val rapidFire = RapidFire(
-        drive,
-        sorterManager,
-        turret,
-        flyWheel,
-        indicatorLight,
-        autoAdjust,
-        { liveTracking },
-        { isRed }
-    )
+    val rapidFire =
+        RapidFire(
+            drive,
+            sorterManager,
+            turret,
+            flyWheel,
+            indicatorLight,
+            autoAdjust,
+            { liveTracking },
+            { isRed },
+        )
 
     override val run: suspend Command.() -> Unit = {
         OpModeLoop(opMode) {

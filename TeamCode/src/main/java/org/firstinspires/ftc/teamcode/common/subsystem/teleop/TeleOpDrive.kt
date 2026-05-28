@@ -15,8 +15,12 @@ import org.firstinspires.ftc.teamcode.opmode.test.pedro.StandaloneRotation
 import org.firstinspires.ftc.teamcode.pedro.Constants
 
 @Configurable
-class TeleOpDrive(opMode: OpMode, val isRed: Boolean, limelight: Limelight? = null, val intake: Intake? = null) :
-    Drive(opMode, limelight) {
+class TeleOpDrive(
+    opMode: OpMode,
+    val isRed: Boolean,
+    limelight: Limelight? = null,
+    val intake: Intake? = null,
+) : Drive(opMode, limelight) {
     override val follower = Constants.createManualFusionFollower(opMode.hardwareMap, { opMode.deltaTime }, limelight)
 
     val headingLockController = StandaloneRotation()
@@ -24,6 +28,8 @@ class TeleOpDrive(opMode: OpMode, val isRed: Boolean, limelight: Limelight? = nu
     var useGateAssist = false
 
     var useZoneAssist = false
+
+    var slowMode = false
 
     override val init: suspend Command.() -> Unit = {
         follower.update()
@@ -65,6 +71,9 @@ class TeleOpDrive(opMode: OpMode, val isRed: Boolean, limelight: Limelight? = nu
         with(opMode) {
             gp1.dPad.up.ifPressed { limelight?.localizationState = Limelight.LocalizationState.NONE }
 
+            gp1.leftJoyStick.ifPressed { slowMode = false }
+            gp1.rightJoyStick.ifPressed { slowMode = true }
+
             follower.update()
             drawRobot()
 
@@ -79,16 +88,34 @@ class TeleOpDrive(opMode: OpMode, val isRed: Boolean, limelight: Limelight? = nu
             if (inZone) useZoneAssist = false
             if ((intake?.targetPower ?: 0.0) < 0.0 || useZoneAssist) useGateAssist = false
 
-            val zoneAssist = if (useZoneAssist) {
-                ZoneAssist.calculateRelativeAssist(pose)
-            } else {
-                Vec2d()
-            }
+            val zoneAssist =
+                if (useZoneAssist) {
+                    ZoneAssist.calculateRelativeAssist(pose)
+                } else {
+                    Vec2d()
+                }
+
+            val (forward, strafe, turn) =
+                if (slowMode) {
+                    Triple(
+                        -gp1.current.leftJoyStick.y * slowModeMulti,
+                        -gp1.current.leftJoyStick.x * slowModeMulti,
+                        -gp1.current.rightJoyStick.x * slowModeRotationMulti,
+                    )
+                } else {
+                    Triple(
+                        -gp1.current.leftJoyStick.y
+                            .deadzone(minPower),
+                        -gp1.current.leftJoyStick.x
+                            .deadzone(minPower),
+                        -gp1.current.rightJoyStick.x,
+                    )
+                }
 
             follower.setTeleOpDrive(
-                -gp1.current.leftJoyStick.y.deadzone(minPower) + zoneAssist.x,
-                -gp1.current.leftJoyStick.x.deadzone(minPower) + zoneAssist.y,
-                -gp1.current.rightJoyStick.x + if (useGateAssist) gateAssist() else 0.0,
+                forward + zoneAssist.x,
+                strafe + zoneAssist.y,
+                turn + if (useGateAssist) gateAssist() else 0.0,
             )
         }
     }
@@ -99,5 +126,11 @@ class TeleOpDrive(opMode: OpMode, val isRed: Boolean, limelight: Limelight? = nu
 
         @JvmField
         var minPower = 0.3
+
+        @JvmField
+        var slowModeMulti = 0.3
+
+        @JvmField
+        var slowModeRotationMulti = 0.5
     }
 }

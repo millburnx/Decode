@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.common.hardware.gamepad
 
-class Gamepad(private val gamepad: com.qualcomm.robotcore.hardware.Gamepad) {
+class Gamepad(
+    private val gamepad: com.qualcomm.robotcore.hardware.Gamepad,
+) {
     var current: GamepadState = GamepadState(gamepad)
     var prev: GamepadState = GamepadState(gamepad)
 
@@ -17,10 +19,15 @@ class Gamepad(private val gamepad: com.qualcomm.robotcore.hardware.Gamepad) {
     val rightBumper = GamepadHooks { prev.rightBumper to current.rightBumper }
 
     val dPad = DPadHooks { prev.dPad to current.dPad }
+
+    val leftJoyStick = GamepadHooks { prev.leftJoyStick.down to current.leftJoyStick.down }
+    val rightJoyStick = GamepadHooks { prev.rightJoyStick.down to current.rightJoyStick.down }
 }
 
 // Pair<Prev, Current>
-class GamepadHooks(val state: () -> Pair<Boolean, Boolean>) {
+class GamepadHooks(
+    val state: () -> Pair<Boolean, Boolean>,
+) {
     fun ifPressed(callback: () -> Unit) {
         val state = state()
         if (!state.first && state.second) callback()
@@ -33,7 +40,9 @@ class GamepadHooks(val state: () -> Pair<Boolean, Boolean>) {
 }
 
 // Pair<Prev, Current>
-class DPadHooks(val state: () -> Pair<DPad, DPad>) {
+class DPadHooks(
+    val state: () -> Pair<DPad, DPad>,
+) {
     private val prev
         get() = state().first
 

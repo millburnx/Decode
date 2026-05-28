@@ -7,7 +7,6 @@ import com.millburnx.util.Pose2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.GlobalStore
 import org.firstinspires.ftc.teamcode.common.subsystem.*
-import org.firstinspires.ftc.teamcode.common.subsystem.sorter.IndicatorLight
 import org.firstinspires.ftc.teamcode.common.subsystem.sorter.Sorter
 import org.firstinspires.ftc.teamcode.common.subsystem.teleop.TeleOpDrive
 import org.firstinspires.ftc.teamcode.common.subsystem.teleop.TeleopManager
@@ -22,7 +21,9 @@ class TeleopRed : Teleop(true)
 class TeleopBlue : Teleop(false)
 
 @Configurable
-open class Teleop(val isRed: Boolean) : OpMode() {
+open class Teleop(
+    val isRed: Boolean,
+) : OpMode() {
     override fun run() {
         GlobalStore.useKF = true
 
@@ -31,12 +32,16 @@ open class Teleop(val isRed: Boolean) : OpMode() {
         val intake = Intake(this)
         val drive = TeleOpDrive(this, isRed, limelight, intake)
         val turret = Turret(this, { drive.pose.heading }, { drive.velocity.heading }, { voltageSensor.voltage })
+        val sorter = Sorter(this, indicatorLight)
         limelight.turretHeading = { turret.angle }
         limelight.drawPose = { drive.drawRobot(it, "llPose", "yellow") }
-        limelight.onSwitch = { turret.targetingMode = Turret.TargetingMode.GLOBAL }
+        limelight.onSwitch =
+            {
+                indicatorLight.fullFlash()
+                if (liveTracking) turret.setGlobal() else turret.setRelative()
+            }
         val hood = Hood(this)
         val flyWheel = FlyWheel(this)
-        val sorter = Sorter(this, indicatorLight)
         val autoAdjust = AutoAdjust(this, flyWheel, hood, drive, isRed) { drive.inZoneFarPartial }
 
         drive.pose = GlobalStore.autonPose ?: Pose2d(112.0, 137.0, -90.0).mirror(!isRed)
@@ -46,23 +51,26 @@ open class Teleop(val isRed: Boolean) : OpMode() {
         turret.target = 180.0
         intake.power = 0.0
 
-        val teleopManager = TeleopManager(
-            this,
-            drive,
-            turret,
-            flyWheel,
-            hood,
-            sorter,
-            intake,
-            autoAdjust,
-            indicatorLight,
-            isRed
-        )
+        val teleopManager =
+            TeleopManager(
+                this,
+                drive,
+                turret,
+                flyWheel,
+                hood,
+                sorter,
+                intake,
+                autoAdjust,
+                indicatorLight,
+                isRed,
+            )
 
-        scheduler.schedule(Command {
-            OpModeLoop(this@Teleop) {
-            }
-        })
+        scheduler.schedule(
+            Command {
+                OpModeLoop(this@Teleop) {
+                }
+            },
+        )
     }
 
     companion object {

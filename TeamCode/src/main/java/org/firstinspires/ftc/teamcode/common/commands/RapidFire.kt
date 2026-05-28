@@ -6,8 +6,8 @@ import com.millburnx.cmdxpedro.util.mirror
 import org.firstinspires.ftc.teamcode.common.GlobalStore
 import org.firstinspires.ftc.teamcode.common.subsystem.AutoAdjust
 import org.firstinspires.ftc.teamcode.common.subsystem.FlyWheel
+import org.firstinspires.ftc.teamcode.common.subsystem.IndicatorLight
 import org.firstinspires.ftc.teamcode.common.subsystem.Turret
-import org.firstinspires.ftc.teamcode.common.subsystem.sorter.IndicatorLight
 import org.firstinspires.ftc.teamcode.common.subsystem.teleop.TeleOpDrive
 import org.firstinspires.ftc.teamcode.common.subsystem.teleop.TeleopManager.Companion.sortingDownDuration
 import org.firstinspires.ftc.teamcode.common.subsystem.teleop.TeleopManager.Companion.sortingUpDuration
@@ -32,54 +32,58 @@ class RapidFire(
     val sorter = sorterManager.sorter
 
     fun trigger(scheduler: CommandScheduler) {
-        scheduler.schedule(Command("Rapid Fire Intermediate") {
-            command.cancel()
-            sync()
-            scheduler.schedule(command)
-        })
+        scheduler.schedule(
+            Command("Rapid Fire Intermediate") {
+                command.cancel()
+                sync()
+                scheduler.schedule(command)
+            },
+        )
     }
 
-    private val command = Command("Rapid Fire", {
-        if (liveTracking() && autoAdjust.enabled) turret.setGlobal() else turret.setRelative()
-        sorterManager.sortingConfig.pod = null
-        sorter.resetKickers()
-        flyWheel.setIdle()
-        GlobalStore.useKF = true
-    }) {
-        if (autoAdjust.enabled) turret.setGlobal()
-        flyWheel.setShooting()
-
-        while (!zoneCheck() || !turret.isReady || !flyWheel.atRPM) {
-            println("readyness ${zoneCheck()} ${turret.isReady} ${flyWheel.atRPM}")
-            indicatorLight.stateFlags[IndicatorLight.State.TURRET_DEADZONE] = turret.inDeadzone
-            sync()
-        }
-
-        indicatorLight.stateFlags[IndicatorLight.State.OUT_OF_ZONE] = false
-        indicatorLight.stateFlags[IndicatorLight.State.TURRET_DEADZONE] = false
-        indicatorLight.stateFlags[IndicatorLight.State.FIRING] = true
-
-        GlobalStore.useKF = false
-
-        val sortingPod = sorterManager.greenPod
-        val sortingPattern = sorterManager.sortingConfig.pattern
-        if (sortingPod != null && sortingPattern != null) { // same as sorter.isSorting but prevents race conditions during usage
-            val firingOrder = sorter.getFiringOrder(sortingPod, sortingPattern)
-
-            sorter.run {
-                rapidFire(firingOrder, sortingUpDuration to sortingDownDuration)
-            }
+    private val command =
+        Command("Rapid Fire", {
+            if (liveTracking() && autoAdjust.enabled) turret.setGlobal() else turret.setRelative()
             sorterManager.sortingConfig.pod = null
-        } else {
-            sorter.run {
-                rapidFire(firingSpeed = getFiringSpeed(drive.inZoneFarPartial))
-            }
-        }
+            sorter.resetKickers()
+            flyWheel.setIdle()
+            GlobalStore.useKF = true
+        }) {
+            if (autoAdjust.enabled) turret.setGlobal()
+            flyWheel.setShooting()
 
-        indicatorLight.stateFlags[IndicatorLight.State.FIRING] = false
-        GlobalStore.useKF = true
-        flyWheel.setIdle()
-    }
+            while (!zoneCheck() || !turret.isReady || !flyWheel.atRPM) {
+                println("readyness ${zoneCheck()} ${turret.isReady} ${flyWheel.atRPM}")
+                indicatorLight.stateFlags[IndicatorLight.State.TURRET_DEADZONE] = turret.inDeadzone
+                sync()
+            }
+
+            indicatorLight.stateFlags[IndicatorLight.State.OUT_OF_ZONE] = false
+            indicatorLight.stateFlags[IndicatorLight.State.TURRET_DEADZONE] = false
+            indicatorLight.stateFlags[IndicatorLight.State.FIRING] = true
+
+            GlobalStore.useKF = false
+
+            val sortingPod = sorterManager.greenPod
+            val sortingPattern = sorterManager.sortingConfig.pattern
+            if (sortingPod != null && sortingPattern != null) { // same as sorter.isSorting but prevents race conditions during usage
+                val firingOrder = sorter.getFiringOrder(sortingPod, sortingPattern)
+
+                sorter.run {
+                    rapidFire(firingOrder, sortingUpDuration to sortingDownDuration)
+                }
+                sorterManager.sortingConfig.pod = null
+            } else {
+                sorter.run {
+                    rapidFire(firingSpeed = getFiringSpeed(drive.inZoneFarPartial))
+                }
+            }
+
+            indicatorLight.stateFlags[IndicatorLight.State.FIRING] = false
+            GlobalStore.useKF = true
+            flyWheel.setIdle()
+            if (!liveTracking() || !autoAdjust.enabled) turret.setRelative()
+        }
 
     private fun zoneCheck(): Boolean {
         if (!useZoneCheck) return true
