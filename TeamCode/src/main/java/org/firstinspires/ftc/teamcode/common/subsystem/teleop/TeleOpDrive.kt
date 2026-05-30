@@ -69,7 +69,7 @@ class TeleOpDrive(
 
     override val loop: suspend Command.() -> Unit = {
         with(opMode) {
-            gp1.dPad.up.ifPressed { limelight?.localizationState = Limelight.LocalizationState.NONE }
+            gp1.leftBumper.ifPressed { limelight?.localizationState = Limelight.LocalizationState.NONE }
 
             gp1.leftJoyStick.ifPressed { slowMode = false }
             gp1.rightJoyStick.ifPressed { slowMode = true }

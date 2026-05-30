@@ -23,7 +23,7 @@ class TeleopManager(
     var isRed: Boolean, // var in case we select the wrong side
 ) : Subsystem("Teleop Manager") {
     val intakeManager = TeleopIntakeManager(opMode, intake, sorter)
-    val turretManager = TeleopTurretManager(opMode, turret, autoAdjust) { !autoAdjust.enabled }
+    val turretManager = TeleopTurretManager(opMode, turret, autoAdjust, { isRed }) { !autoAdjust.enabled }
     val sorterManager = TeleopSorterManager(opMode, drive, sorter, intake, indicatorLight)
 
     val autoPark = AutoPark(drive, isRed) { !opMode.isStopRequested }
@@ -52,7 +52,7 @@ class TeleopManager(
 
                 tel.addData("rotationVelocity", drive.velocity.heading)
 
-                gp1.leftBumper.ifPressed {
+                gp1.rightBumper.ifPressed {
                     println("triggering rapidfire")
                     rapidFire.trigger(scheduler)
                 }

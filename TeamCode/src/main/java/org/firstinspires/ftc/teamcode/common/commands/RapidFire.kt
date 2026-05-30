@@ -86,7 +86,7 @@ class RapidFire(
         }
 
     private fun zoneCheck(): Boolean {
-        if (!useZoneCheck) return true
+        if (!useZoneCheck || !autoAdjust.enabled) return true
         val goal = AutoAdjust.goal.mirror(isRed())
         val finalResult = drive.inZonePartial && (drive.pose.distanceTo(goal) > minDistToGoal)
         indicatorLight.stateFlags[IndicatorLight.State.OUT_OF_ZONE] = !finalResult
