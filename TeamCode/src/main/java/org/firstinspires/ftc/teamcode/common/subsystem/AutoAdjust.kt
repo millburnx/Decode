@@ -35,20 +35,24 @@ class AutoAdjust(
 
                 val rawGoal = (if (isFarZone()) goalFar else goal).mirror(isRed)
 
-                val cmd = planner.plan(
-                    robotPose = drive.pose,
-                    vx = drive.velocity.x,
-                    vy = drive.velocity.y,
-                    omegaDeg = drive.velocity.heading,
-                    realGoal = rawGoal,
-                    measuredRpm = flyWheel.shootingRPM,
-                )
+                val cmd =
+                    planner.plan(
+                        robotPose = drive.pose,
+                        vx = drive.velocity.x,
+                        vy = drive.velocity.y,
+                        omegaDeg = drive.velocity.heading,
+                        realGoal = rawGoal,
+                        measuredRpm = flyWheel.shootingRPM,
+                    )
 
                 tel.addData(
                     "lead angle",
                     normalizeDegrees(
-                        cmd.turretAngleDeg(drive.pose.position) - drive.pose.position.angleTo(rawGoal).toDegrees()
-                    )
+                        cmd.turretAngleDeg(drive.pose.position) -
+                            drive.pose.position
+                                .angleTo(rawGoal)
+                                .toDegrees(),
+                    ),
                 )
 
                 val turretPose = drive.pose.position + Vec2d(turretX, turretY).rotate(drive.pose.radians) / 25.4
@@ -105,5 +109,8 @@ class AutoAdjust(
 
         @JvmField
         var turretY = -16.0
+
+        @JvmField
+        var turretOffset = 2.0
     }
 }

@@ -25,21 +25,27 @@ import com.pedropathing.control.PIDFCoefficients as PedroPIDFCoeff
  * Input is to be transformed into the internal range
  */
 @Configurable
-class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Double, val voltage: () -> Double) :
-    Subsystem("Turret") {
+class Turret(
+    opMode: OpMode,
+    val heading: () -> Double,
+    val velocity: () -> Double,
+    val voltage: () -> Double,
+) : Subsystem("Turret") {
     val analog = AnalogEncoder(opMode.hardwareMap, analogName, analogReversed)
     val quadature = Encoder(opMode.hardwareMap, quadatureName, quadratureReversed)
     val motor = ManualMotor(opMode.hardwareMap, motorName, motorReversed)
 
-    val startingAnalog = run {
-        analog.update()
-        (analog.rawPosition - 0.5) * 360.0
-    }
+    val startingAnalog =
+        run {
+            analog.update()
+            (analog.rawPosition - 0.5) * 360.0
+        }
         get() = field + startingOffset
 
-    var driftKF = DriftKalmanFilter {
-        kfConfig
-    }
+    var driftKF =
+        DriftKalmanFilter {
+            kfConfig
+        }
 
     private val _angle
         get() = quadature.position * TICKS_TO_DEGREES + startingAnalog + driftKF.drift
@@ -79,14 +85,21 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
     }
 
     private val relativeTarget
-        get() = when (targetingMode) {
-            TargetingMode.OFF -> Double.NEGATIVE_INFINITY
-            TargetingMode.RELATIVE -> target
-            TargetingMode.GLOBAL -> {
-                val heading = heading()
-                normalizeDegrees(target - heading)
+        get() =
+            when (targetingMode) {
+                TargetingMode.OFF -> {
+                    Double.NEGATIVE_INFINITY
+                }
+
+                TargetingMode.RELATIVE -> {
+                    target
+                }
+
+                TargetingMode.GLOBAL -> {
+                    val heading = heading()
+                    normalizeDegrees(target - heading)
+                }
             }
-        }
 
     private val _target
         get() = normalizeDegrees(relativeTarget - 180.0).clamp(min, max)
@@ -109,63 +122,64 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
             return atTarget && !inDeadzone && isSteady
         }
 
-    val controller = StandaloneRotation(
-        useWraparound = false,
-        { PedroPIDFCoeff(coeff.kP, coeff.kI, coeff.kD, coeff.kS) },
-        { PedroPIDFCoeff(coeffSecondary.kP, coeffSecondary.kI, coeffSecondary.kD, coeffSecondary.kS) },
-        { useSecondary }
-    )
+    val controller =
+        StandaloneRotation(
+            useWraparound = false,
+            { PedroPIDFCoeff(coeff.kP, coeff.kI, coeff.kD, coeff.kS) },
+            { PedroPIDFCoeff(coeffSecondary.kP, coeffSecondary.kI, coeffSecondary.kD, coeffSecondary.kS) },
+            { useSecondary },
+        )
 
-    override val run
-            : suspend Command .()
-    -> Unit = {
-        OpModeLoop(opMode) {
-            with(opMode) {
-                averagedQuadatureVelocity.update(abs(quadatureVelocity))
-                if (targetingMode == TargetingMode.OFF) {
-                    motor.power = 0.0
-                } else {
-                    val driveCompFF = if (targetingMode == TargetingMode.GLOBAL) kR * -velocity() else 0.0
-                    val pidf = controller.calc(_angle.toRadians(), _target.toRadians()) + driveCompFF
-                    val ks = sign(pidf) * coeff.kS
+    override val run: suspend Command.()
+    -> Unit =
+        {
+            OpModeLoop(opMode) {
+                with(opMode) {
+                    averagedQuadatureVelocity.update(abs(quadatureVelocity))
+                    if (targetingMode == TargetingMode.OFF) {
+                        motor.power = 0.0
+                    } else {
+                        val driveCompFF = if (targetingMode == TargetingMode.GLOBAL) kR * -velocity() else 0.0
+                        val pidf = controller.calc(_angle.toRadians(), _target.toRadians()) + driveCompFF
+                        val ks = sign(pidf) * coeff.kS
 
-                    val rawPower = pidf
-                    val power =
-                        if (abs(rawPower) < minPower) rawPower * abs(rawPower).pow(2) / minPower.pow(2) else rawPower
+                        val rawPower = pidf
+                        val power =
+                            if (abs(rawPower) < minPower) rawPower * abs(rawPower).pow(2) / minPower.pow(2) else rawPower
 
-                    val voltage = voltage()
-                    val voltageComp = if (voltage != 0.0) (12.0 / voltage) else 1.0
+                        val voltage = voltage()
+                        val voltageComp = if (voltage != 0.0) (12.0 / voltage) else 1.0
 
-                    motor.power = power * voltageComp
+                        motor.power = power * voltageComp
 
-                    if (useTelemetry) {
-                        tel.addData("turret | power", power)
-                        tel.addData("turret | kv", driveCompFF)
+                        if (useTelemetry) {
+                            tel.addData("turret | power", power)
+                            tel.addData("turret | kv", driveCompFF)
+                        }
                     }
-                }
-                if (useTelemetry) {
-                    tel.addData("turret | dv", velocity())
-                    tel.addData("turret | qv", quadatureVelocity)
-                    tel.addData("turret | aqv", averagedQuadatureVelocity.average)
+                    if (useTelemetry) {
+                        tel.addData("turret | dv", velocity())
+                        tel.addData("turret | qv", quadatureVelocity)
+                        tel.addData("turret | aqv", averagedQuadatureVelocity.average)
 
-                    tel.addData("turret | ea", angle)
-                    tel.addData("turret | ra", heading())
-                    tel.addData("turret | ta", normalizeDegrees(angle + heading()))
-                    tel.addData("turret | it", _target)
-                    tel.addData("turret | rt", relativeTarget)
-                    tel.addData("turret | et", target)
-                    tel.addData("turret | drift", driftKF.drift)
-                    tel.addData("turret | ia", _angle)
-                    tel.addData("turret | ia (w/o)", _angle - driftKF.drift)
-                    tel.addData("turret | at target", atTarget)
-                    tel.addData("turret | in deadzone", inDeadzone)
-                }
+                        tel.addData("turret | ea", angle)
+                        tel.addData("turret | ra", heading())
+                        tel.addData("turret | ta", normalizeDegrees(angle + heading()))
+                        tel.addData("turret | it", _target)
+                        tel.addData("turret | rt", relativeTarget)
+                        tel.addData("turret | et", target)
+                        tel.addData("turret | drift", driftKF.drift)
+                        tel.addData("turret | ia", _angle)
+                        tel.addData("turret | ia (w/o)", _angle - driftKF.drift)
+                        tel.addData("turret | at target", atTarget)
+                        tel.addData("turret | in deadzone", inDeadzone)
+                    }
 
-                analog.update()
-                driftKF.update(_angle - driftKF.drift, approxAnalog())
+                    analog.update()
+                    driftKF.update(_angle - driftKF.drift, approxAnalog())
+                }
             }
         }
-    }
 
     fun approxAnalog(): Double {
         val analogAngle = normalizeDegrees((analog.rawPosition - 0.5) * 360.0 + startingOffset)
@@ -178,7 +192,7 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
     enum class TargetingMode {
         OFF,
         RELATIVE,
-        GLOBAL
+        GLOBAL,
     }
 
     companion object {
@@ -225,10 +239,7 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
         var minPower = 0.0
 
         @JvmField
-        var startingOffset = -8.0
-
-        @JvmField
-        var refreshRate = 500L
+        var startingOffset = -4.0
 
         @JvmField
         var threshold = 10.0
@@ -240,14 +251,15 @@ class Turret(opMode: OpMode, val heading: () -> Double, val velocity: () -> Doub
         var velocityAverageDuration = 250.0
 
         @JvmField
-        var kfConfig = DriftKalmanFilter.Config(
-            startingUncertainty = .01,
-            processNoise = 0.01, // q
-            measurementNoise = 1.0, // r
-            maxGain = 0.1,
-            maxDist = 10.0,
-            minUncertainty = 1e-3
-        )
+        var kfConfig =
+            DriftKalmanFilter.Config(
+                startingUncertainty = .01,
+                processNoise = 0.01, // q
+                measurementNoise = 1.0, // r
+                maxGain = 0.1,
+                maxDist = 10.0,
+                minUncertainty = 1e-3,
+            )
 
         @JvmField
         var useTelemetry = false

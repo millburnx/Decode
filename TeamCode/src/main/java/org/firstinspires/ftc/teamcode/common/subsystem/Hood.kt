@@ -9,7 +9,9 @@ import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
 @Configurable
-class Hood(opMode: OpMode) : Subsystem("Hood") {
+class Hood(
+    opMode: OpMode,
+) : Subsystem("Hood") {
     val servo = ManualServo(opMode.hardwareMap, servoName, servoReversed)
 
     var target = 0.0
@@ -32,9 +34,9 @@ class Hood(opMode: OpMode) : Subsystem("Hood") {
         var servoReversed = true
 
         @JvmField
-        var min: Double = 0.1
+        var min: Double = 0.14
 
         @JvmField
-        var max: Double = 0.96
+        var max: Double = 1.0
     }
 }

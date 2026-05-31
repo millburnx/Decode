@@ -14,7 +14,10 @@ import org.firstinspires.ftc.teamcode.common.util.OpModeLoop
 import org.firstinspires.ftc.teamcode.opmode.OpMode
 
 @Configurable
-class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("Sorter Pod") {
+class SorterPod(
+    val opMode: OpMode,
+    val getConfig: () -> Config,
+) : Subsystem("Sorter Pod") {
     val config // for hot reloading
         get() = getConfig()
 
@@ -26,25 +29,25 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
     var state = State.EMPTY
 
     override val run: suspend Command.() -> Unit = {
-        opMode.scheduler.schedule(Command {
-
-        })
+        opMode.scheduler.schedule(
+            Command {
+            },
+        )
         OpModeLoop(opMode) {
             with(opMode) {
-                servo.position = if (isUp) {
-                    config.upPosition
-                } else {
-                    config.downPosition
-                }
+                servo.position =
+                    if (isUp) {
+                        config.upPosition
+                    } else {
+                        config.downPosition
+                    }
 
                 if (config.useTelemetry) tel.addData("pod | state", state)
             }
         }
     }
 
-    suspend fun Command.kick(
-        durations: Pair<Long, Long>
-    ) {
+    suspend fun Command.kick(durations: Pair<Long, Long>) {
         val (upDuration, downDuration) = durations
         isUp = true
         SleepFor { if (config.isAxon) axonDurationUp else upDuration }
@@ -62,11 +65,12 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
             if (v3Dist < distThresV3) {
                 // v3 has a detection
                 val hsv = v3.normalizedColors.toHSV()
-                state = if (hsv.saturation < satThresV3) {
-                    State.PURPLE
-                } else {
-                    State.GREEN
-                }
+                state =
+                    if (hsv.saturation < satThresV3) {
+                        State.PURPLE
+                    } else {
+                        State.GREEN
+                    }
 
                 if (config.useTelemetry) opMode.tel.addData("pod | sensor", 0)
                 if (config.useTelemetry) opMode.tel.addData("pod | h", hsv.hue)
@@ -83,11 +87,12 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
             }
             // v2 has a detection
             val hsv = v3.normalizedColors.toHSV()
-            state = if (hsv.hue > hueThresV2) {
-                State.PURPLE
-            } else {
-                State.GREEN
-            }
+            state =
+                if (hsv.hue > hueThresV2) {
+                    State.PURPLE
+                } else {
+                    State.GREEN
+                }
             if (config.useTelemetry) opMode.tel.addData("pod | sensor", 1)
             if (config.useTelemetry) opMode.tel.addData("pod | h", hsv.hue)
             if (config.useTelemetry) opMode.tel.addData("pod | s", hsv.saturation)
@@ -96,29 +101,52 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
     }
 
     companion object {
-        fun fromSlot(opMode: OpMode, slot: Slot): SorterPod {
-            val config = when (slot) {
-                Slot.FRONT -> frontConfig
-                Slot.BACK -> backConfig
-                Slot.SIDE -> sideConfig
-            }
+        fun fromSlot(
+            opMode: OpMode,
+            slot: Slot,
+        ): SorterPod {
+            val config =
+                when (slot) {
+                    Slot.FRONT -> frontConfig
+                    Slot.BACK -> backConfig
+                    Slot.SIDE -> sideConfig
+                }
             return SorterPod(opMode) { config }
         }
 
         @JvmField // done
-        var frontConfig = Config(
-            "s0", false, .4, .8, "c1e", "c2e"
-        )
+        var frontConfig =
+            Config(
+                "s0",
+                false,
+                .4,
+                .8,
+                "c1e",
+                "c2e",
+            )
 
         @JvmField
-        var backConfig = Config(
-            "s3", false, .35, .67, "c0", "c0e", isAxon = true
-        )
+        var backConfig =
+            Config(
+                "s3",
+                false,
+                .36,
+                .67,
+                "c0",
+                "c0e",
+                isAxon = true,
+            )
 
         @JvmField
-        var sideConfig = Config(
-            "s4", true, .30, .70, "c2", "c1"
-        )
+        var sideConfig =
+            Config(
+                "s4",
+                true,
+                .31,
+                .80,
+                "c2",
+                "c1",
+            )
 
         @JvmField
         var axonDurationUp = 500L
@@ -140,11 +168,15 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
     }
 
     enum class Slot {
-        FRONT, BACK, SIDE
+        FRONT,
+        BACK,
+        SIDE,
     }
 
     enum class State {
-        EMPTY, PURPLE, GREEN,
+        EMPTY,
+        PURPLE,
+        GREEN,
     }
 
     @Configurable
@@ -158,7 +190,7 @@ class SorterPod(val opMode: OpMode, val getConfig: () -> Config) : Subsystem("So
         var v3Name: String,
         var v3Gain: Double = 10.0,
         var useTelemetry: Boolean = false,
-        var isAxon: Boolean = false
+        var isAxon: Boolean = false,
     )
 }
 

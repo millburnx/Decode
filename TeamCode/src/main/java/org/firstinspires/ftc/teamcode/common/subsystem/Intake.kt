@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.common.subsystem
 
-import com.arcrobotics.ftclib.kotlin.extensions.util.clamp
 import com.bylazar.configurables.annotations.Configurable
 import com.millburnx.cmdx.Command
 import org.firstinspires.ftc.teamcode.common.hardware.manual.ManualMotor
@@ -27,7 +26,8 @@ class Intake(opMode: OpMode) : Subsystem("Intake") {
         OpModeLoop(opMode) {
             // asymmetrically slew rate power
             val slewRate = if (sign(_power) == sign(targetPower)) accelerationRate else decelerationRate
-            _power += (targetPower - _power).clamp(-slewRate, slewRate)
+//            _power += (targetPower - _power).clamp(-slewRate, slewRate)
+            _power = targetPower
 
             motor.power = _power
         }
